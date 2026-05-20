@@ -181,6 +181,63 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 32px;height:60px;d
 
 /* ── FOOTER ── */
 footer{padding:40px 32px;text-align:center;color:var(--muted);font-size:.75rem;border-top:1px solid rgba(255,255,255,.05);}
+
+/* ══ 2-3s ENTRANCE ANIMATIONS ══ */
+
+/* Logo circles — spin + bloom on scroll enter */
+@keyframes logoSpin{
+  0%{opacity:0;transform:scale(0.5) rotate(-200deg);filter:blur(12px);}
+  55%{opacity:1;transform:scale(1.12) rotate(8deg);filter:blur(0);}
+  75%{transform:scale(0.96) rotate(-3deg);}
+  100%{opacity:1;transform:scale(1) rotate(0);}
+}
+.logo-circle-lg{animation:logoSpin 2.4s cubic-bezier(.16,1,.3,1) both;animation-play-state:paused;}
+.section-inner.visible .logo-circle-lg{animation-play-state:running;}
+
+/* Continuous glow pulse after spin */
+@keyframes glowPulse{
+  0%,100%{box-shadow:0 0 16px var(--glow-c,rgba(0,170,255,0.3)),0 0 40px var(--glow-c,rgba(0,170,255,0.1));}
+  50%{box-shadow:0 0 32px var(--glow-c,rgba(0,170,255,0.6)),0 0 80px var(--glow-c,rgba(0,170,255,0.2));}
+}
+.section-inner.visible .logo-circle-lg{animation:logoSpin 2.4s cubic-bezier(.16,1,.3,1) both,glowPulse 3s ease-in-out 2.4s infinite;}
+
+/* Hero logo dots — staggered ring pop */
+@keyframes ringPop{
+  0%{opacity:0;transform:scale(0) rotate(-90deg);}
+  65%{opacity:1;transform:scale(1.18) rotate(6deg);}
+  82%{transform:scale(0.93) rotate(-2deg);}
+  100%{opacity:1;transform:scale(1) rotate(0);}
+}
+.hero.visible .logo-dot:nth-child(1) .ld-ring{animation:ringPop 2s cubic-bezier(.16,1,.3,1) .9s both;}
+.hero.visible .logo-dot:nth-child(2) .ld-ring{animation:ringPop 2s cubic-bezier(.16,1,.3,1) 1.15s both;}
+.hero.visible .logo-dot:nth-child(3) .ld-ring{animation:ringPop 2s cubic-bezier(.16,1,.3,1) 1.4s both;}
+.hero.visible .logo-dot:nth-child(4) .ld-ring{animation:ringPop 2s cubic-bezier(.16,1,.3,1) 1.65s both;}
+
+/* Sweep-demo images — shimmer fade-in */
+@keyframes shimmerIn{
+  0%{opacity:0;transform:scale(0.96) translateX(-8px);filter:saturate(0) brightness(0.5);}
+  50%{filter:saturate(2.5) brightness(1.3);}
+  100%{opacity:1;transform:scale(1) translateX(0);filter:inherit;}
+}
+.section-inner.visible .sweep-demo{animation:shimmerIn 2.2s cubic-bezier(.16,1,.3,1) .5s both;}
+
+/* Stat cards — pop in staggered */
+@keyframes statPop{
+  0%{opacity:0;transform:translateY(16px) scale(0.88);}
+  65%{transform:translateY(-3px) scale(1.04);}
+  100%{opacity:1;transform:translateY(0) scale(1);}
+}
+.section-inner.visible .stat{animation:statPop .7s cubic-bezier(.16,1,.3,1) both;}
+.section-inner.visible .stat:nth-child(1){animation-delay:.25s;}
+.section-inner.visible .stat:nth-child(2){animation-delay:.4s;}
+.section-inner.visible .stat:nth-child(3){animation-delay:.55s;}
+
+/* Stat numbers — count-up highlight flash */
+@keyframes numFlash{
+  0%,100%{color:inherit;}
+  50%{filter:brightness(2.5);}
+}
+.stat-num.counting{animation:numFlash 2s ease;}
 </style>
 </head>
 <body>
@@ -387,6 +444,33 @@ const io=new IntersectionObserver(entries=>{
 },{threshold:0.12,rootMargin:'0px 0px -60px 0px'});
 
 document.querySelectorAll('.section-inner,.feature').forEach(el=>io.observe(el));
+
+// ── STAT COUNT-UP ─────────────────────────────────────────────────────────────
+function countUp(el){
+  const raw=el.textContent.trim();
+  const num=parseFloat(raw.replace(/[^0-9.]/g,''));
+  if(isNaN(num)||num>9999)return;
+  const suffix=raw.replace(/[0-9.]/g,'');
+  const dur=1800;
+  const start=performance.now();
+  el.classList.add('counting');
+  (function frame(now){
+    const p=Math.min((now-start)/dur,1);
+    const ease=1-Math.pow(1-p,3);
+    el.textContent=Math.round(num*ease)+suffix;
+    if(p<1)requestAnimationFrame(frame);
+    else el.textContent=raw;
+  })(start);
+}
+const statIO=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.querySelectorAll('.stat-num').forEach(countUp);
+      statIO.unobserve(e.target);
+    }
+  });
+},{threshold:0.3});
+document.querySelectorAll('.stats').forEach(s=>statIO.observe(s));
 
 // Stagger features
 document.querySelectorAll('.features').forEach(grid=>{
