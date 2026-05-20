@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UMAS Group — Hologram</title>
+<style>
+:root{
+  --bg:#04040d;--surface:#0c0c1a;--card:#121228;
+  --blue:#00aaff;--orange:#ff6633;--purple:#a78bfa;--green:#22c55e;
+  --text:#e8f0fe;--muted:#4a5568;--radius:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,system-ui,sans-serif;overflow-x:hidden;}
+
+/* ── PROGRESS BAR ── */
+#progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#00aaff,#a78bfa,#ff6633);width:0%;z-index:1000;transition:width .1s;}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;background:rgba(4,4,13,0.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06);}
+.nav-logo{font-size:.85rem;font-weight:700;letter-spacing:.1em;background:linear-gradient(90deg,#00aaff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.nav-links{display:flex;gap:24px;}
+.nav-links a{font-size:.78rem;color:var(--muted);text-decoration:none;letter-spacing:.05em;transition:color .2s;text-transform:uppercase;}
+.nav-links a:hover{color:var(--text);}
+@media(max-width:600px){.nav-links{gap:12px;}.nav-links a{font-size:.65rem;}}
+
+/* ── HERO ── */
+.hero{
+  position:relative;height:100vh;min-height:600px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:80px 24px 40px;overflow:hidden;
+}
+.hero-bg{
+  position:absolute;inset:0;
+  background:url('./hologram.png') center/cover no-repeat;
+  filter:brightness(0.55) saturate(1.4);
+  transform:scale(1.05);
+  transition:transform 8s ease;
+}
+.hero-bg.loaded{transform:scale(1);}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(4,4,13,0.3) 0%,rgba(4,4,13,0.0) 40%,rgba(4,4,13,0.8) 85%,rgba(4,4,13,1) 100%);}
+.scanlines{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.12) 3px,rgba(0,0,0,0.12) 4px);pointer-events:none;}
+
+.hero-content{position:relative;z-index:2;}
+.hero-tag{
+  display:inline-block;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;
+  background:rgba(0,170,255,0.1);border:1px solid rgba(0,170,255,0.3);color:#60c8ff;
+  padding:5px 16px;border-radius:99px;margin-bottom:20px;
+  opacity:0;transform:translateY(-16px);transition:opacity .7s .2s,transform .7s .2s;
+}
+.hero h1{
+  font-size:clamp(2.2rem,7vw,5rem);font-weight:800;line-height:1.05;margin-bottom:16px;
+  opacity:0;transform:translateY(20px);transition:opacity .8s .4s,transform .8s .4s;
+}
+.hero h1 span{background:linear-gradient(135deg,#00aaff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero p{font-size:clamp(.85rem,2vw,1.05rem);color:rgba(232,240,254,.65);max-width:500px;line-height:1.7;margin-bottom:36px;opacity:0;transform:translateY(16px);transition:opacity .7s .6s,transform .7s .6s;}
+.hero.visible .hero-tag,.hero.visible h1,.hero.visible p{opacity:1;transform:translateY(0);}
+
+/* LOGO NAV DOTS */
+.logo-nav{
+  position:relative;z-index:2;display:flex;gap:clamp(16px,4vw,40px);flex-wrap:wrap;justify-content:center;
+  opacity:0;transform:translateY(20px);transition:opacity .7s .8s,transform .7s .8s;
+}
+.hero.visible .logo-nav{opacity:1;transform:translateY(0);}
+.logo-dot{
+  display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;
+  text-decoration:none;transition:transform .2s;
+}
+.logo-dot:hover{transform:translateY(-4px);}
+.logo-dot:hover .ld-ring{box-shadow:0 0 24px var(--glow),0 0 48px var(--glow);}
+.ld-ring{
+  width:clamp(60px,12vw,90px);height:clamp(60px,12vw,90px);border-radius:50%;
+  border:2px solid;display:flex;align-items:center;justify-content:center;
+  font-size:clamp(1.4rem,3vw,2rem);font-weight:900;
+  background:rgba(0,0,0,0.4);backdrop-filter:blur(8px);
+  transition:box-shadow .3s;
+}
+.ld-label{font-size:clamp(.6rem,.9vw,.72rem);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
+
+.scroll-cue{
+  position:absolute;bottom:28px;left:50%;transform:translateX(-50%);
+  font-size:.7rem;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  animation:bounce 2.5s ease-in-out infinite;
+  opacity:0;transition:opacity .5s 1.6s;
+}
+.hero.visible .scroll-cue{opacity:1;}
+.scroll-cue::after{content:'';width:1px;height:32px;background:linear-gradient(to bottom,var(--muted),transparent);}
+@keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(6px);}}
+
+/* ── SECTIONS ── */
+.section{
+  padding:clamp(80px,12vw,140px) clamp(20px,6vw,80px);
+  max-width:1100px;margin:0 auto;
+}
+.section-inner{
+  opacity:0;transform:translateY(48px);
+  transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1);
+}
+.section-inner.visible{opacity:1;transform:translateY(0);}
+
+.section-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;
+  padding:4px 14px;border-radius:99px;margin-bottom:20px;
+}
+.section h2{font-size:clamp(1.8rem,4vw,3rem);font-weight:800;margin-bottom:16px;line-height:1.1;}
+.section p{font-size:clamp(.85rem,1.5vw,.95rem);color:rgba(232,240,254,.6);line-height:1.8;max-width:580px;margin-bottom:24px;}
+
+/* LOGO LARGE */
+.section-logo-wrap{
+  display:flex;align-items:center;gap:clamp(24px,5vw,60px);
+  margin-bottom:40px;flex-wrap:wrap;
+}
+.logo-circle-lg{
+  width:clamp(90px,15vw,140px);height:clamp(90px,15vw,140px);border-radius:50%;
+  border:2px solid;display:flex;align-items:center;justify-content:center;
+  font-size:clamp(2rem,4vw,3.2rem);font-weight:900;
+  flex-shrink:0;position:relative;overflow:hidden;
+}
+.logo-circle-lg::before{
+  content:'';position:absolute;inset:0;border-radius:50%;
+  background:inherit;filter:blur(20px);opacity:.25;transform:scale(1.4);
+}
+.logo-circle-lg span{position:relative;z-index:1;}
+
+/* STATS ROW */
+.stats{display:flex;gap:clamp(16px,3vw,32px);flex-wrap:wrap;margin-bottom:32px;}
+.stat{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:clamp(12px,2vw,20px) clamp(16px,3vw,28px);}
+.stat-num{font-size:clamp(1.4rem,3vw,2rem);font-weight:800;line-height:1;}
+.stat-label{font-size:.72rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-top:4px;}
+
+/* FEATURES */
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:32px;}
+.feature{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:20px;
+  opacity:0;transform:translateY(24px);transition:opacity .6s,transform .6s;}
+.feature.visible{opacity:1;transform:translateY(0);}
+.feature-icon{font-size:1.4rem;margin-bottom:10px;}
+.feature h4{font-size:.88rem;font-weight:700;margin-bottom:6px;}
+.feature p{font-size:.75rem;color:var(--muted);line-height:1.6;margin:0;}
+
+/* DIVIDER */
+.divider{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);margin:0 clamp(20px,6vw,80px);}
+
+/* ── SWEEP ANIMATION DEMO ── */
+.sweep-demo{
+  position:relative;border-radius:var(--radius);overflow:hidden;
+  height:clamp(180px,30vw,320px);margin:32px 0;
+  background:url('./hologram.png') center/cover;
+  filter:saturate(1.5) contrast(1.2);cursor:pointer;
+}
+.sweep-demo::after{
+  content:'TAP TO SWEEP';position:absolute;bottom:12px;right:14px;
+  font-size:.65rem;letter-spacing:.1em;color:rgba(255,255,255,.5);
+}
+.sweep-overlay{
+  position:absolute;inset:0;
+  background:rgba(0,170,255,0.05);
+  transform:translateX(-100%);
+  transition:none;
+  pointer-events:none;
+}
+.sweep-demo.sweeping .sweep-overlay{
+  animation:sweepThrough .8s cubic-bezier(.4,0,.2,1) forwards;
+}
+@keyframes sweepThrough{
+  0%{transform:translateX(-100%);filter:blur(0px);opacity:0;}
+  20%{transform:translateX(-20%);filter:blur(16px);opacity:1;background:rgba(0,170,255,0.3);}
+  50%{transform:translateX(20%);filter:blur(28px);opacity:0.8;}
+  80%{transform:translateX(80%);filter:blur(12px);opacity:0.4;}
+  100%{transform:translateX(120%);filter:blur(0px);opacity:0;}
+}
+
+/* CTA */
+.cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px;}
+.btn-primary{background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;border:none;border-radius:10px;padding:clamp(10px,2vw,14px) clamp(20px,4vw,28px);font-size:clamp(.8rem,1.5vw,.9rem);font-weight:700;cursor:pointer;transition:transform .15s,opacity .15s;text-decoration:none;display:inline-block;}
+.btn-primary:hover{transform:scale(1.03);opacity:.9;}
+.btn-outline{background:transparent;color:var(--text);border:1.5px solid rgba(255,255,255,.15);border-radius:10px;padding:clamp(10px,2vw,14px) clamp(20px,4vw,28px);font-size:clamp(.8rem,1.5vw,.9rem);cursor:pointer;transition:border-color .2s;text-decoration:none;display:inline-block;}
+.btn-outline:hover{border-color:rgba(255,255,255,.4);}
+
+/* ── FOOTER ── */
+footer{padding:40px 32px;text-align:center;color:var(--muted);font-size:.75rem;border-top:1px solid rgba(255,255,255,.05);}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<nav>
+  <div class="nav-logo">UMAS GROUP</div>
+  <div class="nav-links">
+    <a href="#mafs">MAFS</a>
+    <a href="#iuvw">IUVW</a>
+    <a href="#umas">UMAS</a>
+    <a href="#verveware">Verveware</a>
+  </div>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section class="hero" id="top">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-overlay"></div>
+  <div class="scanlines"></div>
+  <div class="hero-content">
+    <div class="hero-tag">Chicagoland · Illinois</div>
+    <h1>Four Organizations.<br><span>One Mission.</span></h1>
+    <p>Serving families, advancing wellness, building community and technology across the Chicago metro area.</p>
+    <div class="logo-nav">
+      <a class="logo-dot" href="#mafs" style="--glow:rgba(0,170,255,0.6)">
+        <div class="ld-ring" style="border-color:rgba(0,170,255,0.5);color:#00aaff;background:rgba(0,170,255,0.08);">M</div>
+        <span class="ld-label">MAFS</span>
+      </a>
+      <a class="logo-dot" href="#iuvw" style="--glow:rgba(255,200,0,0.6)">
+        <div class="ld-ring" style="border-color:rgba(255,200,0,0.5);color:#ffc800;background:rgba(255,200,0,0.08);">I</div>
+        <span class="ld-label">IUVW</span>
+      </a>
+      <a class="logo-dot" href="#umas" style="--glow:rgba(255,102,51,0.6)">
+        <div class="ld-ring" style="border-color:rgba(255,102,51,0.5);color:#ff6633;background:rgba(255,102,51,0.08);">U</div>
+        <span class="ld-label">UMAS</span>
+      </a>
+      <a class="logo-dot" href="#verveware" style="--glow:rgba(167,139,250,0.6)">
+        <div class="ld-ring" style="border-color:rgba(167,139,250,0.5);color:#a78bfa;background:rgba(167,139,250,0.08);">VW</div>
+        <span class="ld-label">Verveware</span>
+      </a>
+    </div>
+  </div>
+  <div class="scroll-cue">Scroll to explore</div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ MAFS ══ -->
+<section id="mafs" class="section">
+  <div class="section-inner">
+    <div class="section-logo-wrap">
+      <div class="logo-circle-lg" style="border-color:rgba(0,170,255,0.4);background:rgba(0,170,255,0.08);color:#00aaff;">
+        <span>M</span>
+      </div>
+      <div>
+        <div class="section-tag" style="background:rgba(0,170,255,0.08);border:1px solid rgba(0,170,255,0.2);color:#60c8ff;">Family Services</div>
+        <h2 style="background:linear-gradient(135deg,#00aaff,#60c8ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Metropolitan Asian<br>Family Services</h2>
+      </div>
+    </div>
+    <p>MAFS provides culturally sensitive social services, mental health support, and family resources to the Asian immigrant community in the Chicago metropolitan area.</p>
+    <div class="stats">
+      <div class="stat"><div class="stat-num" style="color:#00aaff">25+</div><div class="stat-label">Years Serving</div></div>
+      <div class="stat"><div class="stat-num" style="color:#00aaff">10k+</div><div class="stat-label">Families Helped</div></div>
+      <div class="stat"><div class="stat-num" style="color:#00aaff">847</div><div class="stat-label">Contact</div></div>
+    </div>
+    <div class="sweep-demo" onclick="triggerSweep(this)"><div class="sweep-overlay"></div></div>
+    <div class="features">
+      <div class="feature"><div class="feature-icon">👨‍👩‍👧</div><h4>Family Counseling</h4><p>Culturally sensitive mental health and family support services</p></div>
+      <div class="feature"><div class="feature-icon">🌐</div><h4>Multilingual</h4><p>Services in English, Hindi, Urdu, Tagalog, and more</p></div>
+      <div class="feature"><div class="feature-icon">📋</div><h4>Case Management</h4><p>Comprehensive support navigation for families in need</p></div>
+    </div>
+    <div class="cta-row">
+      <a class="btn-primary" href="tel:8473067606">Call 847-306-7606</a>
+      <a class="btn-outline" href="#top">↑ Back to top</a>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ IUVW ══ -->
+<section id="iuvw" class="section">
+  <div class="section-inner">
+    <div class="section-logo-wrap">
+      <div class="logo-circle-lg" style="border-color:rgba(255,200,0,0.4);background:rgba(255,200,0,0.06);color:#ffc800;">
+        <span>I</span>
+      </div>
+      <div>
+        <div class="section-tag" style="background:rgba(255,200,0,0.08);border:1px solid rgba(255,200,0,0.2);color:#ffc800;">Wellness · Yoga</div>
+        <h2 style="background:linear-gradient(135deg,#ffc800,#ffaa00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">International Universal<br>Vedic Wellness</h2>
+      </div>
+    </div>
+    <p>For Peace & Happiness in the World. IUVW integrates ancient Vedic wisdom with modern wellness practices — yoga, meditation, Ayurveda, and community healing.</p>
+    <div class="stats">
+      <div class="stat"><div class="stat-num" style="color:#ffc800">5,000</div><div class="stat-label">Years of Wisdom</div></div>
+      <div class="stat"><div class="stat-num" style="color:#ffc800">7</div><div class="stat-label">Chakra Centers</div></div>
+      <div class="stat"><div class="stat-num" style="color:#ffc800">∞</div><div class="stat-label">Possibilities</div></div>
+    </div>
+    <div class="sweep-demo" onclick="triggerSweep(this)" style="filter:saturate(1.8) contrast(1.1) hue-rotate(20deg)"><div class="sweep-overlay"></div></div>
+    <div class="features">
+      <div class="feature"><div class="feature-icon">🧘</div><h4>Yoga & Meditation</h4><p>Classes and workshops rooted in authentic Vedic tradition</p></div>
+      <div class="feature"><div class="feature-icon">🌿</div><h4>Ayurveda</h4><p>Root-cause healing through dosha balancing and natural medicine</p></div>
+      <div class="feature"><div class="feature-icon">☮️</div><h4>Community Healing</h4><p>Group programs for peace, happiness, and spiritual growth</p></div>
+    </div>
+    <div class="cta-row">
+      <a class="btn-primary" style="background:linear-gradient(135deg,#ffc800,#ff8c00)" href="#top">Learn More</a>
+      <a class="btn-outline" href="#top">↑ Back to top</a>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ UMAS ══ -->
+<section id="umas" class="section">
+  <div class="section-inner">
+    <div class="section-logo-wrap">
+      <div class="logo-circle-lg" style="border-color:rgba(255,102,51,0.4);background:rgba(255,102,51,0.06);color:#ff6633;">
+        <span>U</span>
+      </div>
+      <div>
+        <div class="section-tag" style="background:rgba(255,102,51,0.08);border:1px solid rgba(255,102,51,0.2);color:#ff6633;">Elder Care · Nonprofit</div>
+        <h2 style="background:linear-gradient(135deg,#ff6633,#ff9933);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Universal Metro<br>Asian Services</h2>
+      </div>
+    </div>
+    <p>UMAS is a nonprofit elder care organization providing Medicaid-funded home care, care coordination, and culturally competent support to seniors across Chicagoland.</p>
+    <div class="stats">
+      <div class="stat"><div class="stat-num" style="color:#ff6633">500+</div><div class="stat-label">Seniors Served</div></div>
+      <div class="stat"><div class="stat-num" style="color:#ff6633">GHL</div><div class="stat-label">CRM Platform</div></div>
+      <div class="stat"><div class="stat-num" style="color:#ff6633">IL</div><div class="stat-label">Illinois Medicaid</div></div>
+    </div>
+    <div class="sweep-demo" onclick="triggerSweep(this)" style="filter:saturate(1.4) contrast(1.2) hue-rotate(-15deg)"><div class="sweep-overlay" style="background:rgba(255,102,51,0.1)"></div></div>
+    <div class="features">
+      <div class="feature"><div class="feature-icon">🏠</div><h4>Home Care</h4><p>Medicaid-funded in-home support for seniors who need care</p></div>
+      <div class="feature"><div class="feature-icon">🤝</div><h4>Care Coordination</h4><p>Connecting families with the right resources and support</p></div>
+      <div class="feature"><div class="feature-icon">🌏</div><h4>Culturally Competent</h4><p>Multilingual staff understanding Asian family values and needs</p></div>
+    </div>
+    <div class="cta-row">
+      <a class="btn-primary" style="background:linear-gradient(135deg,#ff6633,#ff9933)" href="tel:8473067606">847-306-7606</a>
+      <a class="btn-outline" href="https://umasinc.com">umasinc.com</a>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ══ VERVEWARE ══ -->
+<section id="verveware" class="section">
+  <div class="section-inner">
+    <div class="section-logo-wrap">
+      <div class="logo-circle-lg" style="border-color:rgba(167,139,250,0.4);background:rgba(167,139,250,0.06);color:#a78bfa;">
+        <span style="font-size:clamp(1.2rem,2.5vw,2rem);">VW</span>
+      </div>
+      <div>
+        <div class="section-tag" style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);color:#a78bfa;">Technology · SaaS</div>
+        <h2 style="background:linear-gradient(135deg,#a78bfa,#6366f1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Verveware</h2>
+      </div>
+    </div>
+    <p>Verveware builds technology platforms connecting communities, automating operations, and delivering modern software for the organizations that need it most.</p>
+    <div class="stats">
+      <div class="stat"><div class="stat-num" style="color:#a78bfa">AI</div><div class="stat-label">Powered</div></div>
+      <div class="stat"><div class="stat-num" style="color:#a78bfa">iOS+</div><div class="stat-label">Android App</div></div>
+      <div class="stat"><div class="stat-num" style="color:#a78bfa">GHL</div><div class="stat-label">Integrated</div></div>
+    </div>
+    <div class="sweep-demo" onclick="triggerSweep(this)" style="filter:saturate(1.3) contrast(1.1) hue-rotate(200deg)"><div class="sweep-overlay" style="background:rgba(167,139,250,0.15)"></div></div>
+    <div class="features">
+      <div class="feature"><div class="feature-icon">⚡</div><h4>Automation</h4><p>AI-powered workflows that save hours of manual work daily</p></div>
+      <div class="feature"><div class="feature-icon">📱</div><h4>Mobile First</h4><p>iOS and Android apps for clients, staff, and administrators</p></div>
+      <div class="feature"><div class="feature-icon">🔗</div><h4>Integrations</h4><p>GoHighLevel, Google Workspace, Medicaid systems and more</p></div>
+    </div>
+    <div class="cta-row">
+      <a class="btn-primary" href="#top">Get Started</a>
+      <a class="btn-outline" href="#top">↑ Back to top</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p style="margin-bottom:6px">MAFS · IUVW · UMAS · Verveware — Chicagoland, Illinois</p>
+  <p>847-306-7606 · karanamin@umasinc.com</p>
+</footer>
+
+<script>
+// ── SCROLL PROGRESS ─────────────────────────────────────────────────────────
+const prog=document.getElementById('progress');
+window.addEventListener('scroll',()=>{
+  const pct=(scrollY/(document.body.scrollHeight-window.innerHeight))*100;
+  prog.style.width=pct+'%';
+});
+
+// ── HERO PARALLAX ────────────────────────────────────────────────────────────
+const heroBg=document.getElementById('heroBg');
+window.addEventListener('scroll',()=>{
+  const y=scrollY*0.35;
+  heroBg.style.transform=`scale(1.05) translateY(${y}px)`;
+},{ passive:true });
+
+// ── INTERSECTION OBSERVER — section + feature reveals ───────────────────────
+const io=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target);}
+  });
+},{threshold:0.12,rootMargin:'0px 0px -60px 0px'});
+
+document.querySelectorAll('.section-inner,.feature').forEach(el=>io.observe(el));
+
+// Stagger features
+document.querySelectorAll('.features').forEach(grid=>{
+  grid.querySelectorAll('.feature').forEach((f,i)=>{
+    f.style.transitionDelay=(i*0.1)+'s';
+  });
+});
+
+// ── HERO VISIBLE ─────────────────────────────────────────────────────────────
+const heroEl=document.querySelector('.hero');
+setTimeout(()=>heroEl.classList.add('visible'),120);
+setTimeout(()=>document.getElementById('heroBg').classList.add('loaded'),200);
+
+// ── SWEEP DEMO ───────────────────────────────────────────────────────────────
+window.triggerSweep=function(el){
+  el.classList.remove('sweeping');
+  void el.offsetWidth;
+  el.classList.add('sweeping');
+  setTimeout(()=>el.classList.remove('sweeping'),900);
+};
+
+// ── SMOOTH ANCHOR WITH OFFSET ─────────────────────────────────────────────────
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const id=a.getAttribute('href').slice(1);
+    if(!id)return;
+    const target=document.getElementById(id);
+    if(!target)return;
+    e.preventDefault();
+    const offset=target.getBoundingClientRect().top+scrollY-72;
+    window.scrollTo({top:offset,behavior:'smooth'});
+  });
+});
+</script>
+</body>
+</html>

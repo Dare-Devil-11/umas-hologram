@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Onboarding — Share This</title>
+<style>
+  @font-face{font-family:'BerkeleyMono';src:url('/Users/karanamin/AI-OS/outputs/anime-repro/fonts/BerkeleyMono-Regular.woff2');}
+  @font-face{font-family:'DINExp';src:url('/Users/karanamin/AI-OS/outputs/anime-repro/fonts/Altinn-DINExp.woff2');}
+  @font-face{font-family:'DINExp';src:url('/Users/karanamin/AI-OS/outputs/anime-repro/fonts/Altinn-DINExp-Bold.woff2');font-weight:700;}
+  :root{--bg:#08080f;--surface:#10101c;--card:#16162a;--primary:#6366f1;--green:#22c55e;--yellow:#f59e0b;--purple:#a78bfa;--text:#e2e8f0;--muted:#64748b;--border:rgba(255,255,255,0.07);--radius:12px;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'DINExp',system-ui,sans-serif;padding:48px 24px;}
+  .container{max-width:760px;margin:0 auto;}
+  h1{font-size:clamp(2rem,5vw,3rem);font-weight:700;background:linear-gradient(135deg,#6366f1,#a78bfa,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:10px;text-align:center;}
+  .sub{text-align:center;color:var(--muted);font-size:.9rem;margin-bottom:40px;line-height:1.6;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px;}
+  .card h2{font-size:.8rem;font-family:'BerkeleyMono',monospace;text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .step{display:flex;gap:12px;margin-bottom:12px;}
+  .sn{background:rgba(99,102,241,.15);color:var(--purple);border:1px solid rgba(99,102,241,.3);width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;font-family:'BerkeleyMono',monospace;flex-shrink:0;}
+  .step p{font-size:.85rem;line-height:1.6;}
+  code{font-family:'BerkeleyMono',monospace;font-size:.78rem;background:rgba(255,255,255,.06);padding:1px 7px;border-radius:4px;color:var(--purple);}
+  .kbd{display:inline-block;background:var(--card);border:1px solid rgba(255,255,255,.15);border-radius:5px;padding:1px 8px;font-family:'BerkeleyMono',monospace;font-size:.72rem;}
+  .copy-btn{font-size:10px;font-family:'BerkeleyMono',monospace;background:linear-gradient(135deg,#6366f1,#a78bfa);color:#fff;border:none;border-radius:5px;padding:3px 9px;cursor:pointer;margin-left:8px;transition:opacity .15s;}
+  .copy-btn:hover{opacity:.8;}
+  .prompt-box{background:var(--card);border:1px solid rgba(99,102,241,.2);border-radius:8px;padding:12px 14px;font-family:'BerkeleyMono',monospace;font-size:.78rem;color:#c4b5fd;line-height:1.6;margin-bottom:10px;position:relative;}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#22c55e;color:#fff;padding:7px 18px;border-radius:99px;font-family:'BerkeleyMono',monospace;font-size:.75rem;opacity:0;transition:opacity .2s;pointer-events:none;}
+  .toast.show{opacity:1;}
+  .big-prompt{display:flex;gap:10px;align-items:flex-start;}
+  .big-prompt .prompt-box{flex:1;margin:0;}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Welcome to AI-First Work</h1>
+  <p class="sub">Share this page with anyone who needs to use Claude. It covers setup, first prompts, and what to do when you hit a wall. No experience needed.</p>
+
+  <div class="card">
+    <h2>🔍 Step 1 — Launch Claude (Mac)</h2>
+    <div class="step"><div class="sn">1</div><p>Press <span class="kbd">⌘ Space</span> to open Spotlight</p></div>
+    <div class="step"><div class="sn">2</div><p>Type <code>claude</code> and press Enter</p></div>
+    <div class="step"><div class="sn">3</div><p>Or open Terminal and type <code>claude</code> — Claude Code CLI starts</p></div>
+  </div>
+
+  <div class="card">
+    <h2>📱 Step 1 — Launch Claude (iPhone/iPad)</h2>
+    <div class="step"><div class="sn">1</div><p>Swipe down from home screen to open Search</p></div>
+    <div class="step"><div class="sn">2</div><p>Type <code>Claude</code> → tap the app</p></div>
+    <div class="step"><div class="sn">3</div><p>Or go to <strong>claude.ai</strong> in Safari → Add to Home Screen for one-tap access</p></div>
+  </div>
+
+  <div class="card">
+    <h2>📋 Step 2 — Create Your Log File</h2>
+    <div class="step"><div class="sn">1</div><p>In Claude, type this exact prompt:</p></div>
+    <div class="big-prompt">
+      <div class="prompt-box">Create a file at ~/my-log.md and write today's date as the header. I will use this to log what I'm working on and what AI helped me do.</div>
+      <button class="copy-btn" onclick="cp(this,'Create a file at ~/my-log.md and write today\'s date as the header. I will use this to log what I\'m working on and what AI helped me do.')">COPY</button>
+    </div>
+    <div class="step"><div class="sn">2</div><p>After each session, ask Claude: <em>"Add a one-line summary of what we just did to ~/my-log.md"</em></p></div>
+  </div>
+
+  <div class="card">
+    <h2>⚡ Step 3 — First Prompts to Try</h2>
+    <div class="prompt-box">Show me what files are on my Desktop and tell me what each one is for<button class="copy-btn" onclick="cp(this,'Show me what files are on my Desktop and tell me what each one is for')">COPY</button></div>
+    <div class="prompt-box">Read ~/my-log.md and tell me what I was working on last time<button class="copy-btn" onclick="cp(this,'Read ~/my-log.md and tell me what I was working on last time')">COPY</button></div>
+    <div class="prompt-box">I need to [describe task]. Break it into steps, then do each one. Don't stop halfway.<button class="copy-btn" onclick="cp(this,'I need to [describe task]. Break it into steps, then do each one. Don\'t stop halfway.')">COPY</button></div>
+  </div>
+
+  <div class="card">
+    <h2>🧱 Step 4 — When You Hit A Wall</h2>
+    <div class="step"><div class="sn">1</div><p><strong>Don't give up.</strong> Don't close the window. Don't start over.</p></div>
+    <div class="step"><div class="sn">2</div><p>Copy this prompt and paste it into Claude:</p></div>
+    <div class="prompt-box">I hit a wall. Here's what I was trying to do: [describe]. Here's where I got stuck: [describe]. Give me option 1 or option 2 to fix it. I'll pick one and you'll execute it immediately.<button class="copy-btn" onclick="cp(this,`I hit a wall. Here's what I was trying to do: [describe]. Here's where I got stuck: [describe]. Give me option 1 or option 2 to fix it. I'll pick one and you'll execute it immediately.`)">COPY</button></div>
+    <div class="step"><div class="sn">3</div><p>Claude will give you 2 options. <strong>Pick one.</strong> Don't overthink. Execute.</p></div>
+    <div class="step"><div class="sn">4</div><p>If Claude says it can't do something — say <em>"Find another way"</em> and it will.</p></div>
+  </div>
+
+  <div class="card">
+    <h2>📂 Access Shared AI Prompts</h2>
+    <div class="step"><div class="sn">1</div><p>Ask Karan to share the <strong>AI-OS Google Drive folder</strong> with your email</p></div>
+    <div class="step"><div class="sn">2</div><p>Inside you'll find: Master prompt library · Skill list · Session templates · Cheatsheets</p></div>
+    <div class="step"><div class="sn">3</div><p>Download any prompt → paste into Claude → Claude executes it</p></div>
+    <div class="step"><div class="sn">4</div><p>Drive folder: <code>drive.google.com/drive/folders/1iGaTx5cedJCawzeMWn0ovYO9KcuYCBdB</code></p></div>
+  </div>
+
+  <div class="card">
+    <h2>✅ Rules</h2>
+    <div class="step"><div class="sn">→</div><p>Never do half a task — if Claude stops early, say <em>"Keep going, finish it"</em></p></div>
+    <div class="step"><div class="sn">→</div><p>If you get no response for 10 min — Claude will auto-proceed. Don't wait on it.</p></div>
+    <div class="step"><div class="sn">→</div><p>Log every session — future you depends on it</p></div>
+    <div class="step"><div class="sn">→</div><p>When stuck: checklist → blocker → AI → check off → move on</p></div>
+  </div>
+</div>
+<div class="toast" id="t">Copied — paste into Claude</div>
+<script>
+window.cp=function(btn,text){
+  navigator.clipboard.writeText(text).catch(()=>{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);});
+  const t=document.getElementById('t');t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),1800);
+};
+</script>
+</body>
+</html>

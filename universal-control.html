@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Universal Control — Cheatsheet</title>
+<style>
+  @font-face { font-family: 'BerkeleyMono'; src: url('/Users/karanamin/AI-OS/outputs/anime-repro/fonts/BerkeleyMono-Regular.woff2'); }
+  @font-face { font-family: 'DINExp'; src: url('/Users/karanamin/AI-OS/outputs/anime-repro/fonts/Altinn-DINExp.woff2'); }
+  @font-face { font-family: 'DINExp'; src: url('/Users/karanamin/AI-OS/outputs/anime-repro/fonts/Altinn-DINExp-Bold.woff2'); font-weight: 700; }
+  :root {
+    --bg:#0a0a14;--surface:#12121e;--card:#1a1a2e;
+    --primary:#6366f1;--green:#22c55e;--yellow:#f59e0b;
+    --blue:#3b82f6;--purple:#a78bfa;--red:#ef4444;
+    --text:#e2e8f0;--muted:#64748b;--border:rgba(255,255,255,0.08);--radius:12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'DINExp',system-ui,sans-serif;padding:40px 24px;}
+  .container{max-width:960px;margin:0 auto;}
+
+  /* HEADER */
+  .header{text-align:center;margin-bottom:48px;opacity:0;transform:translateY(-20px);}
+  .header h1{font-size:clamp(2rem,4vw,3rem);font-weight:700;background:linear-gradient(135deg,#6366f1,#a78bfa,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px;}
+  .header p{color:var(--muted);font-size:.9rem;max-width:520px;margin:0 auto;line-height:1.6;}
+  .apple-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.3);color:var(--purple);padding:4px 14px;border-radius:99px;font-size:.75rem;font-family:'BerkeleyMono',monospace;margin-bottom:16px;letter-spacing:.05em;}
+
+  /* AI BUTTON */
+  .ai-btn{
+    font-size:10px;font-family:'BerkeleyMono',monospace;
+    background:linear-gradient(135deg,#6366f1,#a78bfa);
+    color:#fff;border:none;border-radius:6px;
+    padding:4px 9px;cursor:pointer;white-space:nowrap;
+    transition:opacity .15s,transform .15s;
+    letter-spacing:.03em;line-height:1.4;text-align:center;
+  }
+  .ai-btn:hover{opacity:.85;transform:scale(1.05);}
+  .ai-btn:active{transform:scale(.97);}
+  .ai-btn.copied{background:linear-gradient(135deg,#22c55e,#16a34a);}
+
+  /* SECTION WRAPPER */
+  .section-wrap{opacity:0;transform:translateY(20px);margin-bottom:16px;}
+  .section-header-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+  .section-header-row h3{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-family:'BerkeleyMono',monospace;display:flex;align-items:center;gap:8px;flex:1;margin:0;}
+  .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+  /* CARDS */
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:640px){.grid{grid-template-columns:1fr;}}
+  .full{grid-column:1/-1;}
+
+  /* STEPS */
+  .step{display:flex;gap:12px;margin-bottom:12px;align-items:flex-start;}
+  .step-num{background:rgba(99,102,241,.15);color:var(--purple);border:1px solid rgba(99,102,241,.3);width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;font-family:'BerkeleyMono',monospace;flex-shrink:0;margin-top:1px;}
+  .step p{font-size:.85rem;line-height:1.5;}
+  .path{font-family:'BerkeleyMono',monospace;font-size:.75rem;background:rgba(255,255,255,.06);padding:1px 6px;border-radius:4px;color:var(--purple);}
+
+  /* TABLE */
+  .cmd-table{width:100%;border-collapse:collapse;}
+  .cmd-table tr{border-bottom:1px solid var(--border);}
+  .cmd-table tr:last-child{border-bottom:none;}
+  .cmd-table td{padding:9px 4px;font-size:.83rem;vertical-align:top;}
+  .cmd-table td:first-child{color:var(--muted);font-size:.75rem;font-family:'BerkeleyMono',monospace;white-space:nowrap;padding-right:12px;}
+  .tag{display:inline-block;padding:1px 7px;border-radius:99px;font-size:.65rem;font-family:'BerkeleyMono',monospace;margin-left:6px;}
+  .tag-g{background:rgba(34,197,94,.12);color:#22c55e;border:1px solid rgba(34,197,94,.25);}
+  .tag-b{background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.25);}
+  .tag-y{background:rgba(245,158,11,.12);color:#f59e0b;border:1px solid rgba(245,158,11,.25);}
+
+  /* REQ GRID */
+  .req-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .req-item{display:flex;align-items:center;gap:8px;font-size:.82rem;}
+  .tip{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:10px 14px;font-size:.78rem;color:#fbbf24;margin-top:10px;line-height:1.5;font-family:'BerkeleyMono',monospace;}
+
+  /* TROUBLESHOOT */
+  .trouble-row{display:flex;gap:10px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border);align-items:flex-start;}
+  .trouble-row:last-child{border-bottom:none;margin-bottom:0;}
+  .trouble-q{font-size:.8rem;color:#ef4444;font-family:'BerkeleyMono',monospace;min-width:140px;flex-shrink:0;}
+  .trouble-a{font-size:.82rem;line-height:1.5;}
+
+  /* ── TIMELINE ─────────────────────────────────── */
+  .timeline-section{opacity:0;transform:translateY(20px);margin-bottom:40px;}
+  .timeline-section h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;font-family:'BerkeleyMono',monospace;color:var(--muted);margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+  .timeline-section h2::after{content:'';flex:1;height:1px;background:var(--border);}
+  .timeline{position:relative;padding-left:28px;}
+  .timeline::before{content:'';position:absolute;left:9px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,#6366f1,#a78bfa,#22c55e);}
+  .tl-item{position:relative;margin-bottom:20px;opacity:0;transform:translateX(-16px);}
+  .tl-item:last-child{margin-bottom:0;}
+  .tl-dot{position:absolute;left:-24px;top:4px;width:12px;height:12px;border-radius:50%;border:2px solid;flex-shrink:0;}
+  .tl-content{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 16px;}
+  .tl-tag{font-size:.65rem;font-family:'BerkeleyMono',monospace;padding:2px 8px;border-radius:99px;margin-bottom:6px;display:inline-block;}
+  .tl-title{font-size:.88rem;font-weight:700;margin-bottom:4px;}
+  .tl-body{font-size:.78rem;color:var(--muted);line-height:1.5;}
+
+  /* DEMO */
+  .demo-row{display:flex;justify-content:center;gap:14px;margin-top:40px;opacity:0;}
+  .sq{width:40px;height:40px;border-radius:8px;}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:#22c55e;color:#fff;padding:8px 20px;border-radius:99px;font-family:'BerkeleyMono',monospace;font-size:.8rem;opacity:0;transition:all .25s ease;pointer-events:none;z-index:999;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header" id="hdr">
+    <div class="apple-badge">⌘ APPLE UNIVERSAL CONTROL</div>
+    <h1>Universal Control</h1>
+    <p>One keyboard + trackpad controlling multiple Macs and iPads. Push cursor to screen edge — it jumps to the next device.</p>
+  </div>
+
+  <!-- ── TIMELINE ── -->
+  <div class="timeline-section" id="tlSection">
+    <h2>Setup Timeline</h2>
+    <div class="timeline">
+      <div class="tl-item" id="tl1">
+        <div class="tl-dot" style="background:#6366f1;border-color:#6366f1;"></div>
+        <div class="tl-content">
+          <div class="tl-tag" style="background:rgba(99,102,241,.15);color:#a78bfa;border:1px solid rgba(99,102,241,.3);">Step 1 — Requirements</div>
+          <div class="tl-title">Confirm Both Devices Ready</div>
+          <div class="tl-body">macOS 12.3+ · iPadOS 15.4+ · Same WiFi router · Bluetooth ON · Same Apple ID · Screen sharing OFF</div>
+        </div>
+      </div>
+      <div class="tl-item" id="tl2">
+        <div class="tl-dot" style="background:#8b5cf6;border-color:#8b5cf6;"></div>
+        <div class="tl-content">
+          <div class="tl-tag" style="background:rgba(139,92,246,.15);color:#c4b5fd;border:1px solid rgba(139,92,246,.3);">Step 2 — Mac Settings</div>
+          <div class="tl-title">Enable on Mac</div>
+          <div class="tl-body">System Settings → Displays → Advanced → Turn ON both toggles (Allow pointer + Push through edge)</div>
+        </div>
+      </div>
+      <div class="tl-item" id="tl3">
+        <div class="tl-dot" style="background:#a78bfa;border-color:#a78bfa;"></div>
+        <div class="tl-content">
+          <div class="tl-tag" style="background:rgba(167,139,250,.15);color:#c4b5fd;border:1px solid rgba(167,139,250,.3);">Step 3 — iPad Settings</div>
+          <div class="tl-title">Enable on iPad</div>
+          <div class="tl-body">Settings → General → AirPlay &amp; Handoff → Turn ON Handoff · Wake iPad and unlock it</div>
+        </div>
+      </div>
+      <div class="tl-item" id="tl4">
+        <div class="tl-dot" style="background:#22c55e;border-color:#22c55e;"></div>
+        <div class="tl-content">
+          <div class="tl-tag" style="background:rgba(34,197,94,.15);color:#22c55e;border:1px solid rgba(34,197,94,.3);">Step 4 — Test</div>
+          <div class="tl-title">Push Cursor to Edge</div>
+          <div class="tl-body">Slowly push cursor past the right (or left) edge of your Mac screen — it slides onto the iPad. Type on Mac keyboard. Drag files across.</div>
+        </div>
+      </div>
+      <div class="tl-item" id="tl5">
+        <div class="tl-dot" style="background:#f59e0b;border-color:#f59e0b;"></div>
+        <div class="tl-content">
+          <div class="tl-tag" style="background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.3);">Step 5 — Your Setup</div>
+          <div class="tl-title">Position Devices</div>
+          <div class="tl-body">System Settings → Displays → drag device thumbnails to match physical layout. Mac left · iPad right = push cursor right to jump to iPad.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── GRID SECTIONS ── -->
+  <div class="grid">
+
+    <!-- SETUP -->
+    <div class="section-wrap card" id="s1">
+      <div class="section-header-row">
+        <h3><div class="dot" style="background:#6366f1"></div><span style="color:var(--purple)">Setup — Mac Side</span></h3>
+        <button class="ai-btn" onclick="aiDo(this,'Enable Universal Control on my Mac. Go to System Settings → Displays → Advanced and turn on the pointer sharing and push through edge toggles.')">HAVE AI<br>Do IT</button>
+      </div>
+      <div class="step"><div class="step-num">1</div><p>Open <span class="path">System Settings</span></p></div>
+      <div class="step"><div class="step-num">2</div><p>Go to <span class="path">Displays</span></p></div>
+      <div class="step"><div class="step-num">3</div><p>Click <span class="path">Advanced…</span> (bottom right)</p></div>
+      <div class="step"><div class="step-num">4</div><p>Turn ON <strong>Allow pointer/keyboard to move between devices</strong> + <strong>Push through edge</strong></p></div>
+      <div class="step"><div class="step-num">5</div><p>Both devices must be on <strong>same WiFi</strong> + <strong>same Apple ID</strong></p></div>
+    </div>
+
+    <!-- REQUIREMENTS -->
+    <div class="section-wrap card" id="s2">
+      <div class="section-header-row">
+        <h3><div class="dot" style="background:#22c55e"></div><span style="color:var(--green)">Requirements</span></h3>
+        <button class="ai-btn" onclick="aiDo(this,'Check if my Mac meets Universal Control requirements: macOS version, Bluetooth status, WiFi network, Apple ID sign-in, and whether Handoff is enabled.')">HAVE AI<br>Do IT</button>
+      </div>
+      <div class="req-grid">
+        <div class="req-item"><div class="dot" style="background:#22c55e"></div>macOS Monterey 12.3+</div>
+        <div class="req-item"><div class="dot" style="background:#22c55e"></div>iPadOS 15.4+</div>
+        <div class="req-item"><div class="dot" style="background:#22c55e"></div>Same WiFi network</div>
+        <div class="req-item"><div class="dot" style="background:#22c55e"></div>Bluetooth ON (both)</div>
+        <div class="req-item"><div class="dot" style="background:#22c55e"></div>Same Apple ID</div>
+        <div class="req-item"><div class="dot" style="background:#22c55e"></div>WiFi ON even w/ Ethernet</div>
+        <div class="req-item"><div class="dot" style="background:#ef4444"></div>NOT on hotspot</div>
+        <div class="req-item"><div class="dot" style="background:#ef4444"></div>Screen sharing OFF</div>
+      </div>
+      <div class="tip">⚠ Currently on hotspot — switch to WiFi router to activate Universal Control.</div>
+    </div>
+
+    <!-- COMMANDS -->
+    <div class="section-wrap card full" id="s3">
+      <div class="section-header-row">
+        <h3><div class="dot" style="background:#f59e0b"></div><span style="color:var(--yellow)">Commands + Actions</span></h3>
+        <button class="ai-btn" onclick="aiDo(this,'Show me all Universal Control keyboard shortcuts and actions I can use to move cursor between devices, drag files, share clipboard, and disconnect devices.')">HAVE AI<br>Do IT</button>
+      </div>
+      <table class="cmd-table">
+        <tr><td>Move cursor</td><td>Push to <strong>left or right edge</strong> of screen — jumps to next device <span class="tag tag-g">main feature</span></td></tr>
+        <tr><td>Type on another device</td><td>Move cursor there → type on Mac keyboard normally <span class="tag tag-g">keyboard follows cursor</span></td></tr>
+        <tr><td>Drag file cross-device</td><td>Drag → push to edge → keep holding → drop on other device <span class="tag tag-b">cross-device drag</span></td></tr>
+        <tr><td>Copy/Paste cross-device</td><td>⌘C on Mac → move cursor to iPad → ⌘V — clipboard shared <span class="tag tag-b">universal clipboard</span></td></tr>
+        <tr><td>Rearrange layout</td><td>System Settings → Displays → drag device thumbnails to match physical positions</td></tr>
+        <tr><td>Manual disconnect</td><td>Menu bar → Control Center → click device name → Disconnect</td></tr>
+        <tr><td>Lock cursor to one Mac</td><td>Toggle OFF "Push through edge" (the setting you screenshotted)</td></tr>
+        <tr><td>Force reconnect</td><td>Toggle the setting OFF → ON in System Settings → Displays → Advanced <span class="tag tag-y">if stuck</span></td></tr>
+      </table>
+    </div>
+
+    <!-- TROUBLESHOOT -->
+    <div class="section-wrap card full" id="s4">
+      <div class="section-header-row">
+        <h3><div class="dot" style="background:#ef4444"></div><span style="color:#ef4444">Troubleshooting</span></h3>
+        <button class="ai-btn" onclick="aiDo(this,'Universal Control is not working. Diagnose why — check same WiFi, Bluetooth status, macOS version, Handoff setting, Apple ID match, and screen sharing conflicts. Give me step-by-step fix.')">HAVE AI<br>Do IT</button>
+      </div>
+      <div class="trouble-row"><div class="trouble-q">Not connecting</div><div class="trouble-a">Both on same WiFi? Bluetooth ON? Same Apple ID? Try toggling Bluetooth off/on on both devices.</div></div>
+      <div class="trouble-row"><div class="trouble-q">Cursor won't cross</div><div class="trouble-a">System Settings → Displays → Advanced → confirm toggles are ON. Check device layout matches physical positions.</div></div>
+      <div class="trouble-row"><div class="trouble-q">Works on hotspot?</div><div class="trouble-a">No. Requires same local WiFi router. Hotspot does not count. Switch to work or home WiFi.</div></div>
+      <div class="trouble-row"><div class="trouble-q">iPad not showing</div><div class="trouble-a">iPad: Settings → General → AirPlay &amp; Handoff → turn ON Handoff. iPad must be awake + unlocked.</div></div>
+      <div class="trouble-row"><div class="trouble-q">Drag/drop not working</div><div class="trouble-a">Drag slowly — pause at the edge and wait for cursor to pull through before releasing. Fast swipes miss.</div></div>
+    </div>
+
+    <!-- YOUR SETUP -->
+    <div class="section-wrap card full" id="s5">
+      <div class="section-header-row">
+        <h3><div class="dot" style="background:#22c55e"></div><span style="color:var(--green)">Your Setup Right Now</span></h3>
+        <button class="ai-btn" onclick="aiDo(this,'Set up Universal Control for my workflow: Mac on left running Claude Code and terminal, iPad on right for GHL, OneDrive, and reference docs. Verify my current network, check settings, and confirm layout is configured correctly.')">HAVE AI<br>Do IT</button>
+      </div>
+      <table class="cmd-table">
+        <tr><td>toggle state</td><td><strong>ON</strong> — "Push through edge" enabled (confirmed from screenshot)</td></tr>
+        <tr><td>current network</td><td>Phone hotspot — <strong>Universal Control will NOT activate on hotspot.</strong> Need WiFi router.</td></tr>
+        <tr><td>best workflow</td><td>Mac left (Claude Code, terminal, VS Code) + iPad right (GHL, OneDrive, reference) — one trackpad controls both</td></tr>
+        <tr><td>drag use case</td><td>Drag files from Mac Finder directly into iPad apps (Files, GHL, OneDrive) without AirDrop</td></tr>
+      </table>
+    </div>
+
+  </div>
+
+  <div class="demo-row" id="demoRow">
+    <div class="sq" style="background:linear-gradient(135deg,#6366f1,#a78bfa)"></div>
+    <div class="sq" style="background:linear-gradient(135deg,#3b82f6,#06b6d4)"></div>
+    <div class="sq" style="background:linear-gradient(135deg,#22c55e,#84cc16)"></div>
+    <div class="sq" style="background:linear-gradient(135deg,#f59e0b,#ef4444)"></div>
+    <div class="sq" style="background:linear-gradient(135deg,#a78bfa,#ec4899)"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast">Prompt copied — paste into Claude</div>
+
+<script>
+  function ease(t){return t<0.5?2*t*t:-1+(4-2*t)*t;}
+  function an(el,props,dur,delay){
+    const s=performance.now()+(delay||0);
+    function f(n){if(n<s){requestAnimationFrame(f);return;}
+      const t=Math.min((n-s)/dur,1),e=ease(t);
+      for(const[p,[from,to,u]]of Object.entries(props)){
+        const v=from+(to-from)*e;
+        if(p==='opacity')el.style.opacity=v;
+        else if(p==='translateY')el.style.transform=`translateY(${v}${u})`;
+        else if(p==='translateX')el.style.transform=`translateX(${v}${u})`;
+      }
+      if(t<1)requestAnimationFrame(f);}
+    requestAnimationFrame(f);
+  }
+
+  an(document.getElementById('hdr'),{opacity:[0,1,''],translateY:[-20,0,'px']},600,100);
+  an(document.getElementById('tlSection'),{opacity:[0,1,''],translateY:[20,0,'px']},500,500);
+  ['tl1','tl2','tl3','tl4','tl5'].forEach((id,i)=>setTimeout(()=>an(document.getElementById(id),{opacity:[0,1,''],translateX:[-16,0,'px']},400,0),700+i*130));
+  ['s1','s2','s3','s4','s5'].forEach((id,i)=>setTimeout(()=>an(document.getElementById(id),{opacity:[0,1,''],translateY:[20,0,'px']},450,0),1500+i*110));
+  setTimeout(()=>an(document.getElementById('demoRow'),{opacity:[0,1,''],translateY:[10,0,'px']},400,0),2200);
+
+  document.querySelectorAll('.sq').forEach((sq,i)=>{
+    let s=null;
+    function f(ts){if(!s)s=ts+i*200;if(ts<s){requestAnimationFrame(f);return;}
+      const t=((ts-s)%1200)/1200,y=-Math.abs(Math.sin(t*Math.PI*2))*16,sc=1+Math.abs(Math.sin(t*Math.PI*2))*0.07;
+      sq.style.transform=`translateY(${y}px) scale(${sc})`;requestAnimationFrame(f);}
+    requestAnimationFrame(f);
+  });
+
+  window.aiDo = function(btn, prompt) {
+    navigator.clipboard.writeText(prompt).catch(()=>{
+      const ta=document.createElement('textarea');ta.value=prompt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    });
+    const orig = btn.innerHTML;
+    btn.classList.add('copied');
+    btn.innerHTML='COPIED!<br>✓';
+    const toast=document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(()=>{btn.classList.remove('copied');btn.innerHTML=orig;toast.classList.remove('show');},2200);
+  };
+</script>
+</body>
+</html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hit A Wall — AI Recovery Process</title>
+<style>
+  @font-face{font-family:'BerkeleyMono';src:url('/Users/karanamin/AI-OS/outputs/anime-repro/fonts/BerkeleyMono-Regular.woff2');}
+  @font-face{font-family:'DINExp';src:url('/Users/karanamin/AI-OS/outputs/anime-repro/fonts/Altinn-DINExp.woff2');}
+  @font-face{font-family:'DINExp';src:url('/Users/karanamin/AI-OS/outputs/anime-repro/fonts/Altinn-DINExp-Bold.woff2');font-weight:700;}
+  :root{
+    --bg:#08080f;--surface:#10101c;--card:#16162a;
+    --primary:#6366f1;--green:#22c55e;--yellow:#f59e0b;
+    --purple:#a78bfa;--red:#ef4444;--text:#e2e8f0;
+    --muted:#64748b;--border:rgba(255,255,255,0.07);--radius:12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;overflow-x:hidden;}
+  body{background:var(--bg);color:var(--text);font-family:'DINExp',system-ui,sans-serif;}
+
+  /* ── SPOTLIGHT OVERLAY ── */
+  .spotlight-overlay{
+    position:fixed;inset:0;z-index:100;pointer-events:none;
+    background:radial-gradient(ellipse 520px 340px at 50% 22%, transparent 0%, rgba(0,0,0,0.82) 70%);
+    transition:opacity .6s ease;
+  }
+  .spotlight-overlay.hide{opacity:0;}
+
+  /* ── HERO ── */
+  .hero{
+    position:relative;min-height:56vh;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;
+    padding:80px 24px 60px;z-index:10;
+  }
+  .hero-tag{font-family:'BerkeleyMono',monospace;font-size:.7rem;letter-spacing:.14em;color:var(--purple);background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);padding:4px 14px;border-radius:99px;margin-bottom:20px;display:inline-block;opacity:0;}
+  .hero h1{font-size:clamp(2.4rem,6vw,4rem);font-weight:700;line-height:1.1;margin-bottom:16px;opacity:0;}
+  .hero h1 span{background:linear-gradient(135deg,#ef4444,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .hero p{font-size:1rem;color:var(--muted);max-width:480px;line-height:1.7;margin-bottom:28px;opacity:0;}
+  .hero-btn{background:linear-gradient(135deg,#6366f1,#a78bfa);color:#fff;border:none;border-radius:10px;padding:12px 28px;font-size:.95rem;font-family:'DINExp',sans-serif;font-weight:700;cursor:pointer;transition:transform .15s,opacity .15s;opacity:0;}
+  .hero-btn:hover{transform:scale(1.03);opacity:.9;}
+  .scroll-hint{margin-top:16px;font-size:.72rem;font-family:'BerkeleyMono',monospace;color:var(--muted);opacity:0;animation:bob 2s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(5px);}}
+
+  /* ── MAIN CONTENT ── */
+  .content{max-width:860px;margin:0 auto;padding:0 24px 80px;}
+
+  /* ── PROCESS STEPS ── */
+  .process-header{text-align:center;margin-bottom:48px;padding-top:40px;}
+  .process-header h2{font-size:clamp(1.4rem,3vw,2rem);font-weight:700;margin-bottom:8px;}
+  .process-header p{color:var(--muted);font-size:.88rem;}
+
+  .steps-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:40px;}
+  @media(max-width:600px){.steps-grid{grid-template-columns:1fr;}}
+
+  .process-step{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius);padding:20px;
+    position:relative;overflow:hidden;
+    opacity:0;transform:translateY(24px);
+    transition:border-color .2s;cursor:pointer;
+  }
+  .process-step:hover{border-color:rgba(99,102,241,.35);}
+  .process-step.active{border-color:var(--primary);}
+  .process-step.done{border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.03);}
+  .ps-num{font-family:'BerkeleyMono',monospace;font-size:.65rem;color:var(--muted);margin-bottom:8px;letter-spacing:.08em;}
+  .ps-title{font-size:.95rem;font-weight:700;margin-bottom:6px;}
+  .ps-body{font-size:.78rem;color:var(--muted);line-height:1.6;}
+  .ps-glow{position:absolute;top:-30px;right:-30px;width:80px;height:80px;border-radius:50%;opacity:.12;filter:blur(20px);}
+  .ps-check{position:absolute;top:14px;right:14px;width:22px;height:22px;border-radius:50%;border:2px solid var(--muted);display:flex;align-items:center;justify-content:center;font-size:.7rem;transition:all .2s;}
+  .process-step.done .ps-check{background:var(--green);border-color:var(--green);color:#fff;}
+
+  /* ── CHECKLIST SECTION ── */
+  .checklist-section{margin-bottom:40px;}
+  .checklist-section h3{font-size:.8rem;font-family:'BerkeleyMono',monospace;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+  .checklist-section h3::after{content:'';flex:1;height:1px;background:var(--border);}
+
+  .checklist{display:flex;flex-direction:column;gap:8px;}
+  .cl-item{
+    display:flex;align-items:flex-start;gap:12px;
+    background:var(--card);border:1px solid var(--border);
+    border-radius:10px;padding:12px 14px;cursor:pointer;
+    transition:border-color .2s,background .2s;
+  }
+  .cl-item:hover{border-color:rgba(99,102,241,.3);}
+  .cl-item.done{border-color:rgba(34,197,94,.25);background:rgba(34,197,94,.03);}
+  .cl-item.done .cl-label{text-decoration:line-through;color:var(--muted);}
+  .cl-box{width:18px;height:18px;border-radius:5px;border:2px solid var(--muted);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:.65rem;transition:all .2s;}
+  .cl-item.done .cl-box{background:var(--green);border-color:var(--green);color:#fff;}
+  .cl-label{font-size:.85rem;line-height:1.5;}
+  .cl-sub{font-size:.72rem;color:var(--muted);font-family:'BerkeleyMono',monospace;margin-top:2px;}
+
+  /* ── AI COMMANDS ── */
+  .ai-commands{background:var(--surface);border:1px solid rgba(99,102,241,.2);border-radius:var(--radius);padding:20px;margin-bottom:40px;}
+  .ai-commands h3{font-size:.8rem;font-family:'BerkeleyMono',monospace;text-transform:uppercase;letter-spacing:.1em;color:var(--purple);margin-bottom:14px;}
+  .cmd-row{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+  .cmd-row:last-child{margin-bottom:0;border-bottom:none;}
+  .cmd-tag{font-size:.65rem;font-family:'BerkeleyMono',monospace;background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.25);color:var(--purple);padding:2px 7px;border-radius:4px;white-space:nowrap;flex-shrink:0;margin-top:2px;}
+  .cmd-text{font-size:.82rem;line-height:1.5;flex:1;}
+  .cmd-copy{font-size:10px;font-family:'BerkeleyMono',monospace;background:linear-gradient(135deg,#6366f1,#a78bfa);color:#fff;border:none;border-radius:5px;padding:3px 8px;cursor:pointer;flex-shrink:0;margin-top:2px;transition:opacity .15s;}
+  .cmd-copy:hover{opacity:.8;}
+
+  /* ── SPOTLIGHT SEARCH BOX ── */
+  .spotlight-demo{
+    background:var(--surface);border:1px solid rgba(99,102,241,.3);
+    border-radius:16px;padding:24px;margin-bottom:40px;text-align:center;
+  }
+  .spotlight-demo h3{font-size:.8rem;font-family:'BerkeleyMono',monospace;text-transform:uppercase;letter-spacing:.1em;color:var(--purple);margin-bottom:16px;}
+  .fake-spotlight{
+    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);
+    border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px;
+    max-width:500px;margin:0 auto 14px;
+  }
+  .fake-spotlight .mag{font-size:1.1rem;color:var(--muted);}
+  .fake-spotlight input{background:none;border:none;outline:none;color:var(--text);font-size:.9rem;flex:1;font-family:'DINExp',sans-serif;}
+  .spotlight-hint{font-size:.75rem;color:var(--muted);font-family:'BerkeleyMono',monospace;}
+  .kbd{display:inline-block;background:var(--card);border:1px solid rgba(255,255,255,.15);border-radius:5px;padding:1px 8px;font-family:'BerkeleyMono',monospace;font-size:.72rem;color:var(--text);}
+
+  /* PROGRESS BAR */
+  .prog-bar-wrap{position:fixed;bottom:0;left:0;right:0;height:4px;background:var(--border);z-index:200;}
+  .prog-bar-fill{height:100%;background:linear-gradient(90deg,#6366f1,#22c55e);width:0%;transition:width .4s ease;}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%) translateY(20px);background:#22c55e;color:#fff;padding:8px 20px;border-radius:99px;font-family:'BerkeleyMono',monospace;font-size:.78rem;opacity:0;transition:all .25s;pointer-events:none;z-index:999;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<!-- Spotlight effect at top of page -->
+<div class="spotlight-overlay" id="spotlight"></div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag" id="heroTag">THE WALL PROTOCOL</div>
+  <h1 id="heroH1">You hit a wall.<br><span>Here's the process.</span></h1>
+  <p id="heroP">Don't stop. Don't give up. Don't do half the work. Follow this checklist every time — extract the task, check it off, get AI to finish it.</p>
+  <button class="hero-btn" id="heroBtnEl" onclick="startProcess()">Start Recovery Process</button>
+  <div class="scroll-hint" id="scrollHint">↓ scroll to begin</div>
+</div>
+
+<div class="content">
+
+  <!-- HOW TO SEARCH / LAUNCH AI -->
+  <div class="spotlight-demo">
+    <h3>Step 0 — Launch AI Immediately</h3>
+    <div class="fake-spotlight">
+      <span class="mag">🔍</span>
+      <input type="text" value="claude" readonly>
+    </div>
+    <div class="spotlight-hint">
+      Mac: <span class="kbd">⌘ Space</span> → type "claude" → Enter &nbsp;|&nbsp;
+      iOS: Swipe down from home → type "claude" → tap<br><br>
+      Or open Terminal and type: <span class="kbd">claude</span>
+    </div>
+  </div>
+
+  <!-- PROCESS STEPS -->
+  <div class="process-header">
+    <h2>The 6-Step Wall Protocol</h2>
+    <p>Click each step when complete. Don't skip. Order matters.</p>
+  </div>
+
+  <div class="steps-grid">
+    <div class="process-step" id="ps1" onclick="toggleStep(this)">
+      <div class="ps-glow" style="background:#ef4444"></div>
+      <div class="ps-check">✓</div>
+      <div class="ps-num">STEP 01</div>
+      <div class="ps-title">Name the wall</div>
+      <div class="ps-body">Write one sentence: "I got stuck because ___." Don't skip this. Naming it unlocks the fix.</div>
+    </div>
+    <div class="process-step" id="ps2" onclick="toggleStep(this)">
+      <div class="ps-glow" style="background:#f59e0b"></div>
+      <div class="ps-check">✓</div>
+      <div class="ps-num">STEP 02</div>
+      <div class="ps-title">Extract the checklist</div>
+      <div class="ps-body">Copy all tasks, notes, half-done steps into the checklist below. Get everything out of your head and into the list.</div>
+    </div>
+    <div class="process-step" id="ps3" onclick="toggleStep(this)">
+      <div class="ps-glow" style="background:#6366f1"></div>
+      <div class="ps-check">✓</div>
+      <div class="ps-num">STEP 03</div>
+      <div class="ps-title">Identify the blocker</div>
+      <div class="ps-body">Which single item is blocking everything else? Mark it. That's the only task that matters right now.</div>
+    </div>
+    <div class="process-step" id="ps4" onclick="toggleStep(this)">
+      <div class="ps-glow" style="background:#a78bfa"></div>
+      <div class="ps-check">✓</div>
+      <div class="ps-num">STEP 04</div>
+      <div class="ps-title">Hand it to AI</div>
+      <div class="ps-body">⌘Space → Claude → paste the blocker task. Don't explain. Just paste the task. Let AI unstick you.</div>
+    </div>
+    <div class="process-step" id="ps5" onclick="toggleStep(this)">
+      <div class="ps-glow" style="background:#22c55e"></div>
+      <div class="ps-check">✓</div>
+      <div class="ps-num">STEP 05</div>
+      <div class="ps-title">Check off + keep moving</div>
+      <div class="ps-body">Once unstuck: check it off. Move to next item. Don't revisit finished tasks. Forward only.</div>
+    </div>
+    <div class="process-step" id="ps6" onclick="toggleStep(this)">
+      <div class="ps-glow" style="background:#3b82f6"></div>
+      <div class="ps-check">✓</div>
+      <div class="ps-num">STEP 06</div>
+      <div class="ps-title">Log what broke + why</div>
+      <div class="ps-body">One line in ~/AI-OS/logs/claude-thinking-log.md: what the wall was + what broke it. Future-you will thank you.</div>
+    </div>
+  </div>
+
+  <!-- ACTIVE CHECKLIST -->
+  <div class="checklist-section">
+    <h3>Active Task Checklist</h3>
+    <div class="checklist" id="checklist">
+      <div class="cl-item" onclick="toggleCl(this)"><div class="cl-box">✓</div><div><div class="cl-label">Name the blocker task in one sentence</div><div class="cl-sub">Write it out — don't keep it in your head</div></div></div>
+      <div class="cl-item" onclick="toggleCl(this)"><div class="cl-box">✓</div><div><div class="cl-label">Open Claude: ⌘Space → "claude" → Enter</div><div class="cl-sub">Or Terminal: type claude and press Enter</div></div></div>
+      <div class="cl-item" onclick="toggleCl(this)"><div class="cl-box">✓</div><div><div class="cl-label">Paste task directly — no context dump, just the task</div><div class="cl-sub">One clear sentence. AI fills in the rest.</div></div></div>
+      <div class="cl-item" onclick="toggleCl(this)"><div class="cl-box">✓</div><div><div class="cl-label">Let AI give you option 1 or 2 — pick one and execute</div><div class="cl-sub">Don't deliberate. Pick. Execute. Move on.</div></div></div>
+      <div class="cl-item" onclick="toggleCl(this)"><div class="cl-box">✓</div><div><div class="cl-label">Check completed task off this list</div><div class="cl-sub">Checked = done. Never reopen it.</div></div></div>
+      <div class="cl-item" onclick="toggleCl(this)"><div class="cl-box">✓</div><div><div class="cl-label">Log the wall + fix in claude-thinking-log.md</div><div class="cl-sub">~/AI-OS/logs/claude-thinking-log.md — one line is enough</div></div></div>
+    </div>
+  </div>
+
+  <!-- AI COMMANDS WHEN STUCK -->
+  <div class="ai-commands">
+    <h3>Claude Prompts — Use When Stuck</h3>
+    <div class="cmd-row">
+      <div class="cmd-tag">stuck on task</div>
+      <div class="cmd-text">I'm stuck on: [paste task]. Give me option 1 or option 2 to unblock. I will pick one and execute immediately.</div>
+      <button class="cmd-copy" onclick="copyCmd(this, `I'm stuck on: [paste task]. Give me option 1 or option 2 to unblock. I will pick one and execute immediately.`)">COPY</button>
+    </div>
+    <div class="cmd-row">
+      <div class="cmd-tag">half done</div>
+      <div class="cmd-text">I started this and hit a wall: [describe]. Here's what's done: [list]. Finish it for me — complete every step, don't stop halfway.</div>
+      <button class="cmd-copy" onclick="copyCmd(this, `I started this and hit a wall: [describe]. Here's what's done: [list]. Finish it for me — complete every step, don't stop halfway.`)">COPY</button>
+    </div>
+    <div class="cmd-row">
+      <div class="cmd-tag">error</div>
+      <div class="cmd-text">I got this error: [paste error]. File: [path]. Fix it, test it, and tell me what caused it so I don't hit this again.</div>
+      <button class="cmd-copy" onclick="copyCmd(this, `I got this error: [paste error]. File: [path]. Fix it, test it, and tell me what caused it so I don't hit this again.`)">COPY</button>
+    </div>
+    <div class="cmd-row">
+      <div class="cmd-tag">lost context</div>
+      <div class="cmd-text">Read ~/AI-OS/logs/claude-thinking-log.md and ~/.claude/LAST_SESSION_SUMMARY.md. Tell me where I left off and what the next step is.</div>
+      <button class="cmd-copy" onclick="copyCmd(this, `Read ~/AI-OS/logs/claude-thinking-log.md and ~/.claude/LAST_SESSION_SUMMARY.md. Tell me where I left off and what the next step is.`)">COPY</button>
+    </div>
+    <div class="cmd-row">
+      <div class="cmd-tag">no internet</div>
+      <div class="cmd-text">Run: echo "I'm offline" | ollama run llama3.2 — then route all tasks through Ollama until reconnected.</div>
+      <button class="cmd-copy" onclick="copyCmd(this, `Run: echo 'offline mode' && ollama run llama3.2`)">COPY</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="prog-bar-wrap"><div class="prog-bar-fill" id="progFill"></div></div>
+<div class="toast" id="toast">Copied to clipboard</div>
+
+<script>
+  function ease(t){return t<0.5?2*t*t:-1+(4-2*t)*t;}
+  function an(el,props,dur,delay){
+    const s=performance.now()+(delay||0);
+    function f(n){if(n<s){requestAnimationFrame(f);return;}
+      const t=Math.min((n-s)/dur,1),e=ease(t);
+      for(const[p,[from,to,u]]of Object.entries(props)){
+        const v=from+(to-from)*e;
+        if(p==='opacity')el.style.opacity=v;
+        else if(p==='translateY')el.style.transform=`translateY(${v}${u})`;
+      }
+      if(t<1)requestAnimationFrame(f);}
+    requestAnimationFrame(f);
+  }
+
+  // Hero entry
+  an(document.getElementById('heroTag'),{opacity:[0,1,''],translateY:[-10,0,'px']},500,300);
+  an(document.getElementById('heroH1'),{opacity:[0,1,''],translateY:[-16,0,'px']},600,600);
+  an(document.getElementById('heroP'),{opacity:[0,1,''],translateY:[-10,0,'px']},500,900);
+  an(document.getElementById('heroBtnEl'),{opacity:[0,1,''],translateY:[10,0,'px']},400,1100);
+  an(document.getElementById('scrollHint'),{opacity:[0,1,''],translateY:[5,0,'px']},400,1400);
+
+  // Scroll: fade out spotlight as user scrolls
+  window.addEventListener('scroll', ()=>{
+    const pct = Math.min(scrollY/400,1);
+    document.getElementById('spotlight').style.opacity = 1 - pct;
+  });
+
+  // Steps animate in on scroll
+  const obs = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting) an(e.target,{opacity:[0,1,''],translateY:[24,0,'px']},450,0);});
+  },{threshold:0.15});
+  document.querySelectorAll('.process-step').forEach(el=>obs.observe(el));
+
+  // Checklist + steps
+  let totalItems = document.querySelectorAll('.cl-item').length + document.querySelectorAll('.process-step').length;
+  function updateProgress(){
+    const done = document.querySelectorAll('.cl-item.done').length + document.querySelectorAll('.process-step.done').length;
+    document.getElementById('progFill').style.width = (done/totalItems*100)+'%';
+  }
+
+  window.toggleStep = function(el){
+    el.classList.toggle('done');
+    updateProgress();
+  };
+
+  window.toggleCl = function(el){
+    el.classList.toggle('done');
+    updateProgress();
+  };
+
+  window.startProcess = function(){
+    window.scrollTo({top: document.querySelector('.content').offsetTop, behavior:'smooth'});
+  };
+
+  window.copyCmd = function(btn, text){
+    navigator.clipboard.writeText(text).catch(()=>{
+      const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    });
+    const orig=btn.textContent;
+    btn.textContent='✓';
+    const t=document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(()=>{btn.textContent=orig;t.classList.remove('show');},1800);
+  };
+</script>
+</body>
+</html>

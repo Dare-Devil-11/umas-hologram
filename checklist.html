@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LAN Fallback System — Build Checklist</title>
+<style>
+  @font-face { font-family: 'DINExp'; src: url('/Users/karanamin/AI-OS/outputs/anime-repro/fonts/Altinn-DINExp.woff2'); }
+  @font-face { font-family: 'DINExp'; src: url('/Users/karanamin/AI-OS/outputs/anime-repro/fonts/Altinn-DINExp-Bold.woff2'); font-weight: 700; }
+  @font-face { font-family: 'BerkeleyMono'; src: url('/Users/karanamin/AI-OS/outputs/anime-repro/fonts/BerkeleyMono-Regular.woff2'); }
+
+  :root {
+    --bg: #0a0a14; --surface: #12121e; --card: #1a1a2e;
+    --primary: #6366f1; --green: #22c55e; --yellow: #f59e0b;
+    --red: #ef4444; --text: #e2e8f0; --muted: #64748b;
+    --border: rgba(255,255,255,0.08); --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'DINExp', system-ui, sans-serif; min-height: 100vh; padding: 48px 24px; }
+  .container { max-width: 860px; margin: 0 auto; }
+
+  .header { text-align: center; margin-bottom: 40px; opacity: 0; transform: translateY(-30px); }
+  .header h1 { font-size: clamp(1.8rem,4vw,2.8rem); font-weight: 700; background: linear-gradient(135deg,#6366f1,#a78bfa,#22c55e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px; }
+  .header p { color: var(--muted); font-size: 0.9rem; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 99px; margin-bottom: 14px; font-family: 'BerkeleyMono', monospace; font-size: 0.72rem; letter-spacing: 0.05em; }
+  .badge-hotspot { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; }
+
+  .action-box { background: rgba(245,158,11,0.08); border: 2px solid rgba(245,158,11,0.4); border-radius: var(--radius); padding: 20px 24px; margin-bottom: 32px; opacity: 0; }
+  .action-box h3 { color: #f59e0b; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; font-family: 'BerkeleyMono', monospace; }
+  .action-step { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
+  .step-num { background: rgba(245,158,11,0.2); color: #f59e0b; border: 1px solid rgba(245,158,11,0.4); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; flex-shrink: 0; font-family: 'BerkeleyMono', monospace; }
+  .action-step p { font-size: 0.85rem; color: var(--text); line-height: 1.5; }
+  .action-step code { font-family: 'BerkeleyMono', monospace; background: rgba(255,255,255,0.07); padding: 2px 7px; border-radius: 4px; color: #a78bfa; font-size: 0.78rem; }
+
+  .legend { display: flex; gap: 20px; justify-content: center; margin-bottom: 36px; flex-wrap: wrap; opacity: 0; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--muted); }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  .section { margin-bottom: 36px; opacity: 0; transform: translateX(-40px); }
+  .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+  .section-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; font-family: 'BerkeleyMono', monospace; flex-shrink: 0; }
+  .num-done   { background: rgba(34,197,94,0.2);  color: #22c55e; border: 1px solid rgba(34,197,94,0.4); }
+  .num-build  { background: rgba(245,158,11,0.2); color: #f59e0b; border: 1px solid rgba(245,158,11,0.4); }
+  .num-future { background: rgba(99,102,241,0.2); color: #a78bfa; border: 1px solid rgba(99,102,241,0.4); }
+  .section-title { font-size: 1.05rem; font-weight: 700; }
+  .section-title.underlined { text-decoration: underline; text-decoration-color: var(--yellow); text-underline-offset: 4px; text-decoration-thickness: 2px; }
+  .status-pill { margin-left: auto; font-size: 0.68rem; padding: 3px 10px; border-radius: 99px; font-family: 'BerkeleyMono', monospace; letter-spacing: 0.04em; white-space: nowrap; }
+  .pill-done   { background: rgba(34,197,94,0.15);  color: #22c55e;  border: 1px solid rgba(34,197,94,0.3); }
+  .pill-build  { background: rgba(245,158,11,0.15); color: #f59e0b;  border: 1px solid rgba(245,158,11,0.3); }
+  .pill-installed { background: rgba(99,102,241,0.15); color: #a78bfa; border: 1px solid rgba(99,102,241,0.3); }
+
+  .items { display: flex; flex-direction: column; gap: 8px; }
+  .item { display: flex; align-items: flex-start; gap: 12px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; cursor: pointer; transition: border-color 0.2s, background 0.2s; opacity: 0; transform: translateX(-20px); }
+  .item:hover { border-color: rgba(99,102,241,0.4); background: #1e1e32; }
+  .item.checked { border-color: rgba(34,197,94,0.3); background: rgba(34,197,94,0.04); }
+  .item.manual  { border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.04); }
+  .checkbox { width: 20px; height: 20px; border-radius: 6px; border: 2px solid var(--muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; transition: all 0.2s; }
+  .item.checked .checkbox { background: var(--green); border-color: var(--green); }
+  .item.manual .checkbox  { background: #f59e0b; border-color: #f59e0b; }
+  .checkmark { color: #fff; font-size: 11px; opacity: 0; transition: opacity 0.2s; }
+  .item.checked .checkmark, .item.manual .checkmark { opacity: 1; }
+  .item-label { font-size: 0.9rem; color: var(--text); line-height: 1.4; margin-bottom: 3px; }
+  .item-label code { font-family: 'BerkeleyMono', monospace; font-size: 0.78rem; background: rgba(255,255,255,0.07); padding: 1px 6px; border-radius: 4px; color: #a78bfa; }
+  .item-sub { font-size: 0.75rem; color: var(--muted); font-family: 'BerkeleyMono', monospace; }
+  .item-sub.warn { color: #f59e0b; }
+
+  .progress-wrap { position: fixed; bottom: 24px; right: 24px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 20px; min-width: 190px; opacity: 0; }
+  .progress-label { font-size: 0.72rem; color: var(--muted); font-family: 'BerkeleyMono', monospace; margin-bottom: 8px; }
+  .progress-bar-bg { height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: linear-gradient(90deg,#6366f1,#22c55e); border-radius: 99px; width: 0%; transition: width 0.4s ease; }
+  .progress-count { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-top: 6px; font-family: 'BerkeleyMono', monospace; }
+
+  .demo-row { display: flex; justify-content: center; gap: 14px; margin-top: 32px; opacity: 0; }
+  .sq { width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(135deg,#6366f1,#a78bfa); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header" id="header">
+    <div class="badge badge-hotspot">RUNNING ON PHONE HOTSPOT</div>
+    <h1>LAN Fallback + Firebase System</h1>
+    <p>Sections <span style="text-decoration:underline;text-underline-offset:3px;text-decoration-color:#f59e0b;color:#f59e0b">underlined</span> needed building. 16/18 installed. 2 require your terminal.</p>
+  </div>
+
+  <!-- MANUAL STEPS CALLOUT -->
+  <div class="action-box" id="actionBox">
+    <h3>⚠ 2 Steps Need Your Terminal (type ! before each command)</h3>
+    <div class="action-step">
+      <div class="step-num">1</div>
+      <p>Install watchdog at startup:<br><code>! launchctl load ~/Library/LaunchAgents/com.aios.network-watchdog.plist</code></p>
+    </div>
+    <div class="action-step">
+      <div class="step-num">2</div>
+      <p>Install Firebase CLI (one-time, ~20MB):<br><code>! npm install -g firebase-tools && firebase login</code></p>
+    </div>
+  </div>
+
+  <div class="legend" id="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div>Installed / done</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>Manual step needed</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#a78bfa"></div>Future / optional</div>
+  </div>
+
+  <!-- S1 -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <div class="section-num num-done">1</div>
+      <span class="section-title">Internet + Device Infrastructure</span>
+      <span class="status-pill pill-done">DONE</span>
+    </div>
+    <div class="items">
+      <div class="item checked" onclick="toggle(this)"><div class="checkbox"><span class="checkmark">✓</span></div><div><div class="item-label">Phone hotspot active — Claude Code running</div><div class="item-sub">Currently connected via mobile data</div></div></div>
+      <div class="item checked" onclick="toggle(this)"><div class="checkbox"><span class="checkmark">✓</span></div><div><div class="item-label">Ollama installed with local models</div><div class="item-sub">llama3.2 · qwen2.5-coder:3b — offline AI ready</div></div></div>
+      <div class="item checked" onclick="toggle(this)"><div class="checkbox"><span class="checkmark">✓</span></div><div><div class="item-label">MCP Filesystem server — path fix applied</div><div class="item-sub">command → /opt/homebrew/bin/npx (full path)</div></div></div>
+      <div class="item checked" onclick="toggle(this)"><div class="checkbox"><span class="checkmark">✓</span></div><div><div class="item-label">OneDrive mounted locally</div><div class="item-sub">~/Library/CloudStorage/OneDrive-* — 30+ video files accessible</div></div></div>
+    </div>
+  </div>
+
+  <!-- S2 -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <div class="section-num num-done">2</div>
+      <span class="section-title underlined">Network Watchdog Script</span>
+      <span class="status-pill pill-done">INSTALLED</span>
+    </div>
+    <div class="items">
+      <div class="item checked" onclick="toggle(this)"><div class="checkbox"><span class="checkmark">✓</span></div><div><div class="item-label">Created <code>~/AI-OS/scripts/network-watchdog.sh</code></div><div class="item-sub">Pings api.anthropic.com every 60s — curl 3s timeout</div></div></div>
+      <div class="item checked" onclick="toggle(this)"><div class="checkbox"><span class="checkmark">✓</span></div><div><div class="item-label">macOS notification on disconnect</div><div class="item-sub">osascript: "Internet Lost — switched to Ollama" + Funk sound</div></div></div>
+      <div class="item checked" onclick="toggle(this)"><div class="checkbox"><span class="checkmark">✓</span></div><div><div class="item-label">Auto-flip <code>ai.sh</code> to Ollama-only via flag file</div><div class="item-sub">touch ~/.claude/.offline-mode → forces Ollama regardless of complexity</div></div></div>
+      <div class="item checked" onclick="toggle(this)"><div class="checkbox"><span class="checkmark">✓</span></div><div><div class="item-label">macOS notification on reconnect</div><div class="item-sub">osascript: "Back Online — Claude API restored"</div></div></div>
+      <div class="item manual" onclick="toggle(this)"><div class="checkbox"><span class="checkmark">!</span></div><div><div class="item-label">launchd plist — run at startup</div><div class="item-sub warn">Needs: ! launchctl load ~/Library/LaunchAgents/com.aios.network-watchdog.plist</div></div></div>
+    </div>
+  </div>
+
+  <!-- S3 -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <div class="section-num num-build">3</div>
+      <span class="section-title underlined">Firebase Offline Persistence</span>
+      <span class="status-pill pill-installed">CODE READY</span>
+    </div>
+    <div class="items">
+      <div class="item manual" onclick="toggle(this)"><div class="checkbox"><span class="checkmark">!</span></div><div><div class="item-label">Install Firebase CLI + login</div><div class="item-sub warn">Needs: ! npm install -g firebase-tools && firebase login</div></div></div>
+      <div class="item checked" onclick="toggle(this)"><div class="checkbox"><span class="checkmark">✓</span></div><div><div class="item-label">Offline persistence code written</div><div class="item-sub">~/AI-OS/firebase/firebase-offline.js — paste your config to activate</div></div></div>
+      <div class="item checked" onclick="toggle(this)"><div class="checkbox"><span class="checkmark">✓</span></div><div><div class="item-label">Session + task + memory snapshot store</div><div class="item-sub">saveSession() · saveTaskState() · saveMemorySnapshot() — auto-syncs on reconnect</div></div></div>
+      <div class="item checked" onclick="toggle(this)"><div class="checkbox"><span class="checkmark">✓</span></div><div><div class="item-label">Multi-tab persistent cache enabled</div><div class="item-sub">persistentMultipleTabManager() — works across browser tabs offline</div></div></div>
+    </div>
+  </div>
+
+  <!-- S4 -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <div class="section-num num-done">4</div>
+      <span class="section-title underlined">AI Routing — Online/Offline Switch</span>
+      <span class="status-pill pill-done">INSTALLED</span>
+    </div>
+    <div class="items">
+      <div class="item checked" onclick="toggle(this)"><div class="checkbox"><span class="checkmark">✓</span></div><div><div class="item-label"><code>~/ai-agent/ai.sh</code> rebuilt clean</div><div class="item-sub">Fixed corrupt lines, added set -euo pipefail, proper error handling</div></div></div>
+      <div class="item checked" onclick="toggle(this)"><div class="checkbox"><span class="checkmark">✓</span></div><div><div class="item-label">Offline flag check added to <code>ai.sh</code></div><div class="item-sub">If ~/.claude/.offline-mode exists → Ollama always, regardless of complexity</div></div></div>
+      <div class="item checked" onclick="toggle(this)"><div class="checkbox"><span class="checkmark">✓</span></div><div><div class="item-label">Watchdog sets/removes flag automatically</div><div class="item-sub">touch flag (offline) · rm flag (online) — no manual intervention needed</div></div></div>
+      <div class="item checked" onclick="toggle(this)"><div class="checkbox"><span class="checkmark">✓</span></div><div><div class="item-label">Claude fallback already in ai.sh</div><div class="item-sub">Claude errors → auto falls back to llama3.2 (pre-existing, kept)</div></div></div>
+    </div>
+  </div>
+
+  <!-- S5 -->
+  <div class="section" id="s5">
+    <div class="section-header">
+      <div class="section-num num-done">5</div>
+      <span class="section-title">LAN App Server</span>
+      <span class="status-pill pill-done">INSTALLED</span>
+    </div>
+    <div class="items">
+      <div class="item checked" onclick="toggle(this)"><div class="checkbox"><span class="checkmark">✓</span></div><div><div class="item-label">Local Node server — port 3001</div><div class="item-sub">~/AI-OS/lan-server/server.js — serves dashboard to any device on WiFi</div></div></div>
+      <div class="item checked" onclick="toggle(this)"><div class="checkbox"><span class="checkmark">✓</span></div><div><div class="item-label">LAN QR code auto-generated</div><div class="item-sub">Scan from phone → connects to Mac over same WiFi network</div></div></div>
+      <div class="item checked" onclick="toggle(this)"><div class="checkbox"><span class="checkmark">✓</span></div><div><div class="item-label">Network status live endpoint</div><div class="item-sub">GET /api/status → { online: true/false, mode: "Claude API" | "Ollama (offline)" }</div></div></div>
+    </div>
+  </div>
+
+  <div class="demo-row" id="demoRow">
+    <div class="sq" id="sq1"></div>
+    <div class="sq" id="sq2"></div>
+    <div class="sq" id="sq3"></div>
+    <div class="sq" id="sq4"></div>
+    <div class="sq" id="sq5"></div>
+  </div>
+
+</div>
+
+<!-- PROGRESS WIDGET -->
+<div class="progress-wrap" id="progressWrap">
+  <div class="progress-label">CHECKLIST PROGRESS</div>
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+  <div class="progress-count" id="progressCount">0 / 18</div>
+</div>
+
+<script>
+  function ease(t) { return t<0.5?2*t*t:-1+(4-2*t)*t; }
+  function anim(el, props, dur, delay) {
+    const start = performance.now() + (delay||0);
+    function f(now) {
+      if (now < start) { requestAnimationFrame(f); return; }
+      const t = Math.min((now-start)/dur,1), e = ease(t);
+      for (const [p,[from,to,u]] of Object.entries(props)) {
+        const v = from+(to-from)*e;
+        if (p==='opacity') el.style.opacity=v;
+        else if (p==='translateY') el.style.transform=`translateY(${v}${u})`;
+        else if (p==='translateX') el.style.transform=`translateX(${v}${u})`;
+      }
+      if (t<1) requestAnimationFrame(f);
+    }
+    requestAnimationFrame(f);
+  }
+
+  anim(document.getElementById('header'), {opacity:[0,1,''],translateY:[-30,0,'px']}, 600, 100);
+  anim(document.getElementById('actionBox'), {opacity:[0,1,''],translateY:[-10,0,'px']}, 500, 400);
+  anim(document.getElementById('legend'), {opacity:[0,1,''],translateY:[-10,0,'px']}, 400, 700);
+  document.querySelectorAll('.section').forEach((s,i) => setTimeout(()=>anim(s,{opacity:[0,1,''],translateX:[-40,0,'px']},500,0),800+i*150));
+  document.querySelectorAll('.item').forEach((el,i) => setTimeout(()=>anim(el,{opacity:[0,1,''],translateX:[-20,0,'px']},350,0),1000+i*55));
+  setTimeout(()=>{
+    anim(document.getElementById('demoRow'),{opacity:[0,1,''],translateY:[20,0,'px']},500,0);
+    anim(document.getElementById('progressWrap'),{opacity:[0,1,''],translateY:[10,0,'px']},400,0);
+  },2400);
+
+  // Bounce squares
+  document.querySelectorAll('.sq').forEach((sq,i)=>{
+    let s=null; const d=1200;
+    function f(ts){ if(!s)s=ts+i*180; if(ts<s){requestAnimationFrame(f);return;}
+      const t=((ts-s)%d)/d, y=-Math.abs(Math.sin(t*Math.PI*2))*18, sc=1+Math.abs(Math.sin(t*Math.PI*2))*0.08;
+      sq.style.transform=`translateY(${y}px) scale(${sc})`; requestAnimationFrame(f); }
+    requestAnimationFrame(f);
+  });
+
+  const TOTAL = 18;
+  window.toggle = function(el) {
+    if (el.classList.contains('manual')) return; // manual steps toggled only by user
+    el.classList.toggle('checked');
+    update();
+  };
+
+  function update() {
+    const n = document.querySelectorAll('.item.checked').length;
+    const pct = Math.round(n/TOTAL*100);
+    document.getElementById('progressFill').style.width = pct+'%';
+    document.getElementById('progressCount').textContent = n+' / '+TOTAL;
+  }
+  update();
+</script>
+</body>
+</html>
