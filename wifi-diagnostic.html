@@ -5,74 +5,128 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WiFi Diagnostic Tool</title>
 <style>
-:root{--bg:#04040d;--surface:#0c0c1a;--card:#121228;--primary:#00aaff;--green:#22c55e;--red:#ef4444;--yellow:#f59e0b;--purple:#a78bfa;--text:#e8f0fe;--muted:#4a5568;--border:rgba(255,255,255,0.07);--radius:12px;}
+:root{
+  --bg:#04040d;--surface:#0c0c1a;--card:#121228;--card2:#0e0e22;
+  --primary:#00aaff;--green:#22c55e;--red:#ef4444;--yellow:#f59e0b;--purple:#a78bfa;
+  --text:#e8f0fe;--muted:#6b7a99;--border:rgba(255,255,255,0.07);--radius:12px;
+  --guide-bg:#0a0a1e;
+}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:-apple-system,system-ui,sans-serif;padding:0 0 80px;}
+html{font-size:16px;}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:0 0 100px;min-height:100vh;}
 
-.header{background:linear-gradient(135deg,#04040d 0%,#0a0a1f 100%);padding:48px 24px 32px;text-align:center;border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
-.header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 700px 300px at 50% 0%,rgba(0,170,255,0.1),transparent);}
-.header h1{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:800;background:linear-gradient(135deg,#00aaff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;position:relative;}
-.header p{color:var(--muted);font-size:.88rem;margin-top:8px;position:relative;}
-.status-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 16px;border-radius:99px;font-size:.72rem;font-weight:700;letter-spacing:.08em;margin-top:14px;position:relative;}
+/* HEADER */
+.header{background:linear-gradient(160deg,#04040d 0%,#0a0a22 100%);padding:40px 20px 28px;text-align:center;border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
+.header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 600px 250px at 50% -20%,rgba(0,170,255,0.12),transparent);pointer-events:none;}
+.header h1{font-size:clamp(1.55rem,5vw,2.4rem);font-weight:800;background:linear-gradient(135deg,#00aaff,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;position:relative;line-height:1.15;}
+.header p{color:var(--muted);font-size:clamp(.8rem,2.5vw,.9rem);margin-top:6px;position:relative;}
+.status-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:99px;font-size:.7rem;font-weight:700;letter-spacing:.08em;margin-top:12px;position:relative;}
 .status-badge.online{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:#22c55e;}
 .status-badge.offline{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#ef4444;}
-.pulse{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pulse 1.5s infinite;}
+.pulse{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pulse 1.5s infinite;flex-shrink:0;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
 
-.wrap{max-width:860px;margin:0 auto;padding:0 20px;}
+/* WRAP */
+.wrap{max-width:780px;margin:0 auto;padding:0 16px;}
+@media(min-width:600px){.wrap{padding:0 24px;}}
 
-.auto-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:28px 0 20px;}
-.auto-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 12px;text-align:center;transition:border-color .3s;}
+/* AUTO CHECKS */
+.auto-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:24px 0 16px;}
+@media(min-width:480px){.auto-grid{grid-template-columns:repeat(3,1fr);gap:10px;}}
+@media(min-width:720px){.auto-grid{grid-template-columns:repeat(6,1fr);}}
+.auto-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 8px;text-align:center;transition:border-color .3s;}
 .auto-card.pass{border-color:rgba(34,197,94,.35);}
 .auto-card.fail{border-color:rgba(239,68,68,.35);}
 .auto-card.warn{border-color:rgba(245,158,11,.35);}
-.ac-icon{font-size:1.5rem;margin-bottom:6px;}
-.ac-label{font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:4px;}
-.ac-val{font-size:.85rem;font-weight:700;}
+.ac-icon{font-size:1.25rem;margin-bottom:4px;}
+.ac-label{font-size:.58rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:3px;}
+.ac-val{font-size:.78rem;font-weight:700;}
 .ac-val.pass{color:#22c55e;}.ac-val.fail{color:#ef4444;}.ac-val.warn{color:#f59e0b;}.ac-val.unknown{color:var(--muted);}
 
-.progress-wrap{background:var(--surface);border-radius:99px;height:5px;overflow:hidden;margin-bottom:6px;}
+/* PROGRESS */
+.progress-wrap{background:var(--surface);border-radius:99px;height:5px;overflow:hidden;margin-bottom:5px;}
 .progress-bar{height:5px;background:linear-gradient(90deg,#00aaff,#22c55e);border-radius:99px;width:0%;transition:width .4s;}
-.progress-label{font-size:.68rem;color:var(--muted);text-align:right;margin-bottom:20px;}
+.progress-label{font-size:.67rem;color:var(--muted);text-align:right;margin-bottom:20px;}
 
-.diagnosis-box{background:var(--card);border:1px solid rgba(0,170,255,.25);border-radius:var(--radius);padding:20px 24px;margin-bottom:24px;display:none;animation:fadeIn .4s ease;}
+/* DIAGNOSIS BOX */
+.diagnosis-box{background:var(--card);border:1px solid rgba(0,170,255,.25);border-radius:var(--radius);padding:18px 20px;margin-bottom:24px;display:none;animation:fadeIn .4s ease;}
 .diagnosis-box.visible{display:block;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-.dx-label{font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:#60c8ff;margin-bottom:8px;}
-.dx-result{font-size:1.15rem;font-weight:800;margin-bottom:10px;}
-.dx-detail{font-size:.8rem;color:rgba(232,240,254,.65);line-height:1.75;white-space:pre-wrap;}
+.dx-label{font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:#60c8ff;margin-bottom:6px;}
+.dx-result{font-size:clamp(1rem,3vw,1.15rem);font-weight:800;margin-bottom:8px;line-height:1.3;}
+.dx-detail{font-size:.8rem;color:rgba(232,240,254,.65);line-height:1.8;white-space:pre-wrap;}
 
-.section-header{display:flex;align-items:center;gap:10px;margin:32px 0 12px;padding-bottom:10px;border-bottom:1px solid var(--border);}
-.section-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;}
-.section-title{font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;}
-.section-count{margin-left:auto;font-size:.68rem;color:var(--muted);font-family:monospace;background:var(--surface);padding:2px 8px;border-radius:99px;}
+/* SECTIONS */
+.section-header{display:flex;align-items:center;gap:10px;margin:28px 0 10px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.section-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.88rem;flex-shrink:0;}
+.section-title{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;}
+.section-count{margin-left:auto;font-size:.65rem;color:var(--muted);font-family:monospace;background:var(--surface);padding:2px 7px;border-radius:99px;white-space:nowrap;}
 
-.item{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:8px;transition:border-color .2s,background .2s;cursor:pointer;user-select:none;}
+/* ITEM */
+.item{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;overflow:hidden;transition:border-color .2s;}
 .item:hover{border-color:rgba(255,255,255,.13);}
-.item.checked{background:rgba(34,197,94,.04);border-color:rgba(34,197,94,.25);}
-.item.failed{background:rgba(239,68,68,.05);border-color:rgba(239,68,68,.3);cursor:default;}
-.item-top{display:flex;align-items:flex-start;gap:12px;}
-.checkbox{width:20px;height:20px;border-radius:5px;border:2px solid var(--muted);flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px;transition:all .15s;}
+.item.checked{border-color:rgba(34,197,94,.25);}
+.item.failed{border-color:rgba(239,68,68,.3);}
+.item.guide-open{border-color:rgba(0,170,255,.35);}
+
+/* ITEM TOP ROW */
+.item-top{display:flex;align-items:flex-start;gap:10px;padding:14px 14px 0;cursor:pointer;user-select:none;}
+@media(min-width:480px){.item-top{gap:12px;padding:14px 16px 0;}}
+.checkbox{width:22px;height:22px;min-width:22px;border-radius:6px;border:2px solid var(--muted);display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .15s;}
 .item.checked .checkbox{background:#22c55e;border-color:#22c55e;}
 .item.failed .checkbox{background:#ef4444;border-color:#ef4444;}
-.ck{color:#fff;font-size:.7rem;display:none;}
+.ck{color:#fff;font-size:.65rem;display:none;}
 .item.checked .ck,.item.failed .ck{display:block;}
-.item-body{flex:1;}
-.item-label{font-size:.88rem;font-weight:600;margin-bottom:4px;line-height:1.3;}
-.item-desc{font-size:.74rem;color:rgba(232,240,254,.55);line-height:1.55;}
-.item-cmd{display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.07);border-radius:7px;padding:6px 10px;margin-top:10px;font-family:'Courier New',monospace;font-size:.7rem;color:#90c4f8;}
+.item-body{flex:1;min-width:0;}
+.item-label{font-size:.88rem;font-weight:600;margin-bottom:3px;line-height:1.35;}
+.item-desc{font-size:.75rem;color:rgba(232,240,254,.5);line-height:1.6;}
+
+/* COMMAND ROW */
+.item-cmd{display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.07);border-radius:7px;padding:7px 10px;margin:10px 14px 0;font-family:'SF Mono','Fira Code','Courier New',monospace;font-size:.68rem;color:#90c4f8;overflow:hidden;}
+@media(min-width:480px){.item-cmd{margin:10px 16px 0;}}
 .cmd-text{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.copy-btn{background:rgba(0,170,255,.15);border:1px solid rgba(0,170,255,.3);color:#60c8ff;border-radius:5px;padding:3px 10px;font-size:.63rem;font-family:monospace;cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0;}
+.copy-btn{background:rgba(0,170,255,.15);border:1px solid rgba(0,170,255,.3);color:#60c8ff;border-radius:5px;padding:5px 10px;font-size:.62rem;font-family:monospace;cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0;min-height:28px;min-width:60px;}
 .copy-btn:hover{background:rgba(0,170,255,.28);}
 .copy-btn.copied{background:rgba(34,197,94,.2);border-color:rgba(34,197,94,.4);color:#22c55e;}
-.fail-btn{margin-top:8px;margin-left:32px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#f87171;border-radius:6px;padding:4px 12px;font-size:.65rem;font-family:monospace;cursor:pointer;transition:all .15s;}
-.fail-btn:hover{background:rgba(239,68,68,.2);}
-.item.failed .fail-btn{background:rgba(239,68,68,.2);color:#fca5a5;}
 
-.diagnose-btn{display:block;width:100%;max-width:860px;margin:24px auto 0;padding:15px;background:linear-gradient(135deg,#00aaff,#a78bfa);color:#fff;border:none;border-radius:var(--radius);font-size:.92rem;font-weight:800;cursor:pointer;letter-spacing:.06em;transition:opacity .15s;text-transform:uppercase;}
+/* ACTION BUTTONS ROW */
+.item-actions{display:flex;gap:7px;padding:10px 14px 14px;flex-wrap:wrap;}
+@media(min-width:480px){.item-actions{padding:10px 16px 14px;}}
+.guide-btn{flex:1;min-width:120px;background:rgba(0,170,255,.1);border:1px solid rgba(0,170,255,.25);color:#60c8ff;border-radius:8px;padding:9px 14px;font-size:.72rem;font-weight:700;cursor:pointer;transition:all .2s;text-align:center;min-height:38px;letter-spacing:.04em;}
+.guide-btn:hover{background:rgba(0,170,255,.2);border-color:rgba(0,170,255,.4);}
+.guide-btn.active{background:rgba(0,170,255,.2);border-color:#00aaff;color:#00aaff;}
+.fail-btn{flex:1;min-width:120px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#f87171;border-radius:8px;padding:9px 14px;font-size:.72rem;font-weight:700;cursor:pointer;transition:all .2s;text-align:center;min-height:38px;}
+.fail-btn:hover{background:rgba(239,68,68,.16);}
+.item.failed .fail-btn{background:rgba(239,68,68,.18);color:#fca5a5;border-color:rgba(239,68,68,.4);}
+
+/* GUIDE PANEL */
+.guide-panel{display:none;background:var(--guide-bg);border-top:1px solid rgba(0,170,255,.2);padding:16px 14px 18px;animation:panelIn .25s ease;}
+@media(min-width:480px){.guide-panel{padding:18px 20px 20px;}}
+.guide-panel.open{display:block;}
+@keyframes panelIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+.guide-title{font-size:.65rem;text-transform:uppercase;letter-spacing:.12em;color:#60c8ff;margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+.guide-title::before{content:'';display:block;width:3px;height:14px;background:#00aaff;border-radius:2px;flex-shrink:0;}
+.guide-step{display:flex;gap:10px;margin-bottom:13px;align-items:flex-start;}
+.step-num{width:22px;height:22px;min-width:22px;border-radius:50%;background:rgba(0,170,255,.18);border:1px solid rgba(0,170,255,.35);color:#60c8ff;font-size:.65rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.step-body{flex:1;min-width:0;}
+.step-action{font-size:.8rem;font-weight:600;color:var(--text);line-height:1.4;margin-bottom:3px;}
+.step-detail{font-size:.72rem;color:rgba(232,240,254,.55);line-height:1.65;}
+.step-cmd{display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:6px 10px;margin-top:6px;font-family:'SF Mono','Fira Code','Courier New',monospace;font-size:.67rem;color:#90c4f8;}
+.step-cmd .cmd-text{flex:1;overflow-x:auto;white-space:nowrap;}
+.guide-result{background:rgba(0,170,255,.06);border:1px solid rgba(0,170,255,.15);border-radius:8px;padding:10px 12px;margin-top:12px;}
+.result-label{font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:#60c8ff;margin-bottom:6px;}
+.result-row{display:flex;align-items:baseline;gap:8px;margin-bottom:4px;font-size:.75rem;}
+.result-key{color:rgba(232,240,254,.5);min-width:90px;flex-shrink:0;}
+.result-val{color:var(--text);font-weight:600;}
+
+/* DIAGNOSE BTN */
+.diagnose-wrap{position:sticky;bottom:0;background:linear-gradient(to top,var(--bg) 60%,transparent);padding:16px 16px 20px;margin-top:8px;}
+.diagnose-btn{display:block;width:100%;max-width:780px;margin:0 auto;padding:16px;background:linear-gradient(135deg,#00aaff,#a78bfa);color:#fff;border:none;border-radius:var(--radius);font-size:.88rem;font-weight:800;cursor:pointer;letter-spacing:.06em;transition:opacity .15s;text-transform:uppercase;min-height:52px;}
 .diagnose-btn:hover{opacity:.88;}
+.diagnose-btn:active{opacity:.75;}
 
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#22c55e;color:#fff;padding:7px 20px;border-radius:99px;font-size:.73rem;font-family:monospace;opacity:0;transition:opacity .2s;pointer-events:none;z-index:999;}
+/* TOAST */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#22c55e;color:#fff;padding:8px 20px;border-radius:99px;font-size:.72rem;font-family:monospace;opacity:0;transition:opacity .2s;pointer-events:none;z-index:999;white-space:nowrap;}
 .toast.show{opacity:1;}
 </style>
 </head>
@@ -89,45 +143,42 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,system-ui,
 
 <div class="wrap">
 
-  <!-- AUTO CHECKS -->
   <div class="auto-grid">
     <div class="auto-card" id="ac-online">
       <div class="ac-icon">🌐</div>
       <div class="ac-label">Internet</div>
-      <div class="ac-val unknown" id="acv-online">Checking...</div>
+      <div class="ac-val unknown" id="acv-online">Checking</div>
     </div>
     <div class="auto-card" id="ac-type">
       <div class="ac-icon">📶</div>
       <div class="ac-label">Type</div>
-      <div class="ac-val unknown" id="acv-type">Detecting...</div>
+      <div class="ac-val unknown" id="acv-type">Detecting</div>
     </div>
     <div class="auto-card" id="ac-speed">
       <div class="ac-icon">⚡</div>
-      <div class="ac-label">Est. Speed</div>
-      <div class="ac-val unknown" id="acv-speed">Measuring...</div>
+      <div class="ac-label">Speed</div>
+      <div class="ac-val unknown" id="acv-speed">Measuring</div>
     </div>
     <div class="auto-card" id="ac-latency">
       <div class="ac-icon">⏱</div>
       <div class="ac-label">Latency</div>
-      <div class="ac-val unknown" id="acv-latency">Measuring...</div>
+      <div class="ac-val unknown" id="acv-latency">Measuring</div>
     </div>
     <div class="auto-card" id="ac-dns">
       <div class="ac-icon">🔍</div>
       <div class="ac-label">DNS</div>
-      <div class="ac-val unknown" id="acv-dns">Checking...</div>
+      <div class="ac-val unknown" id="acv-dns">Checking</div>
     </div>
     <div class="auto-card" id="ac-drops">
       <div class="ac-icon">📉</div>
-      <div class="ac-label">Drop Events</div>
+      <div class="ac-label">Drops</div>
       <div class="ac-val pass" id="acv-drops">0</div>
     </div>
   </div>
 
-  <!-- PROGRESS -->
   <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
   <div class="progress-label" id="progressLabel">0 / 19 items checked</div>
 
-  <!-- DIAGNOSIS -->
   <div class="diagnosis-box" id="diagBox">
     <div class="dx-label">Most Likely Root Cause</div>
     <div class="dx-result" id="dxResult">—</div>
@@ -141,63 +192,116 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,system-ui,
     <div class="section-count" id="cnt-1">0/5</div>
   </div>
 
-  <div class="item" data-s="1" data-w="signal" onclick="toggle(this)">
-    <div class="item-top">
+  <div class="item" data-s="1" data-w="signal" data-g="rssi">
+    <div class="item-top" onclick="toggle(this.closest('.item'))">
       <div class="checkbox"><span class="ck">✓</span></div>
       <div class="item-body">
         <div class="item-label">Check RSSI signal strength</div>
-        <div class="item-desc">Hold Option + click WiFi icon in menu bar. RSSI worse than −70 dBm = weak. Ideal: −50 or better. Noise below −85 is good.</div>
-        <div class="item-cmd"><span class="cmd-text">/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -I | grep -E "SSID|RSSI|noise|channel"</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+        <div class="item-desc">Hold Option + click WiFi icon in menu bar. RSSI worse than −70 dBm = weak. Ideal: −50 or better.</div>
       </div>
     </div>
-    <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    <div class="item-cmd"><span class="cmd-text">/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -I | grep -E "SSID|RSSI|noise|channel"</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+    <div class="item-actions">
+      <button class="guide-btn" onclick="toggleGuide(event,this)">GUIDE ME →</button>
+      <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    </div>
+    <div class="guide-panel" id="guide-rssi">
+      <div class="guide-title">How to read your signal strength</div>
+      <div class="guide-step"><div class="step-num">1</div><div class="step-body"><div class="step-action">Open Terminal (press Cmd+Space, type "Terminal", press Enter)</div><div class="step-detail">Terminal is where you run diagnostic commands. It looks like a black or dark window with a text prompt.</div></div></div>
+      <div class="guide-step"><div class="step-num">2</div><div class="step-body"><div class="step-action">Copy the command above and paste it into Terminal, press Enter</div><div class="step-detail">You'll see a few lines of output with numbers.</div></div></div>
+      <div class="guide-step"><div class="step-num">3</div><div class="step-body"><div class="step-action">Find the line that says "agrCtlRSSI" — that's your signal</div><div class="step-detail">Read the number after it:</div><div class="guide-result"><div class="result-label">What the number means</div><div class="result-row"><span class="result-key">-30 to -50</span><span class="result-val" style="color:#22c55e">Excellent — you're close to the router</span></div><div class="result-row"><span class="result-key">-51 to -70</span><span class="result-val" style="color:#f59e0b">Acceptable — some drops possible</span></div><div class="result-row"><span class="result-key">-71 or worse</span><span class="result-val" style="color:#ef4444">Weak — this is causing your drops. Move closer.</span></div></div></div></div>
+      <div class="guide-step"><div class="step-num">4</div><div class="step-body"><div class="step-action">Also check "agrCtlNoise" — lower is better</div><div class="step-detail">Noise below -85 = good. Above -70 = heavy interference from microwaves, baby monitors, or neighbors. If signal is OK but noise is high → interference is your problem.</div></div></div>
+      <div class="guide-step"><div class="step-num">5</div><div class="step-body"><div class="step-action">If signal is weak: mark as problem and move to signal fixes</div><div class="step-detail">Move the router higher, away from walls. Remove objects between you and it. Or use a WiFi extender / mesh node.</div></div></div>
+    </div>
   </div>
 
-  <div class="item" data-s="1" data-w="signal" onclick="toggle(this)">
-    <div class="item-top">
+  <div class="item" data-s="1" data-w="signal" data-g="channel">
+    <div class="item-top" onclick="toggle(this.closest('.item'))">
       <div class="checkbox"><span class="ck">✓</span></div>
       <div class="item-body">
         <div class="item-label">Scan for channel congestion</div>
-        <div class="item-desc">Many networks on your channel = interference = drops. Look for crowded channels and change your router to an empty one.</div>
-        <div class="item-cmd"><span class="cmd-text">/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -s</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+        <div class="item-desc">Many networks on your channel = interference = drops. Look for crowded channels and switch your router.</div>
       </div>
     </div>
-    <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    <div class="item-cmd"><span class="cmd-text">/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -s</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+    <div class="item-actions">
+      <button class="guide-btn" onclick="toggleGuide(event,this)">GUIDE ME →</button>
+      <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    </div>
+    <div class="guide-panel" id="guide-channel">
+      <div class="guide-title">How to find and fix channel congestion</div>
+      <div class="guide-step"><div class="step-num">1</div><div class="step-body"><div class="step-action">Run the command above in Terminal</div><div class="step-detail">You'll see a list of all nearby WiFi networks. Each row has: network name, signal (RSSI), channel number.</div></div></div>
+      <div class="guide-step"><div class="step-num">2</div><div class="step-body"><div class="step-action">Find your network in the list. Look at its channel number.</div><div class="step-detail">Then count how many OTHER networks are on the same channel. More than 3 networks on the same channel = congested.</div></div></div>
+      <div class="guide-step"><div class="step-num">3</div><div class="step-body"><div class="step-action">For 2.4 GHz: only channels 1, 6, and 11 don't overlap. Pick the emptiest one.</div><div class="step-detail">For 5 GHz: channels 36, 40, 44, 48 are usually less crowded. Try any that has fewer neighbors.</div></div></div>
+      <div class="guide-step"><div class="step-num">4</div><div class="step-body"><div class="step-action">Log into your router admin panel to change the channel</div><div class="step-detail">Open a browser and go to <strong>192.168.1.1</strong> or <strong>192.168.0.1</strong> (your gateway). Login is usually admin/admin or printed on the router label. Find Wireless Settings → Channel → change it.</div></div></div>
+      <div class="guide-step"><div class="step-num">5</div><div class="step-body"><div class="step-action">After changing: reconnect your device and monitor for 15 minutes</div><div class="step-detail">If drops stop → congestion was your problem. Mark this resolved.</div></div></div>
+    </div>
   </div>
 
-  <div class="item" data-s="1" data-w="signal" onclick="toggle(this)">
-    <div class="item-top">
+  <div class="item" data-s="1" data-w="signal" data-g="distance">
+    <div class="item-top" onclick="toggle(this.closest('.item'))">
       <div class="checkbox"><span class="ck">✓</span></div>
       <div class="item-body">
         <div class="item-label">Distance test — move 5 ft from router</div>
-        <div class="item-desc">Move your device close to the router and wait 10 min. If drops stop → signal/distance is the problem. Move back and it returns → confirmed.</div>
+        <div class="item-desc">Move close to the router and wait 10 min. If drops stop → signal/distance is the problem.</div>
       </div>
     </div>
-    <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    <div class="item-actions">
+      <button class="guide-btn" onclick="toggleGuide(event,this)">GUIDE ME →</button>
+      <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    </div>
+    <div class="guide-panel" id="guide-distance">
+      <div class="guide-title">Distance elimination test</div>
+      <div class="guide-step"><div class="step-num">1</div><div class="step-body"><div class="step-action">Bring your laptop to within 5 feet of your router</div><div class="step-detail">Don't unplug anything — just physically move with your device.</div></div></div>
+      <div class="guide-step"><div class="step-num">2</div><div class="step-body"><div class="step-action">Open a streaming video (YouTube, Netflix) and let it play for 10 minutes</div><div class="step-detail">This generates real traffic. If it stays connected without a single drop, your router is fine — you just need better signal where you normally work.</div></div></div>
+      <div class="guide-step"><div class="step-num">3</div><div class="step-body"><div class="step-action">Interpret the result:</div><div class="guide-result"><div class="result-label">Test Result</div><div class="result-row"><span class="result-key">No drops up close</span><span class="result-val" style="color:#ef4444">Signal/distance = problem. Fix below.</span></div><div class="result-row"><span class="result-key">Still drops up close</span><span class="result-val" style="color:#22c55e">Signal is NOT the issue → check router/ISP sections</span></div></div></div></div>
+      <div class="guide-step"><div class="step-num">4</div><div class="step-body"><div class="step-action">If signal IS the problem — fix options:</div><div class="step-detail">• Move router to a central location, elevated, away from walls<br>• Add a WiFi extender ($25–50) midway between router and your work area<br>• Upgrade to a mesh system (Eero, TP-Link Deco) for whole-home coverage</div></div></div>
+    </div>
   </div>
 
-  <div class="item" data-s="1" data-w="signal" onclick="toggle(this)">
-    <div class="item-top">
+  <div class="item" data-s="1" data-w="signal" data-g="band">
+    <div class="item-top" onclick="toggle(this.closest('.item'))">
       <div class="checkbox"><span class="ck">✓</span></div>
       <div class="item-body">
-        <div class="item-label">Check 2.4 GHz vs 5 GHz</div>
-        <div class="item-desc">5 GHz = faster but shorter range. If you're far from the router and on 5 GHz — switch to 2.4 GHz in your router settings or WiFi name.</div>
-        <div class="item-cmd"><span class="cmd-text">networksetup -getinfo Wi-Fi</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+        <div class="item-label">Check 2.4 GHz vs 5 GHz band</div>
+        <div class="item-desc">5 GHz = faster but shorter range. Far from router on 5 GHz = drops. Switch to 2.4 GHz.</div>
       </div>
     </div>
-    <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    <div class="item-cmd"><span class="cmd-text">networksetup -getinfo Wi-Fi</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+    <div class="item-actions">
+      <button class="guide-btn" onclick="toggleGuide(event,this)">GUIDE ME →</button>
+      <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    </div>
+    <div class="guide-panel" id="guide-band">
+      <div class="guide-title">How to check and switch your WiFi band</div>
+      <div class="guide-step"><div class="step-num">1</div><div class="step-body"><div class="step-action">Hold Option and click the WiFi icon in your Mac menu bar</div><div class="step-detail">You'll see your connected network name followed by a frequency like "5 GHz" or "2.4 GHz".</div></div></div>
+      <div class="guide-step"><div class="step-num">2</div><div class="step-body"><div class="step-action">Understand the tradeoff:</div><div class="guide-result"><div class="result-label">Band comparison</div><div class="result-row"><span class="result-key">2.4 GHz</span><span class="result-val">Slower, but reaches further through walls</span></div><div class="result-row"><span class="result-key">5 GHz</span><span class="result-val">Faster, but signal dies past 30 feet or one wall</span></div></div></div></div>
+      <div class="guide-step"><div class="step-num">3</div><div class="step-body"><div class="step-action">If you're more than 20 feet away or through multiple walls: switch to 2.4 GHz</div><div class="step-detail">Most routers broadcast both under different names (e.g., "MyWiFi" and "MyWiFi_5G"). In your Mac WiFi menu, forget the 5G network and connect to the regular one.</div></div></div>
+      <div class="guide-step"><div class="step-num">4</div><div class="step-body"><div class="step-action">If your router uses one name for both: log in to router admin and enable "Band Steering" — or split them into two separate names</div><div class="step-detail">Go to 192.168.1.1 → Wireless → Advanced → Enable separate SSIDs for 2.4GHz and 5GHz.</div></div></div>
+    </div>
   </div>
 
-  <div class="item" data-s="1" data-w="signal" onclick="toggle(this)">
-    <div class="item-top">
+  <div class="item" data-s="1" data-w="signal" data-g="wdx">
+    <div class="item-top" onclick="toggle(this.closest('.item'))">
       <div class="checkbox"><span class="ck">✓</span></div>
       <div class="item-body">
-        <div class="item-label">Open macOS Wireless Diagnostics</div>
-        <div class="item-desc">Built-in Apple tool. Run it WHILE the drops happen — it logs the exact moment of disconnect. Save the report and share with support.</div>
-        <div class="item-cmd"><span class="cmd-text">open /System/Library/CoreServices/Applications/Wireless\ Diagnostics.app</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+        <div class="item-label">Run macOS Wireless Diagnostics</div>
+        <div class="item-desc">Built-in Apple tool. Run it WHILE drops happen — logs the exact disconnect moment.</div>
       </div>
     </div>
-    <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    <div class="item-cmd"><span class="cmd-text">open /System/Library/CoreServices/Applications/Wireless\ Diagnostics.app</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+    <div class="item-actions">
+      <button class="guide-btn" onclick="toggleGuide(event,this)">GUIDE ME →</button>
+      <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    </div>
+    <div class="guide-panel" id="guide-wdx">
+      <div class="guide-title">Using Apple Wireless Diagnostics</div>
+      <div class="guide-step"><div class="step-num">1</div><div class="step-body"><div class="step-action">Run the command above to open Wireless Diagnostics</div><div class="step-detail">Or: hold Option + click WiFi icon in menu bar → Open Wireless Diagnostics.</div></div></div>
+      <div class="guide-step"><div class="step-num">2</div><div class="step-body"><div class="step-action">DO NOT click Continue yet — first, go to the Window menu in the menu bar</div><div class="step-detail">Choose "Monitor" from the Window menu. This starts live logging of your WiFi quality.</div></div></div>
+      <div class="guide-step"><div class="step-num">3</div><div class="step-body"><div class="step-action">Leave the Monitor window open and use your computer normally</div><div class="step-detail">When a drop happens, you'll see the signal graph dip to zero or a disconnect event logged.</div></div></div>
+      <div class="guide-step"><div class="step-num">4</div><div class="step-body"><div class="step-action">After a drop: go back, look at the "Summary" tab and note the time of disconnect</div><div class="step-detail">The tool shows exactly what channel, RSSI, and noise level were at the moment of the drop.</div></div></div>
+      <div class="guide-step"><div class="step-num">5</div><div class="step-body"><div class="step-action">To save a full report: File → Save Diagnostics → save to Desktop</div><div class="step-detail">Send this .diag file to Apple Support or share with your ISP as evidence of the problem.</div></div></div>
+    </div>
   </div>
 
   <!-- ══ S2: ROUTER ══ -->
@@ -207,52 +311,92 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,system-ui,
     <div class="section-count" id="cnt-2">0/4</div>
   </div>
 
-  <div class="item" data-s="2" data-w="router" onclick="toggle(this)">
-    <div class="item-top">
+  <div class="item" data-s="2" data-w="router" data-g="ping-gw">
+    <div class="item-top" onclick="toggle(this.closest('.item'))">
       <div class="checkbox"><span class="ck">✓</span></div>
       <div class="item-body">
         <div class="item-label">Ping your router gateway</div>
-        <div class="item-desc">If pings to the router drop → the problem is between you and the router, not the ISP. Packet loss &gt;2% = router/WiFi issue.</div>
-        <div class="item-cmd"><span class="cmd-text">ping -c 30 $(netstat -rn | grep default | head -1 | awk '{print $2}')</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+        <div class="item-desc">Drops to the router = problem between you and router, not the ISP. Packet loss &gt;2% = WiFi issue.</div>
       </div>
     </div>
-    <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    <div class="item-cmd"><span class="cmd-text">ping -c 30 $(netstat -rn | grep default | head -1 | awk '{print $2}')</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+    <div class="item-actions">
+      <button class="guide-btn" onclick="toggleGuide(event,this)">GUIDE ME →</button>
+      <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    </div>
+    <div class="guide-panel" id="guide-ping-gw">
+      <div class="guide-title">How to read your gateway ping results</div>
+      <div class="guide-step"><div class="step-num">1</div><div class="step-body"><div class="step-action">Paste and run the command in Terminal. Wait ~30 seconds for it to finish.</div><div class="step-detail">It pings your router 30 times. The last 2 lines are what matter.</div></div></div>
+      <div class="guide-step"><div class="step-num">2</div><div class="step-body"><div class="step-action">Look for the final summary line — it says "packet loss"</div><div class="guide-result"><div class="result-label">Packet loss thresholds</div><div class="result-row"><span class="result-key">0% loss</span><span class="result-val" style="color:#22c55e">Router connection is stable</span></div><div class="result-row"><span class="result-key">1–5% loss</span><span class="result-val" style="color:#f59e0b">Marginal — WiFi signal or interference</span></div><div class="result-row"><span class="result-key">&gt;5% loss</span><span class="result-val" style="color:#ef4444">Major WiFi problem between you and router</span></div></div></div></div>
+      <div class="guide-step"><div class="step-num">3</div><div class="step-body"><div class="step-action">Also look at the "round-trip" time (ms)</div><div class="step-detail">Under 5ms to your router is normal. Over 50ms = the router itself is struggling (overloaded or failing).</div></div></div>
+      <div class="guide-step"><div class="step-num">4</div><div class="step-body"><div class="step-action">If loss is high: this is a WiFi/router issue, not ISP — try power cycling the router first</div><div class="step-detail">Unplug the router for 30 seconds, plug back in, wait 60 seconds, then retest.</div></div></div>
+    </div>
   </div>
 
-  <div class="item" data-s="2" data-w="router" onclick="toggle(this)">
-    <div class="item-top">
+  <div class="item" data-s="2" data-w="router" data-g="ping-ext">
+    <div class="item-top" onclick="toggle(this.closest('.item'))">
       <div class="checkbox"><span class="ck">✓</span></div>
       <div class="item-body">
         <div class="item-label">Ping 8.8.8.8 — bypass DNS</div>
-        <div class="item-desc">Router pings fine but 8.8.8.8 drops = problem between your router and ISP. Check modem/coax/cable line.</div>
-        <div class="item-cmd"><span class="cmd-text">ping -c 60 -i 1 8.8.8.8 | tail -5</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+        <div class="item-desc">Router pings fine but 8.8.8.8 drops = problem between router and ISP. Check modem/coax line.</div>
       </div>
     </div>
-    <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    <div class="item-cmd"><span class="cmd-text">ping -c 60 -i 1 8.8.8.8 | tail -5</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+    <div class="item-actions">
+      <button class="guide-btn" onclick="toggleGuide(event,this)">GUIDE ME →</button>
+      <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    </div>
+    <div class="guide-panel" id="guide-ping-ext">
+      <div class="guide-title">How to isolate router vs ISP problem</div>
+      <div class="guide-step"><div class="step-num">1</div><div class="step-body"><div class="step-action">Run the gateway ping test first (item above). Note the result.</div><div class="step-detail">This establishes whether the router itself is dropping you.</div></div></div>
+      <div class="guide-step"><div class="step-num">2</div><div class="step-body"><div class="step-action">Run this 8.8.8.8 ping command. Wait ~60 seconds.</div><div class="step-detail">8.8.8.8 is Google's server. This bypasses DNS completely — just raw IP routing.</div></div></div>
+      <div class="guide-step"><div class="step-num">3</div><div class="step-body"><div class="step-action">Compare both results to isolate where the problem is:</div><div class="guide-result"><div class="result-label">Comparison matrix</div><div class="result-row"><span class="result-key">Both OK</span><span class="result-val" style="color:#22c55e">Router + ISP fine → check DNS or Mac</span></div><div class="result-row"><span class="result-key">GW drop, 8.8.8.8 OK</span><span class="result-val" style="color:#f59e0b">WiFi or router issue</span></div><div class="result-row"><span class="result-key">GW OK, 8.8.8.8 drop</span><span class="result-val" style="color:#ef4444">ISP or modem problem</span></div><div class="result-row"><span class="result-key">Both drop</span><span class="result-val" style="color:#ef4444">Router overloaded or failing</span></div></div></div></div>
+      <div class="guide-step"><div class="step-num">4</div><div class="step-body"><div class="step-action">If ISP is indicated: call them with the ping log as evidence</div><div class="step-detail">Say: "I have 0% loss to my router but X% loss to 8.8.8.8 — can you check my line signal levels?"</div></div></div>
+    </div>
   </div>
 
-  <div class="item" data-s="2" data-w="router" onclick="toggle(this)">
-    <div class="item-top">
+  <div class="item" data-s="2" data-w="router" data-g="powercycle">
+    <div class="item-top" onclick="toggle(this.closest('.item'))">
       <div class="checkbox"><span class="ck">✓</span></div>
       <div class="item-body">
         <div class="item-label">Power cycle modem + router</div>
-        <div class="item-desc">Unplug modem first, then router. Wait 30 sec. Plug modem back in, wait 60s, then plug router back in. Fixes memory leaks and stuck DHCP leases.</div>
-        <div class="item-cmd"><span class="cmd-text">arp -a</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+        <div class="item-desc">Fixes memory leaks and stuck DHCP leases. Unplug modem first, then router. Wait 30 sec.</div>
       </div>
     </div>
-    <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    <div class="item-cmd"><span class="cmd-text">arp -a</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+    <div class="item-actions">
+      <button class="guide-btn" onclick="toggleGuide(event,this)">GUIDE ME →</button>
+      <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    </div>
+    <div class="guide-panel" id="guide-powercycle">
+      <div class="guide-title">Correct power cycle sequence</div>
+      <div class="guide-step"><div class="step-num">1</div><div class="step-body"><div class="step-action">Unplug the MODEM first (the box that connects to the wall/cable)</div><div class="step-detail">Wait 30 full seconds. This forces the modem to drop its session with your ISP.</div></div></div>
+      <div class="guide-step"><div class="step-num">2</div><div class="step-body"><div class="step-action">While the modem is still unplugged, unplug the ROUTER too</div><div class="step-detail">Wait 10 more seconds. This clears the router's memory and DHCP lease table.</div></div></div>
+      <div class="guide-step"><div class="step-num">3</div><div class="step-body"><div class="step-action">Plug the MODEM back in first. Wait 60 seconds until its lights stabilize.</div><div class="step-detail">Most modems have 3–4 lights. Wait until they're all solid (not blinking rapidly).</div></div></div>
+      <div class="guide-step"><div class="step-num">4</div><div class="step-body"><div class="step-action">Plug the ROUTER back in. Wait 60 seconds.</div><div class="step-detail">Reconnect your Mac to WiFi. Test for 15 minutes. If drops return within a few hours → your router has a memory leak and needs a scheduled nightly reboot (check router admin settings).</div></div></div>
+    </div>
   </div>
 
-  <div class="item" data-s="2" data-w="router" onclick="toggle(this)">
-    <div class="item-top">
+  <div class="item" data-s="2" data-w="router" data-g="ipconflict">
+    <div class="item-top" onclick="toggle(this.closest('.item'))">
       <div class="checkbox"><span class="ck">✓</span></div>
       <div class="item-body">
         <div class="item-label">Check for IP address conflict</div>
-        <div class="item-desc">Two devices with same IP = one drops randomly. Compare your IP to the ARP table — no duplicate IPs should exist.</div>
-        <div class="item-cmd"><span class="cmd-text">ipconfig getifaddr en0 && echo "---ARP Table---" && arp -a | grep -v incomplete</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+        <div class="item-desc">Two devices with same IP = one drops randomly. Compare your IP to ARP table.</div>
       </div>
     </div>
-    <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    <div class="item-cmd"><span class="cmd-text">ipconfig getifaddr en0 && echo "---ARP Table---" && arp -a | grep -v incomplete</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+    <div class="item-actions">
+      <button class="guide-btn" onclick="toggleGuide(event,this)">GUIDE ME →</button>
+      <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    </div>
+    <div class="guide-panel" id="guide-ipconflict">
+      <div class="guide-title">How to detect and fix an IP conflict</div>
+      <div class="guide-step"><div class="step-num">1</div><div class="step-body"><div class="step-action">Run the command. The first line shows YOUR IP address (e.g., 192.168.1.45)</div><div class="step-detail">Write it down.</div></div></div>
+      <div class="guide-step"><div class="step-num">2</div><div class="step-body"><div class="step-action">Look through the ARP table lines below it for your IP</div><div class="step-detail">Each line looks like: ? (192.168.1.45) at aa:bb:cc:dd:ee:ff — if you see your IP listed twice with DIFFERENT MAC addresses, you have a conflict.</div></div></div>
+      <div class="guide-step"><div class="step-num">3</div><div class="step-body"><div class="step-action">If conflict found: force a new IP by renewing DHCP</div><div class="step-cmd"><span class="cmd-text">sudo ipconfig set en0 DHCP</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div><div class="step-detail">This requests a fresh IP from the router.</div></div></div>
+      <div class="guide-step"><div class="step-num">4</div><div class="step-body"><div class="step-action">Long-term fix: set a DHCP reservation in your router for your Mac</div><div class="step-detail">Log into router admin → find DHCP settings → add a "static lease" for your Mac's MAC address. This locks your Mac to one IP forever and prevents future conflicts.</div></div></div>
+    </div>
   </div>
 
   <!-- ══ S3: DNS ══ -->
@@ -262,40 +406,69 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,system-ui,
     <div class="section-count" id="cnt-3">0/3</div>
   </div>
 
-  <div class="item" data-s="3" data-w="dns" onclick="toggle(this)">
-    <div class="item-top">
+  <div class="item" data-s="3" data-w="dns" data-g="dnstest">
+    <div class="item-top" onclick="toggle(this.closest('.item'))">
       <div class="checkbox"><span class="ck">✓</span></div>
       <div class="item-body">
         <div class="item-label">Compare DNS speed — ISP vs Cloudflare</div>
-        <div class="item-desc">Slow DNS makes every page load pause even when bandwidth is fine. Under 50ms = good. Over 200ms = switch DNS.</div>
-        <div class="item-cmd"><span class="cmd-text">time dig google.com @8.8.8.8 +short; time dig google.com @1.1.1.1 +short</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+        <div class="item-desc">Slow DNS makes every page load pause even when bandwidth is fine. Under 50ms = good.</div>
       </div>
     </div>
-    <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    <div class="item-cmd"><span class="cmd-text">time dig google.com @8.8.8.8 +short; time dig google.com @1.1.1.1 +short</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+    <div class="item-actions">
+      <button class="guide-btn" onclick="toggleGuide(event,this)">GUIDE ME →</button>
+      <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    </div>
+    <div class="guide-panel" id="guide-dnstest">
+      <div class="guide-title">How to read DNS speed test results</div>
+      <div class="guide-step"><div class="step-num">1</div><div class="step-body"><div class="step-action">Run the command in Terminal. It will run two tests back to back.</div><div class="step-detail">You'll see an IP address, then a time result like "real 0m0.045s" — that 0.045 is 45 milliseconds.</div></div></div>
+      <div class="guide-step"><div class="step-num">2</div><div class="step-body"><div class="step-action">Look at the "real" time for each test</div><div class="guide-result"><div class="result-label">DNS response times</div><div class="result-row"><span class="result-key">Under 50ms</span><span class="result-val" style="color:#22c55e">Fast — DNS is not your problem</span></div><div class="result-row"><span class="result-key">50–200ms</span><span class="result-val" style="color:#f59e0b">Slow — consider switching DNS</span></div><div class="result-row"><span class="result-key">Over 200ms or timeout</span><span class="result-val" style="color:#ef4444">DNS is causing your "drops" — switch now</span></div></div></div></div>
+      <div class="guide-step"><div class="step-num">3</div><div class="step-body"><div class="step-action">If Cloudflare (1.1.1.1) is faster — switch to it using the command in the next item</div><div class="step-detail">DNS failures feel exactly like internet drops because websites can't be found even though the connection is live.</div></div></div>
+    </div>
   </div>
 
-  <div class="item" data-s="3" data-w="dns" onclick="toggle(this)">
-    <div class="item-top">
+  <div class="item" data-s="3" data-w="dns" data-g="flushcache">
+    <div class="item-top" onclick="toggle(this.closest('.item'))">
       <div class="checkbox"><span class="ck">✓</span></div>
       <div class="item-body">
         <div class="item-label">Flush DNS cache</div>
-        <div class="item-desc">Stale cache causes pages to fail even when the internet is live. Run this and retest immediately.</div>
-        <div class="item-cmd"><span class="cmd-text">sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder; echo "DNS flushed"</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+        <div class="item-desc">Stale cache causes pages to fail even when internet is live. Run this and retest immediately.</div>
       </div>
     </div>
-    <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    <div class="item-cmd"><span class="cmd-text">sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder; echo "DNS flushed"</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+    <div class="item-actions">
+      <button class="guide-btn" onclick="toggleGuide(event,this)">GUIDE ME →</button>
+      <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    </div>
+    <div class="guide-panel" id="guide-flushcache">
+      <div class="guide-title">How to flush DNS and test if it fixed things</div>
+      <div class="guide-step"><div class="step-num">1</div><div class="step-body"><div class="step-action">Paste the command into Terminal and press Enter</div><div class="step-detail">It will ask for your Mac password (for sudo). Type it — nothing shows while you type, that's normal.</div></div></div>
+      <div class="guide-step"><div class="step-num">2</div><div class="step-body"><div class="step-action">You should see "DNS flushed" printed. That means it worked.</div><div class="step-detail">The DNS cache is now cleared. Any previously broken lookups will be resolved fresh.</div></div></div>
+      <div class="guide-step"><div class="step-num">3</div><div class="step-body"><div class="step-action">Immediately open a browser and try loading 3 different websites</div><div class="step-detail">If they all load cleanly now → stale DNS was causing your "drops". It looked like the internet died but it was just bad cached lookups.</div></div></div>
+      <div class="guide-step"><div class="step-num">4</div><div class="step-body"><div class="step-action">If the problem keeps coming back: switch DNS servers permanently (next item)</div><div class="step-detail">A one-time flush is a temporary fix. Switching to Cloudflare DNS is the permanent solution.</div></div></div>
+    </div>
   </div>
 
-  <div class="item" data-s="3" data-w="dns" onclick="toggle(this)">
-    <div class="item-top">
+  <div class="item" data-s="3" data-w="dns" data-g="switchdns">
+    <div class="item-top" onclick="toggle(this.closest('.item'))">
       <div class="checkbox"><span class="ck">✓</span></div>
       <div class="item-body">
         <div class="item-label">Switch to Cloudflare DNS 1.1.1.1</div>
-        <div class="item-desc">Fastest fix if DNS is the issue — takes effect immediately, no reboot needed. Reverts on next DHCP renewal if you want to undo.</div>
-        <div class="item-cmd"><span class="cmd-text">networksetup -setdnsservers Wi-Fi 1.1.1.1 8.8.8.8 && echo "DNS updated"</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+        <div class="item-desc">Takes effect immediately. Fastest fix if DNS is the issue. No reboot needed.</div>
       </div>
     </div>
-    <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    <div class="item-cmd"><span class="cmd-text">networksetup -setdnsservers Wi-Fi 1.1.1.1 8.8.8.8 && echo "DNS updated"</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+    <div class="item-actions">
+      <button class="guide-btn" onclick="toggleGuide(event,this)">GUIDE ME →</button>
+      <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    </div>
+    <div class="guide-panel" id="guide-switchdns">
+      <div class="guide-title">Switching DNS — step by step</div>
+      <div class="guide-step"><div class="step-num">1</div><div class="step-body"><div class="step-action">Run the command. You should see "DNS updated" printed.</div><div class="step-detail">This sets Cloudflare (1.1.1.1) as primary and Google (8.8.8.8) as backup — both are faster and more reliable than most ISP DNS servers.</div></div></div>
+      <div class="guide-step"><div class="step-num">2</div><div class="step-body"><div class="step-action">Verify it worked:</div><div class="step-cmd"><span class="cmd-text">networksetup -getdnsservers Wi-Fi</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div><div class="step-detail">Should print: 1.1.1.1 then 8.8.8.8</div></div></div>
+      <div class="guide-step"><div class="step-num">3</div><div class="step-body"><div class="step-action">Test: open a browser and load 5 different sites</div><div class="step-detail">If everything loads smoothly now — DNS was your issue.</div></div></div>
+      <div class="guide-step"><div class="step-num">4</div><div class="step-body"><div class="step-action">To undo (revert to ISP DNS):</div><div class="step-cmd"><span class="cmd-text">networksetup -setdnsservers Wi-Fi "Empty"</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div><div class="step-detail">This removes the override and lets your router assign DNS again automatically.</div></div></div>
+    </div>
   </div>
 
   <!-- ══ S4: MAC / DRIVER ══ -->
@@ -305,52 +478,91 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,system-ui,
     <div class="section-count" id="cnt-4">0/4</div>
   </div>
 
-  <div class="item" data-s="4" data-w="driver" onclick="toggle(this)">
-    <div class="item-top">
+  <div class="item" data-s="4" data-w="driver" data-g="nqtest">
+    <div class="item-top" onclick="toggle(this.closest('.item'))">
       <div class="checkbox"><span class="ck">✓</span></div>
       <div class="item-body">
         <div class="item-label">Run networkQuality test</div>
-        <div class="item-desc">Built-in since macOS Monterey. Shows upload + download quality score + responsiveness. Low RPM score = drop-consistent issue.</div>
-        <div class="item-cmd"><span class="cmd-text">networkQuality</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+        <div class="item-desc">Built-in macOS Monterey+ tool. Shows upload + download quality and responsiveness score.</div>
       </div>
     </div>
-    <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    <div class="item-cmd"><span class="cmd-text">networkQuality</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+    <div class="item-actions">
+      <button class="guide-btn" onclick="toggleGuide(event,this)">GUIDE ME →</button>
+      <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    </div>
+    <div class="guide-panel" id="guide-nqtest">
+      <div class="guide-title">Reading networkQuality results</div>
+      <div class="guide-step"><div class="step-num">1</div><div class="step-body"><div class="step-action">Run "networkQuality" in Terminal. Wait ~15 seconds for it to complete.</div><div class="step-detail">It tests your real upload + download quality — not just speed, but consistency.</div></div></div>
+      <div class="guide-step"><div class="step-num">2</div><div class="step-body"><div class="step-action">Look at the "Responsiveness" score (RPM)</div><div class="guide-result"><div class="result-label">Responsiveness (RPM) thresholds</div><div class="result-row"><span class="result-key">Above 20,000 RPM</span><span class="result-val" style="color:#22c55e">Excellent — low latency, no buffering</span></div><div class="result-row"><span class="result-key">5,000–20,000 RPM</span><span class="result-val" style="color:#f59e0b">Moderate — video calls may stutter</span></div><div class="result-row"><span class="result-key">Under 5,000 RPM</span><span class="result-val" style="color:#ef4444">Poor — connection is unstable under load</span></div></div></div></div>
+      <div class="guide-step"><div class="step-num">3</div><div class="step-body"><div class="step-action">Run it twice: once alone, once while streaming video</div><div class="step-detail">If RPM drops significantly under load → your connection can't handle concurrent traffic. This points to ISP throttling or a router that's overloaded.</div></div></div>
+    </div>
   </div>
 
-  <div class="item" data-s="4" data-w="driver" onclick="toggle(this)">
-    <div class="item-top">
+  <div class="item" data-s="4" data-w="driver" data-g="en0err">
+    <div class="item-top" onclick="toggle(this.closest('.item'))">
       <div class="checkbox"><span class="ck">✓</span></div>
       <div class="item-body">
         <div class="item-label">Check en0 interface errors</div>
-        <div class="item-desc">Non-zero ierr/oerr = driver or hardware fault on the WiFi card itself. Ipackets going up = traffic is flowing.</div>
-        <div class="item-cmd"><span class="cmd-text">netstat -I en0 2 | head -10 && ifconfig en0 | grep -E "status|errors"</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+        <div class="item-desc">Non-zero ierr/oerr = driver or hardware fault on the WiFi card. Numbers going up = packets dropping.</div>
       </div>
     </div>
-    <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    <div class="item-cmd"><span class="cmd-text">netstat -I en0 2 | head -10 && ifconfig en0 | grep -E "status|errors"</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+    <div class="item-actions">
+      <button class="guide-btn" onclick="toggleGuide(event,this)">GUIDE ME →</button>
+      <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    </div>
+    <div class="guide-panel" id="guide-en0err">
+      <div class="guide-title">Reading interface error stats</div>
+      <div class="guide-step"><div class="step-num">1</div><div class="step-body"><div class="step-action">Run the command. The netstat output shows a table — focus on the columns labeled "Ierrs" and "Oerrs"</div><div class="step-detail">Ierrs = input errors (packets your Mac dropped receiving). Oerrs = output errors (packets failed to send).</div></div></div>
+      <div class="guide-step"><div class="step-num">2</div><div class="step-body"><div class="step-action">Interpret the error counts:</div><div class="guide-result"><div class="result-label">Error interpretation</div><div class="result-row"><span class="result-key">All zeros</span><span class="result-val" style="color:#22c55e">WiFi hardware is working fine</span></div><div class="result-row"><span class="result-key">Non-zero, not growing</span><span class="result-val" style="color:#f59e0b">Old errors — probably not active issue</span></div><div class="result-row"><span class="result-key">Numbers growing</span><span class="result-val" style="color:#ef4444">Active driver or hardware fault</span></div></div></div></div>
+      <div class="guide-step"><div class="step-num">3</div><div class="step-body"><div class="step-action">To watch if errors grow: run it twice, 30 seconds apart</div><div class="step-cmd"><span class="cmd-text">netstat -I en0 1 5</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div><div class="step-detail">Shows 5 readings, one per second. If Ierrs or Oerrs column increases = active error condition.</div></div></div>
+      <div class="guide-step"><div class="step-num">4</div><div class="step-body"><div class="step-action">If errors are growing: try turning WiFi off and back on</div><div class="step-detail">System Settings → Wi-Fi → toggle off, wait 5 seconds, toggle on. If errors reset to zero and stop growing → driver needed a reset, not hardware fault.</div></div></div>
+    </div>
   </div>
 
-  <div class="item" data-s="4" data-w="driver" onclick="toggle(this)">
-    <div class="item-top">
+  <div class="item" data-s="4" data-w="driver" data-g="prefnets">
+    <div class="item-top" onclick="toggle(this.closest('.item'))">
       <div class="checkbox"><span class="ck">✓</span></div>
       <div class="item-body">
         <div class="item-label">Check preferred networks list</div>
-        <div class="item-desc">Mac auto-jumps between known networks. If an old network is nearby, your Mac silently switches — looks like a drop. Remove old networks.</div>
-        <div class="item-cmd"><span class="cmd-text">networksetup -listpreferredwirelessnetworks en0</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+        <div class="item-desc">Mac auto-jumps to nearby known networks — looks like a drop. Remove old unused networks.</div>
       </div>
     </div>
-    <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    <div class="item-cmd"><span class="cmd-text">networksetup -listpreferredwirelessnetworks en0</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+    <div class="item-actions">
+      <button class="guide-btn" onclick="toggleGuide(event,this)">GUIDE ME →</button>
+      <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    </div>
+    <div class="guide-panel" id="guide-prefnets">
+      <div class="guide-title">Clean up your saved networks list</div>
+      <div class="guide-step"><div class="step-num">1</div><div class="step-body"><div class="step-action">Run the command to see all networks your Mac remembers</div><div class="step-detail">Your Mac will auto-connect to ANY network on this list if it's nearby — even coffee shops, hotels, old employers, or a neighbor's open network.</div></div></div>
+      <div class="guide-step"><div class="step-num">2</div><div class="step-body"><div class="step-action">Remove networks you no longer use via command line:</div><div class="step-cmd"><span class="cmd-text">networksetup -removepreferredwirelessnetwork en0 "NetworkNameHere"</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div><div class="step-detail">Replace NetworkNameHere with the exact name from the list.</div></div></div>
+      <div class="guide-step"><div class="step-num">3</div><div class="step-body"><div class="step-action">Or use the GUI: System Settings → Wi-Fi → scroll down → tap "..." next to old networks → Forget</div><div class="step-detail">Keep only your home network and any networks you actively use.</div></div></div>
+      <div class="guide-step"><div class="step-num">4</div><div class="step-body"><div class="step-action">After cleanup: check "Ask to join networks" is OFF in Wi-Fi settings</div><div class="step-detail">This prevents your Mac from showing popups or joining random open networks.</div></div></div>
+    </div>
   </div>
 
-  <div class="item" data-s="4" data-w="driver" onclick="toggle(this)">
-    <div class="item-top">
+  <div class="item" data-s="4" data-w="driver" data-g="dhcprenew">
+    <div class="item-top" onclick="toggle(this.closest('.item'))">
       <div class="checkbox"><span class="ck">✓</span></div>
       <div class="item-body">
         <div class="item-label">Force renew DHCP lease</div>
-        <div class="item-desc">Expired DHCP lease = your IP changes mid-session = drops. This renews without fully disconnecting.</div>
-        <div class="item-cmd"><span class="cmd-text">sudo ipconfig set en0 DHCP && echo "Lease renewed"</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+        <div class="item-desc">Expired DHCP = your IP changes mid-session = drops. This renews without full disconnect.</div>
       </div>
     </div>
-    <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    <div class="item-cmd"><span class="cmd-text">sudo ipconfig set en0 DHCP && echo "Lease renewed"</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+    <div class="item-actions">
+      <button class="guide-btn" onclick="toggleGuide(event,this)">GUIDE ME →</button>
+      <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    </div>
+    <div class="guide-panel" id="guide-dhcprenew">
+      <div class="guide-title">DHCP lease renewal walkthrough</div>
+      <div class="guide-step"><div class="step-num">1</div><div class="step-body"><div class="step-action">Check your current IP and lease time:</div><div class="step-cmd"><span class="cmd-text">ipconfig getpacket en0 | grep -E "lease|ip_address|subnet"</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div><div class="step-detail">Look for "lease_time" — if it's 0 or very low, your lease has expired or is expiring soon.</div></div></div>
+      <div class="guide-step"><div class="step-num">2</div><div class="step-body"><div class="step-action">Run the renewal command. Enter your Mac password when prompted.</div><div class="step-detail">You'll see a brief 1–2 second WiFi reconnect. This is normal — your Mac is re-requesting its IP address.</div></div></div>
+      <div class="guide-step"><div class="step-num">3</div><div class="step-body"><div class="step-action">Verify you got a new (or confirmed) IP:</div><div class="step-cmd"><span class="cmd-text">ipconfig getifaddr en0</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div><div class="step-detail">The IP should be something like 192.168.x.x. If it says 169.254.x.x — that's a DHCP failure (your router didn't respond). Power cycle the router.</div></div></div>
+      <div class="guide-step"><div class="step-num">4</div><div class="step-body"><div class="step-action">169.254.x.x address means self-assigned IP — the router DHCP server is not responding</div><div class="step-detail">This is a router problem. Power cycle modem + router (see Router section). If it persists after reboot — the router's DHCP service may be full or broken. Log in to router admin and check DHCP pool.</div></div></div>
+    </div>
   </div>
 
   <!-- ══ S5: ISP ══ -->
@@ -360,53 +572,86 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,system-ui,
     <div class="section-count" id="cnt-5">0/3</div>
   </div>
 
-  <div class="item" data-s="5" data-w="isp" onclick="toggle(this)">
-    <div class="item-top">
+  <div class="item" data-s="5" data-w="isp" data-g="traceroute">
+    <div class="item-top" onclick="toggle(this.closest('.item'))">
       <div class="checkbox"><span class="ck">✓</span></div>
       <div class="item-body">
         <div class="item-label">Traceroute — find which hop drops</div>
-        <div class="item-desc">Look for * * * rows. Hop 1 = your router. Hop 2-3 timing out = ISP problem, not yours. Screenshot this for the ISP support call.</div>
-        <div class="item-cmd"><span class="cmd-text">traceroute -n 8.8.8.8</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+        <div class="item-desc">Hop 1 = your router. Hop 2–3 timing out = ISP problem, not yours. Screenshot for ISP call.</div>
       </div>
     </div>
-    <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    <div class="item-cmd"><span class="cmd-text">traceroute -n 8.8.8.8</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+    <div class="item-actions">
+      <button class="guide-btn" onclick="toggleGuide(event,this)">GUIDE ME →</button>
+      <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    </div>
+    <div class="guide-panel" id="guide-traceroute">
+      <div class="guide-title">How to read a traceroute</div>
+      <div class="guide-step"><div class="step-num">1</div><div class="step-body"><div class="step-action">Run the command. It takes 30–60 seconds and prints results line by line.</div><div class="step-detail">Each line is one "hop" — a router your data passes through on the way to 8.8.8.8 (Google).</div></div></div>
+      <div class="guide-step"><div class="step-num">2</div><div class="step-body"><div class="step-action">Find the first hop — that's your router. It should respond in under 5ms.</div><div class="step-detail">Lines look like: "1  192.168.1.1  1.2ms  1.1ms  1.4ms". Three numbers = three probe times.</div></div></div>
+      <div class="guide-step"><div class="step-num">3</div><div class="step-body"><div class="step-action">Look for lines with "* * *" — those are timeouts</div><div class="guide-result"><div class="result-label">Where the problem is</div><div class="result-row"><span class="result-key">Hop 1 = * * *</span><span class="result-val" style="color:#ef4444">Router unreachable — WiFi/router issue</span></div><div class="result-row"><span class="result-key">Hop 2–3 = * * *</span><span class="result-val" style="color:#ef4444">ISP gateway dropping — call your ISP</span></div><div class="result-row"><span class="result-key">Hop 5+ = * * *</span><span class="result-val" style="color:#22c55e">Normal — those routers block traceroute. Not your problem.</span></div></div></div></div>
+      <div class="guide-step"><div class="step-num">4</div><div class="step-body"><div class="step-action">Screenshot the full output and save it</div><div class="step-detail">When you call your ISP, share this screenshot. Say: "Hops 1–2 respond fine but hop 3 times out — that's on your network, not mine."</div></div></div>
+    </div>
   </div>
 
-  <div class="item" data-s="5" data-w="isp" onclick="toggle(this)">
-    <div class="item-top">
+  <div class="item" data-s="5" data-w="isp" data-g="pinglog">
+    <div class="item-top" onclick="toggle(this.closest('.item'))">
       <div class="checkbox"><span class="ck">✓</span></div>
       <div class="item-body">
-        <div class="item-label">Log drops for 5 minutes — save evidence</div>
-        <div class="item-desc">Run 300 pings (5 min). Results saved to Desktop. Show ISP your packet loss % — they cannot argue with a log file.</div>
-        <div class="item-cmd"><span class="cmd-text">ping -c 300 -i 1 8.8.8.8 | tee ~/Desktop/ping-log.txt; tail -3 ~/Desktop/ping-log.txt</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+        <div class="item-label">Log drops for 5 minutes — build evidence</div>
+        <div class="item-desc">300 pings saved to Desktop. ISP cannot argue with a packet loss log file.</div>
       </div>
     </div>
-    <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    <div class="item-cmd"><span class="cmd-text">ping -c 300 -i 1 8.8.8.8 | tee ~/Desktop/ping-log.txt; tail -3 ~/Desktop/ping-log.txt</span><button class="copy-btn" onclick="cp(event,this)">COPY</button></div>
+    <div class="item-actions">
+      <button class="guide-btn" onclick="toggleGuide(event,this)">GUIDE ME →</button>
+      <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    </div>
+    <div class="guide-panel" id="guide-pinglog">
+      <div class="guide-title">Building an ISP evidence log</div>
+      <div class="guide-step"><div class="step-num">1</div><div class="step-body"><div class="step-action">Run the command and leave it running for 5 minutes</div><div class="step-detail">It pings Google once per second for 300 seconds. You'll see "bytes from 8.8.8.8" for each successful ping. Missing lines = dropped packets.</div></div></div>
+      <div class="guide-step"><div class="step-num">2</div><div class="step-body"><div class="step-action">After it finishes, look at the last 3 lines it prints</div><div class="step-detail">The summary shows: packets transmitted, received, packet loss %, and round-trip stats.</div></div></div>
+      <div class="guide-step"><div class="step-num">3</div><div class="step-body"><div class="step-action">The full log is saved at ~/Desktop/ping-log.txt — open it to see the exact timestamps of every drop</div><div class="step-detail">Lines with "Request timeout" are your drops. The line number roughly equals the second into the test.</div></div></div>
+      <div class="guide-step"><div class="step-num">4</div><div class="step-body"><div class="step-action">Use this when calling ISP support:</div><div class="step-detail"><em>"I ran 300 pings to 8.8.8.8 and got X% packet loss. The log is timestamped. This is coming from outside my network — I need a line quality check."</em><br><br>ISPs will send a technician when you have logs. Without logs, they'll say "it looks fine on our end."</div></div></div>
+    </div>
   </div>
 
-  <div class="item" data-s="5" data-w="isp" onclick="toggle(this)">
-    <div class="item-top">
+  <div class="item" data-s="5" data-w="isp" data-g="wiredtest">
+    <div class="item-top" onclick="toggle(this.closest('.item'))">
       <div class="checkbox"><span class="ck">✓</span></div>
       <div class="item-body">
-        <div class="item-label">Test wired ethernet — isolate WiFi vs ISP</div>
-        <div class="item-desc">Plug ethernet directly into router. If drops stop = WiFi hardware issue. If drops continue on ethernet = ISP/modem is the problem. This is the definitive split test.</div>
+        <div class="item-label">Test wired ethernet — definitive split test</div>
+        <div class="item-desc">Drops stop on ethernet = WiFi hardware issue. Drops continue on ethernet = ISP/modem problem.</div>
       </div>
     </div>
-    <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    <div class="item-actions">
+      <button class="guide-btn" onclick="toggleGuide(event,this)">GUIDE ME →</button>
+      <button class="fail-btn" onclick="fail(event,this)">MARK AS PROBLEM</button>
+    </div>
+    <div class="guide-panel" id="guide-wiredtest">
+      <div class="guide-title">Ethernet isolation test — the definitive test</div>
+      <div class="guide-step"><div class="step-num">1</div><div class="step-body"><div class="step-action">Get an ethernet cable and plug one end directly into your router, the other into your Mac</div><div class="step-detail">If your Mac doesn't have an ethernet port, use a USB-C to ethernet adapter ($15–20 on Amazon). This is worth buying just for diagnosis.</div></div></div>
+      <div class="guide-step"><div class="step-num">2</div><div class="step-body"><div class="step-action">Turn WiFi OFF on your Mac</div><div class="step-detail">System Settings → Wi-Fi → toggle off. This forces all traffic through the ethernet cable only.</div></div></div>
+      <div class="guide-step"><div class="step-num">3</div><div class="step-body"><div class="step-action">Use your connection normally for 15–30 minutes. Stream video, browse, run the ping log.</div><div class="step-detail">This is your control test.</div></div></div>
+      <div class="guide-step"><div class="step-num">4</div><div class="step-body"><div class="step-action">Read the result:</div><div class="guide-result"><div class="result-label">What it means</div><div class="result-row"><span class="result-key">No drops on ethernet</span><span class="result-val" style="color:#ef4444">WiFi hardware or signal = your problem. Fix the WiFi.</span></div><div class="result-row"><span class="result-key">Still drops on ethernet</span><span class="result-val" style="color:#ef4444">Modem or ISP = your problem. Call ISP with your ping log.</span></div></div></div></div>
+      <div class="guide-step"><div class="step-num">5</div><div class="step-body"><div class="step-action">This test splits the problem space in half — the result tells you exactly where to focus</div><div class="step-detail">There is no faster way to isolate WiFi vs. ISP than this physical test.</div></div></div>
+    </div>
   </div>
 
-</div><!-- /wrap -->
+</div>
 
-<button class="diagnose-btn" onclick="diagnose()">FIND MY PROBLEM →</button>
+<div class="diagnose-wrap">
+  <button class="diagnose-btn" onclick="diagnose()">FIND MY PROBLEM →</button>
+</div>
 <div class="toast" id="toast">Copied — paste into Terminal</div>
 
 <script>
-// ── AUTO CHECKS
+// AUTO CHECKS
 let drops = 0;
 function setCard(id,vid,cls,val){
   document.getElementById(id).className='auto-card '+cls;
   const v=document.getElementById(vid);
-  v.className='ac-val '+cls; v.textContent=val;
+  v.className='ac-val '+cls;v.textContent=val;
 }
 function checkOnline(){
   const on=navigator.onLine;
@@ -416,7 +661,7 @@ function checkOnline(){
   document.getElementById('statusText').textContent=on?'Connected':'OFFLINE';
 }
 window.addEventListener('online',checkOnline);
-window.addEventListener('offline',()=>{drops++;setCard('ac-drops','acv-drops','fail',drops+' drop'+(drops>1?'s':''));checkOnline();});
+window.addEventListener('offline',()=>{drops++;setCard('ac-drops','acv-drops','fail',drops+(drops>1?' drops':' drop'));checkOnline();});
 checkOnline();
 if(navigator.connection){
   const c=navigator.connection;
@@ -424,7 +669,7 @@ if(navigator.connection){
   setCard('ac-type','acv-type',t==='4g'?'pass':t==='3g'?'warn':'fail',t.toUpperCase());
   if(c.downlink) setCard('ac-speed','acv-speed',c.downlink>10?'pass':c.downlink>2?'warn':'fail',c.downlink+' Mbps');
   else setCard('ac-speed','acv-speed','unknown','Run ↓');
-} else {
+}else{
   setCard('ac-type','acv-type','unknown','WiFi');
   setCard('ac-speed','acv-speed','unknown','Run ↓');
 }
@@ -441,7 +686,7 @@ if(navigator.connection){
   }
 })();
 
-// ── CHECKLIST
+// CHECKLIST
 const totals={1:5,2:4,3:3,4:4,5:3};
 const done={1:0,2:0,3:0,4:0,5:0};
 const fails=[];
@@ -453,6 +698,7 @@ window.toggle=function(el){
   else{el.classList.remove('checked');done[s]=Math.max(0,done[s]-1);}
   render();
 };
+
 window.fail=function(e,btn){
   e.stopPropagation();
   const item=btn.closest('.item');
@@ -461,12 +707,33 @@ window.fail=function(e,btn){
   if(!item.classList.contains('failed')){
     item.classList.remove('checked');item.classList.add('failed');
     btn.textContent='✗ FLAGGED';fails.push(w);done[s]++;
-  } else {
+  }else{
     item.classList.remove('failed');btn.textContent='MARK AS PROBLEM';
     fails.splice(fails.indexOf(w),1);done[s]=Math.max(0,done[s]-1);
   }
   render();
 };
+
+window.toggleGuide=function(e,btn){
+  e.stopPropagation();
+  const item=btn.closest('.item');
+  const gid=item.dataset.g;
+  const panel=document.getElementById('guide-'+gid);
+  if(!panel)return;
+  const isOpen=panel.classList.contains('open');
+  // close all guides
+  document.querySelectorAll('.guide-panel.open').forEach(p=>p.classList.remove('open'));
+  document.querySelectorAll('.guide-btn.active').forEach(b=>{b.classList.remove('active');b.textContent='GUIDE ME →';});
+  document.querySelectorAll('.item.guide-open').forEach(i=>i.classList.remove('guide-open'));
+  if(!isOpen){
+    panel.classList.add('open');
+    btn.classList.add('active');
+    btn.textContent='CLOSE GUIDE ✕';
+    item.classList.add('guide-open');
+    setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+  }
+};
+
 function render(){
   const total=Object.values(totals).reduce((a,b)=>a+b,0);
   const d=Object.values(done).reduce((a,b)=>a+b,0);
@@ -498,11 +765,11 @@ window.diagnose=function(){
   fails.forEach(w=>counts[w]=(counts[w]||0)+1);
   const top=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0][0];
   const dx={
-    signal:{title:'📶 Weak Signal or Channel Interference',detail:'Your device is dropping because the WiFi signal is too weak or the channel is crowded.\n\nFix now:\n1. Move closer to the router and retest\n2. Log into router admin → change WiFi channel to 1, 6, or 11 (2.4GHz) or a clear channel (5GHz)\n3. Remove obstacles between you and router (walls, microwaves)\n4. If dropping on 5GHz — switch to 2.4GHz for range\n\nLong-term: add a mesh WiFi node (Eero, TP-Link Deco) near where you work.'},
-    router:{title:'📡 Router or Modem Failure',detail:'Your router is dropping connections before they reach the internet — not your Mac, not the ISP.\n\nFix now:\n1. Power cycle: unplug modem 30s → wait → plug router back in\n2. Log into router admin (192.168.1.1) → check uptime and logs\n3. If drops return after a few hours: router has a memory leak — schedule nightly reboot in admin panel\n4. Check that router is ventilated — overheating = drops\n\nIf router is 5+ years old: replace it. Budget option: TP-Link Archer AX3000 ($60).'},
-    dns:{title:'🔍 DNS Failure — Slow or Dropping Lookups',detail:'Your DNS server is unreliable. Connection is alive but name lookups fail, making it look like the internet dropped.\n\nFix right now (takes 10 seconds):\n• networksetup -setdnsservers Wi-Fi 1.1.1.1 8.8.8.8\n\nThis switches to Cloudflare + Google DNS. Takes effect immediately. Test in your browser — if sites load consistently now, DNS was your problem.\n\nLong-term: set this permanently in System Settings → Network → Wi-Fi → Details → DNS.'},
-    driver:{title:'💻 macOS WiFi Driver or DHCP Issue',detail:'Your Mac is losing its IP address, jumping between networks, or the WiFi driver is cycling.\n\nFix now:\n1. sudo ipconfig set en0 DHCP — renew lease\n2. sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder — flush DNS\n3. Remove old/unused networks: System Settings → Wi-Fi → scroll to preferred networks → delete all except your current one\n4. If still dropping: System Settings → Network → delete Wi-Fi → re-add it\n\nIf on macOS Sonoma and dropping after sleep: disable "Limit IP address tracking" in Wi-Fi settings.'},
-    isp:{title:'🏢 ISP or Outside Line Problem',detail:'Drops are happening outside your home network — at your ISP handoff point or on the line coming into your building.\n\nFix now:\n1. Run: ping -c 300 -i 1 8.8.8.8 | tee ~/Desktop/ping-log.txt\n2. Screenshot the final summary line showing packet loss %\n3. Call your ISP — give them the traceroute output and ping log\n4. Request a technician to check line signal levels at the junction box\n\nKey phrase for ISP call: "I have a ping log showing X% packet loss to 8.8.8.8 — this rules out my equipment. I need a line quality check."'}
+    signal:{title:'📶 Weak Signal or Channel Interference',detail:'Your device is dropping because the WiFi signal is too weak or the channel is crowded.\n\nFix now:\n1. Move closer to the router and retest — if drops stop, it\'s distance/signal\n2. Log into router admin (192.168.1.1) → change WiFi channel to 1, 6, or 11 (2.4GHz) or a clear 5GHz channel\n3. Remove obstacles between you and router (walls, microwaves, baby monitors cause 2.4GHz interference)\n4. Far from router on 5GHz → switch to 2.4GHz SSID\n\nLong-term: add a mesh WiFi node (Eero, TP-Link Deco) near where you work.'},
+    router:{title:'📡 Router or Modem Failure',detail:'Your router is dropping connections before they reach the internet — not your Mac, not the ISP.\n\nFix now:\n1. Power cycle: unplug modem 30s → wait → plug modem → wait 60s → plug router\n2. Log into router admin (192.168.1.1) → check uptime and system logs\n3. If drops return after a few hours: router has a memory leak — enable scheduled nightly reboot in admin panel\n4. Check router ventilation — overheating causes drops especially in summer\n\nIf router is 5+ years old: replace it. TP-Link Archer AX3000 ~$60.'},
+    dns:{title:'🔍 DNS Failure — Slow or Dropping Lookups',detail:'Your DNS server is unreliable. The connection is alive but name lookups fail, making it look like the internet dropped.\n\nFix right now (10 seconds):\nnworksetup -setdnsservers Wi-Fi 1.1.1.1 8.8.8.8\n\nSwitches to Cloudflare + Google DNS — takes effect immediately. Test in your browser. If sites load consistently now, DNS was your problem.\n\nLong-term: make it permanent in System Settings → Network → Wi-Fi → Details → DNS tab.'},
+    driver:{title:'💻 macOS WiFi Driver or DHCP Issue',detail:'Your Mac is losing its IP address, jumping between networks, or the WiFi driver is cycling.\n\nFix now:\n1. sudo ipconfig set en0 DHCP — renew DHCP lease\n2. sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder — flush DNS\n3. Remove old/unused networks: System Settings → Wi-Fi → edit preferred networks → delete all except current\n4. If still dropping: System Settings → Network → delete Wi-Fi interface → re-add it\n\nIf on macOS Sonoma dropping after sleep: disable "Limit IP address tracking" in Wi-Fi advanced settings.'},
+    isp:{title:'🏢 ISP or Outside Line Problem',detail:'Drops are happening outside your home network — at your ISP handoff or on the line into your building.\n\nFix now:\n1. Run: ping -c 300 -i 1 8.8.8.8 | tee ~/Desktop/ping-log.txt\n2. Screenshot the summary line showing packet loss %\n3. Call your ISP — give them the traceroute output and ping log\n4. Request a technician to check line signal levels at the junction box\n\nKey phrase: "I have a ping log showing X% packet loss to 8.8.8.8. This rules out my equipment. I need a line quality check, not a reboot script."'}
   };
   const d=dx[top]||dx.router;
   res.textContent=d.title;res.style.color='var(--text)';

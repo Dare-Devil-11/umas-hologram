@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Code Fix Pipeline</title>
+<style>
+:root{
+  --bg:#04040d;--surface:#0c0c1a;--card:#121228;
+  --blue:#00aaff;--green:#22c55e;--red:#ef4444;
+  --yellow:#f59e0b;--purple:#a78bfa;--orange:#ff6633;
+  --text:#e8f0fe;--muted:#4a5568;--border:rgba(255,255,255,0.07);
+  --radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,system-ui,sans-serif;padding:0 0 100px;overflow-x:hidden;}
+
+/* ── HEADER ── */
+.header{padding:44px 24px 36px;text-align:center;border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
+.header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 800px 350px at 50% 0%,rgba(99,102,241,0.09),transparent);}
+.header h1{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:800;background:linear-gradient(135deg,#6366f1,#a78bfa,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;position:relative;margin-bottom:8px;}
+.header p{color:var(--muted);font-size:.85rem;position:relative;max-width:500px;margin:0 auto;}
+
+/* ── PIPELINE TRACK ── */
+.pipeline{display:flex;align-items:stretch;justify-content:center;gap:0;padding:28px 20px;max-width:960px;margin:0 auto;overflow-x:auto;}
+.pipe-step{display:flex;flex-direction:column;align-items:center;min-width:100px;flex:1;max-width:140px;position:relative;cursor:pointer;}
+.pipe-step:not(:last-child)::after{content:'';position:absolute;top:22px;left:calc(50% + 22px);right:calc(-50% + 22px);height:2px;background:var(--border);z-index:0;transition:background .4s;}
+.pipe-step.done:not(:last-child)::after{background:rgba(34,197,94,.4);}
+.pipe-step.active:not(:last-child)::after{background:rgba(99,102,241,.3);}
+.pipe-num{width:44px;height:44px;border-radius:50%;border:2px solid var(--border);background:var(--card);display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;font-family:monospace;position:relative;z-index:1;transition:all .3s;flex-shrink:0;}
+.pipe-step.active .pipe-num{border-color:#6366f1;background:rgba(99,102,241,.15);color:#a78bfa;box-shadow:0 0 20px rgba(99,102,241,.3);}
+.pipe-step.done .pipe-num{border-color:#22c55e;background:rgba(34,197,94,.15);color:#22c55e;}
+.pipe-step.locked .pipe-num{opacity:.4;}
+.pipe-label{font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:7px;text-align:center;line-height:1.3;transition:color .3s;}
+.pipe-step.active .pipe-label{color:var(--text);}
+.pipe-step.done .pipe-label{color:#22c55e;}
+.pipe-step.locked .pipe-label{opacity:.4;}
+
+/* ── STEP PROGRESS BAR ── */
+.step-progress{max-width:800px;margin:0 auto 24px;padding:0 20px;}
+.sp-wrap{background:var(--surface);border-radius:99px;height:4px;overflow:hidden;}
+.sp-bar{height:4px;background:linear-gradient(90deg,#6366f1,#22c55e);border-radius:99px;width:0%;transition:width .5s cubic-bezier(.16,1,.3,1);}
+.sp-label{display:flex;justify-content:space-between;font-size:.65rem;color:var(--muted);margin-top:5px;}
+
+/* ── STEP CARDS ── */
+.step-card{max-width:800px;margin:0 auto 20px;padding:0 20px;display:none;}
+.step-card.active{display:block;animation:slideIn .4s cubic-bezier(.16,1,.3,1);}
+@keyframes slideIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+
+.step-header{display:flex;align-items:center;gap:14px;margin-bottom:20px;padding:18px 20px;background:var(--card);border-radius:var(--radius);border:1px solid var(--border);}
+.step-num-big{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:900;flex-shrink:0;}
+.step-info{flex:1;}
+.step-title{font-size:1.1rem;font-weight:800;margin-bottom:3px;}
+.step-subtitle{font-size:.75rem;color:var(--muted);line-height:1.4;}
+.step-badge{font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;padding:3px 10px;border-radius:99px;font-family:monospace;white-space:nowrap;}
+
+/* ── CHECKLIST ITEMS ── */
+.check-list{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+.c-item{background:var(--card);border:1px solid var(--border);border-radius:10px;transition:all .2s;cursor:pointer;}
+.c-item:hover{border-color:rgba(255,255,255,.12);}
+.c-item.done{background:rgba(34,197,94,.04);border-color:rgba(34,197,94,.2);}
+.c-item-main{display:flex;align-items:flex-start;gap:12px;padding:13px 15px;}
+.c-box{width:20px;height:20px;border-radius:5px;border:2px solid var(--muted);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.c-item.done .c-box{background:#22c55e;border-color:#22c55e;}
+.c-tick{color:#fff;font-size:.7rem;display:none;}
+.c-item.done .c-tick{display:block;}
+.c-content{flex:1;}
+.c-label{font-size:.88rem;font-weight:600;margin-bottom:3px;}
+.c-desc{font-size:.73rem;color:rgba(232,240,254,.5);line-height:1.5;}
+.c-expand{padding:0 15px 13px 47px;display:none;}
+.c-item.done .c-expand,.c-item.open .c-expand{display:block;}
+
+/* ── SOLUTION BOX ── */
+.solution{background:rgba(99,102,241,.05);border:1px solid rgba(99,102,241,.15);border-radius:8px;padding:12px 14px;margin-bottom:8px;}
+.sol-title{font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:#a78bfa;margin-bottom:6px;}
+.sol-body{font-size:.76rem;color:rgba(232,240,254,.65);line-height:1.65;}
+
+.cmd{display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.07);border-radius:7px;padding:6px 10px;font-family:'Courier New',monospace;font-size:.7rem;color:#90c4f8;margin-top:8px;}
+.cmd-text{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cbtn{background:rgba(0,170,255,.15);border:1px solid rgba(0,170,255,.3);color:#60c8ff;border-radius:5px;padding:3px 10px;font-size:.62rem;font-family:monospace;cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0;}
+.cbtn:hover{background:rgba(0,170,255,.28);}
+.cbtn.ok{background:rgba(34,197,94,.2);border-color:rgba(34,197,94,.4);color:#22c55e;}
+
+/* ── CLAUDE PROMPT BOX ── */
+.prompt-box{background:rgba(167,139,250,.05);border:1px solid rgba(167,139,250,.2);border-radius:8px;padding:12px 14px;margin-top:10px;}
+.prompt-label{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:#a78bfa;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.prompt-label::before{content:'◆';font-size:.5rem;}
+.prompt-text{font-size:.76rem;color:#c4b5fd;line-height:1.6;font-style:italic;}
+.prompt-copy{margin-top:8px;background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.25);color:#a78bfa;border-radius:5px;padding:4px 12px;font-size:.65rem;font-family:monospace;cursor:pointer;transition:all .15s;}
+.prompt-copy:hover{background:rgba(167,139,250,.22);}
+
+/* ── SECTION DIVIDER ── */
+.sol-section{font-size:.67rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:16px 0 8px;display:flex;align-items:center;gap:8px;}
+.sol-section::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* ── NEXT / BACK BUTTONS ── */
+.step-actions{display:flex;gap:10px;margin-top:4px;}
+.btn-next{flex:1;padding:13px;background:linear-gradient(135deg,#6366f1,#a78bfa);color:#fff;border:none;border-radius:10px;font-size:.88rem;font-weight:700;cursor:pointer;transition:opacity .15s;letter-spacing:.04em;}
+.btn-next:hover{opacity:.88;}
+.btn-next:disabled{opacity:.35;cursor:not-allowed;}
+.btn-back{padding:13px 20px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:10px;font-size:.85rem;cursor:pointer;transition:all .15s;}
+.btn-back:hover{border-color:rgba(255,255,255,.2);color:var(--text);}
+.btn-fail{padding:13px 20px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#f87171;border-radius:10px;font-size:.85rem;cursor:pointer;transition:all .15s;}
+.btn-fail:hover{background:rgba(239,68,68,.2);}
+
+/* ── OUTPUT PANEL ── */
+.output-panel{max-width:800px;margin:0 auto;padding:0 20px;display:none;}
+.output-panel.visible{display:block;animation:slideIn .4s ease;}
+.output-card{background:var(--card);border:1px solid rgba(34,197,94,.3);border-radius:var(--radius);padding:24px;margin-bottom:14px;}
+.out-title{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:#22c55e;margin-bottom:12px;}
+textarea.out-input{width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:12px;color:var(--text);font-family:'Courier New',monospace;font-size:.78rem;resize:vertical;min-height:80px;outline:none;line-height:1.5;}
+textarea.out-input:focus{border-color:rgba(34,197,94,.3);}
+.save-btn{margin-top:10px;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);color:#22c55e;border-radius:8px;padding:8px 20px;font-size:.78rem;font-family:monospace;cursor:pointer;transition:all .15s;}
+.save-btn:hover{background:rgba(34,197,94,.25);}
+.restart-btn{display:block;width:100%;padding:13px;background:var(--surface);border:1px solid var(--border);color:var(--muted);border-radius:10px;font-size:.85rem;cursor:pointer;transition:all .15s;margin-top:8px;}
+.restart-btn:hover{border-color:rgba(255,255,255,.2);color:var(--text);}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#22c55e;color:#fff;padding:7px 20px;border-radius:99px;font-size:.73rem;font-family:monospace;opacity:0;transition:opacity .2s;pointer-events:none;z-index:999;}
+.toast.show{opacity:1;}
+
+@media(max-width:600px){
+  .pipeline{gap:0;padding:20px 12px;}
+  .pipe-step{min-width:60px;}
+  .pipe-label{font-size:.52rem;}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Code Fix Pipeline</h1>
+  <p>Read → Research → Replace → Edit → Test → Output. Follow the sequence. Don't skip steps.</p>
+</div>
+
+<!-- PIPELINE TRACK -->
+<div class="pipeline" id="pipeline">
+  <div class="pipe-step active" data-step="1" onclick="goToStep(1)">
+    <div class="pipe-num">01</div>
+    <div class="pipe-label">Read<br>Code</div>
+  </div>
+  <div class="pipe-step locked" data-step="2" onclick="goToStep(2)">
+    <div class="pipe-num">02</div>
+    <div class="pipe-label">Research<br>Code</div>
+  </div>
+  <div class="pipe-step locked" data-step="3" onclick="goToStep(3)">
+    <div class="pipe-num">03</div>
+    <div class="pipe-label">Find<br>Replace</div>
+  </div>
+  <div class="pipe-step locked" data-step="4" onclick="goToStep(4)">
+    <div class="pipe-num">04</div>
+    <div class="pipe-label">Make<br>Edits</div>
+  </div>
+  <div class="pipe-step locked" data-step="5" onclick="goToStep(5)">
+    <div class="pipe-num">05</div>
+    <div class="pipe-label">Test<br>Edit</div>
+  </div>
+  <div class="pipe-step locked" data-step="6" onclick="goToStep(6)">
+    <div class="pipe-num">06</div>
+    <div class="pipe-label">Return<br>Output</div>
+  </div>
+</div>
+
+<!-- PROGRESS BAR -->
+<div class="step-progress">
+  <div class="sp-wrap"><div class="sp-bar" id="spBar"></div></div>
+  <div class="sp-label"><span id="spLeft">Step 1 of 6</span><span id="spRight">0% complete</span></div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     STEP 1 — READ CODE
+══════════════════════════════════════════════ -->
+<div class="step-card active" id="step-1">
+  <div class="step-header">
+    <div class="step-num-big" style="background:rgba(0,170,255,.12);color:#00aaff;">01</div>
+    <div class="step-info">
+      <div class="step-title" style="color:#00aaff">Read the Code</div>
+      <div class="step-subtitle">Before you touch anything — understand exactly what is broken and where. Read the file, find the line, copy the block.</div>
+    </div>
+    <div class="step-badge" style="background:rgba(0,170,255,.1);border:1px solid rgba(0,170,255,.2);color:#60c8ff;">Step 1 of 6</div>
+  </div>
+
+  <div class="check-list">
+    <div class="c-item" onclick="toggleCheck(this)">
+      <div class="c-item-main">
+        <div class="c-box"><span class="c-tick">✓</span></div>
+        <div class="c-content">
+          <div class="c-label">Identify the file and exact line number</div>
+          <div class="c-desc">Open the file. Find the function or block that is broken. Note the line numbers.</div>
+        </div>
+      </div>
+      <div class="c-expand">
+        <div class="solution">
+          <div class="sol-title">How to find it</div>
+          <div class="sol-body">Look at the error message first — it usually gives you a file path and line number. If not, search for the function name or the error text inside the codebase.</div>
+        </div>
+        <div class="cmd"><span class="cmd-text">grep -rn "error_text_here" . --include="*.js" --include="*.py" --include="*.ts"</span><button class="cbtn" onclick="cp(event,this)">COPY</button></div>
+        <div class="cmd"><span class="cmd-text">grep -n "function_name" path/to/file.js</span><button class="cbtn" onclick="cp(event,this)">COPY</button></div>
+        <div class="prompt-box">
+          <div class="prompt-label">Claude Prompt</div>
+          <div class="prompt-text">Read [filename] and tell me what line the [function/error] is on and what that block is supposed to do.</div>
+          <button class="prompt-copy" onclick="cpPrompt(event,this)">COPY PROMPT</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="c-item" onclick="toggleCheck(this)">
+      <div class="c-item-main">
+        <div class="c-box"><span class="c-tick">✓</span></div>
+        <div class="c-content">
+          <div class="c-label">Read the full function — not just the error line</div>
+          <div class="c-desc">Read 20+ lines above and below the error. The bug is often not on the exact line the error points to.</div>
+        </div>
+      </div>
+      <div class="c-expand">
+        <div class="solution">
+          <div class="sol-title">Why this matters</div>
+          <div class="sol-body">Error messages lie about location. A null pointer on line 47 was caused by a missing assignment on line 12. Read the whole function before deciding what to change.</div>
+        </div>
+        <div class="cmd"><span class="cmd-text">sed -n '30,70p' path/to/file.js</span><button class="cbtn" onclick="cp(event,this)">COPY</button></div>
+        <div class="prompt-box">
+          <div class="prompt-label">Claude Prompt</div>
+          <div class="prompt-text">Read lines [N-20] to [N+30] of [filename]. Tell me what the function does and what could cause [error message].</div>
+          <button class="prompt-copy" onclick="cpPrompt(event,this)">COPY PROMPT</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="c-item" onclick="toggleCheck(this)">
+      <div class="c-item-main">
+        <div class="c-box"><span class="c-tick">✓</span></div>
+        <div class="c-content">
+          <div class="c-label">Copy the broken block to your notes</div>
+          <div class="c-desc">Paste the broken code somewhere. You need the original to compare against your fix later.</div>
+        </div>
+      </div>
+      <div class="c-expand">
+        <div class="solution">
+          <div class="sol-title">Before you change anything</div>
+          <div class="sol-body">Git stage or stash your current state. If you have no git, copy the file to filename.backup. You will need to compare original vs fixed.</div>
+        </div>
+        <div class="cmd"><span class="cmd-text">git diff HEAD</span><button class="cbtn" onclick="cp(event,this)">COPY</button></div>
+        <div class="cmd"><span class="cmd-text">cp path/to/file.js path/to/file.js.backup</span><button class="cbtn" onclick="cp(event,this)">COPY</button></div>
+      </div>
+    </div>
+
+    <div class="c-item" onclick="toggleCheck(this)">
+      <div class="c-item-main">
+        <div class="c-box"><span class="c-tick">✓</span></div>
+        <div class="c-content">
+          <div class="c-label">Write down what the code IS doing vs what it SHOULD do</div>
+          <div class="c-desc">In plain English. One sentence each. This is your problem statement. You need this for step 2.</div>
+        </div>
+      </div>
+      <div class="c-expand">
+        <div class="solution">
+          <div class="sol-title">Example format</div>
+          <div class="sol-body">IS doing: "Returns undefined when user is not logged in"<br>SHOULD do: "Returns an empty object {} when user is not logged in"<br><br>If you cannot write this in one sentence — you have not read the code enough. Go back and read more.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-actions">
+    <button class="btn-next" id="next-1" onclick="nextStep(1)">Read Complete — Research Code →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     STEP 2 — RESEARCH CODE
+══════════════════════════════════════════════ -->
+<div class="step-card" id="step-2">
+  <div class="step-header">
+    <div class="step-num-big" style="background:rgba(245,158,11,.12);color:#f59e0b;">02</div>
+    <div class="step-info">
+      <div class="step-title" style="color:#f59e0b">Research the Code</div>
+      <div class="step-subtitle">Understand WHY it broke. Search the error. Check the docs. Find working examples before writing a single line.</div>
+    </div>
+    <div class="step-badge" style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);color:#fbbf24;">Step 2 of 6</div>
+  </div>
+
+  <div class="check-list">
+    <div class="c-item" onclick="toggleCheck(this)">
+      <div class="c-item-main">
+        <div class="c-box"><span class="c-tick">✓</span></div>
+        <div class="c-content">
+          <div class="c-label">Search the exact error message</div>
+          <div class="c-desc">Copy the full error text. Search it in quotes. The first 3 results usually contain the answer.</div>
+        </div>
+      </div>
+      <div class="c-expand">
+        <div class="solution">
+          <div class="sol-title">Search strategy</div>
+          <div class="sol-body">1. Copy the error message exactly<br>2. Remove file-specific parts (line numbers, variable names)<br>3. Search: "exact error message" + language/framework name<br>4. Filter to last 2 years on Stack Overflow</div>
+        </div>
+        <div class="prompt-box">
+          <div class="prompt-label">Claude Prompt</div>
+          <div class="prompt-text">I'm getting this error: [paste full error]. The code is in [language/framework]. Explain what causes this error and the most common fix.</div>
+          <button class="prompt-copy" onclick="cpPrompt(event,this)">COPY PROMPT</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="c-item" onclick="toggleCheck(this)">
+      <div class="c-item-main">
+        <div class="c-box"><span class="c-tick">✓</span></div>
+        <div class="c-content">
+          <div class="c-label">Check the official docs for the function being called</div>
+          <div class="c-desc">The function signature may have changed. Parameters may have been renamed or reordered in a newer version.</div>
+        </div>
+      </div>
+      <div class="c-expand">
+        <div class="solution">
+          <div class="sol-title">Version mismatch is the #1 cause of "worked before, broken now"</div>
+          <div class="sol-body">Check your package version: run <code>npm list [package]</code> or <code>pip show [package]</code>. Then check the changelog for breaking changes between your version and the latest.</div>
+        </div>
+        <div class="cmd"><span class="cmd-text">npm list --depth=0</span><button class="cbtn" onclick="cp(event,this)">COPY</button></div>
+        <div class="cmd"><span class="cmd-text">pip show package-name</span><button class="cbtn" onclick="cp(event,this)">COPY</button></div>
+        <div class="prompt-box">
+          <div class="prompt-label">Claude Prompt</div>
+          <div class="prompt-text">Look up the docs for [function name] in [library v.X]. What are the required parameters and return type? Has the API changed in recent versions?</div>
+          <button class="prompt-copy" onclick="cpPrompt(event,this)">COPY PROMPT</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="c-item" onclick="toggleCheck(this)">
+      <div class="c-item-main">
+        <div class="c-box"><span class="c-tick">✓</span></div>
+        <div class="c-content">
+          <div class="c-label">Find 2 working examples of the correct pattern</div>
+          <div class="c-desc">Find real code that does the same thing correctly. Use GitHub search, docs examples, or Stack Overflow accepted answers.</div>
+        </div>
+      </div>
+      <div class="c-expand">
+        <div class="solution">
+          <div class="sol-title">GitHub code search (most underused resource)</div>
+          <div class="sol-body">Search GitHub for the exact function call in real repos. Example: search <code>language:python "requests.get" "timeout="</code> to find real usage patterns. Filter to repos with 100+ stars for quality signal.</div>
+        </div>
+        <div class="prompt-box">
+          <div class="prompt-label">Claude Prompt</div>
+          <div class="prompt-text">Show me 2 correct working examples of [what you're trying to do] in [language/framework]. The examples must handle [specific edge case].</div>
+          <button class="prompt-copy" onclick="cpPrompt(event,this)">COPY PROMPT</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="c-item" onclick="toggleCheck(this)">
+      <div class="c-item-main">
+        <div class="c-box"><span class="c-tick">✓</span></div>
+        <div class="c-content">
+          <div class="c-label">Confirm root cause — not just symptom</div>
+          <div class="c-desc">The error message is a symptom. What is the actual root cause? Write it down before moving forward.</div>
+        </div>
+      </div>
+      <div class="c-expand">
+        <div class="solution">
+          <div class="sol-title">5 Whys technique</div>
+          <div class="sol-body">Ask "why" 5 times:<br>Why did it fail? → null value<br>Why was it null? → function returned early<br>Why did it return early? → missing guard clause<br>Why missing? → new API version removed default<br>Root cause: version upgrade broke assumption.<br><br>Fix the root cause, not the symptom.</div>
+        </div>
+        <div class="prompt-box">
+          <div class="prompt-label">Claude Prompt</div>
+          <div class="prompt-text">Given this broken code: [paste code] and this error: [paste error], what is the ROOT CAUSE — not just the symptom? Use 5 Whys reasoning.</div>
+          <button class="prompt-copy" onclick="cpPrompt(event,this)">COPY PROMPT</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-actions">
+    <button class="btn-back" onclick="prevStep(2)">← Back</button>
+    <button class="btn-next" onclick="nextStep(2)">Research Done — Find Replacement →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     STEP 3 — FIND REPLACEMENT
+══════════════════════════════════════════════ -->
+<div class="step-card" id="step-3">
+  <div class="step-header">
+    <div class="step-num-big" style="background:rgba(167,139,250,.12);color:#a78bfa;">03</div>
+    <div class="step-info">
+      <div class="step-title" style="color:#a78bfa">Find the Replacement</div>
+      <div class="step-subtitle">Write the correct version of the broken code BEFORE touching the file. Know exactly what you are putting in before you take anything out.</div>
+    </div>
+    <div class="step-badge" style="background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.2);color:#a78bfa;">Step 3 of 6</div>
+  </div>
+
+  <div class="check-list">
+    <div class="c-item" onclick="toggleCheck(this)">
+      <div class="c-item-main">
+        <div class="c-box"><span class="c-tick">✓</span></div>
+        <div class="c-content">
+          <div class="c-label">Write the corrected code block in isolation</div>
+          <div class="c-desc">Write the replacement in a scratch file or notes — not in the original yet. Get it right before you put it in.</div>
+        </div>
+      </div>
+      <div class="c-expand">
+        <div class="solution">
+          <div class="sol-title">Draft it first</div>
+          <div class="sol-body">Open a new file: scratch.js / scratch.py. Write ONLY the fixed function or block. Don't touch the original file until you are confident in the replacement.</div>
+        </div>
+        <div class="prompt-box">
+          <div class="prompt-label">Claude Prompt</div>
+          <div class="prompt-text">Here is the broken code: [paste it]. The root cause is [root cause]. Write me the corrected version. Only change what is necessary to fix the problem. Do not refactor anything else.</div>
+          <button class="prompt-copy" onclick="cpPrompt(event,this)">COPY PROMPT</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="c-item" onclick="toggleCheck(this)">
+      <div class="c-item-main">
+        <div class="c-box"><span class="c-tick">✓</span></div>
+        <div class="c-content">
+          <div class="c-label">Verify the replacement matches the required function signature</div>
+          <div class="c-desc">Input types, output type, parameter names — must match what the callers expect. Don't change the interface.</div>
+        </div>
+      </div>
+      <div class="c-expand">
+        <div class="solution">
+          <div class="sol-title">Check callers before changing the signature</div>
+          <div class="sol-body">Search for everywhere the function is called before changing its parameters. If the function takes (userId, options) and you change it to (options, userId) — every caller breaks silently.</div>
+        </div>
+        <div class="cmd"><span class="cmd-text">grep -rn "functionName(" . --include="*.js" --include="*.ts"</span><button class="cbtn" onclick="cp(event,this)">COPY</button></div>
+        <div class="prompt-box">
+          <div class="prompt-label">Claude Prompt</div>
+          <div class="prompt-text">Here is my replacement: [paste it]. Here is how it is called in the codebase: [paste caller code]. Does my replacement break any of the callers? What would need to change?</div>
+          <button class="prompt-copy" onclick="cpPrompt(event,this)">COPY PROMPT</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="c-item" onclick="toggleCheck(this)">
+      <div class="c-item-main">
+        <div class="c-box"><span class="c-tick">✓</span></div>
+        <div class="c-content">
+          <div class="c-label">Diff: list every line that changes</div>
+          <div class="c-desc">Before applying: write out ORIGINAL LINE → NEW LINE for each change. If you cannot list the exact changes — you do not have a replacement yet.</div>
+        </div>
+      </div>
+      <div class="c-expand">
+        <div class="solution">
+          <div class="sol-title">Smallest change wins</div>
+          <div class="sol-body">The fix should touch the minimum number of lines. If your fix changes 15 lines when the bug was on 2 lines — you are doing too much. Break it down. Fix one thing at a time.</div>
+        </div>
+        <div class="prompt-box">
+          <div class="prompt-label">Claude Prompt</div>
+          <div class="prompt-text">Show me ONLY the lines that need to change to fix this. Format as: OLD: [line] → NEW: [line]. Do not show unchanged lines.</div>
+          <button class="prompt-copy" onclick="cpPrompt(event,this)">COPY PROMPT</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-actions">
+    <button class="btn-back" onclick="prevStep(3)">← Back</button>
+    <button class="btn-next" onclick="nextStep(3)">Replacement Ready — Make Edits →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     STEP 4 — MAKE EDITS
+══════════════════════════════════════════════ -->
+<div class="step-card" id="step-4">
+  <div class="step-header">
+    <div class="step-num-big" style="background:rgba(34,197,94,.12);color:#22c55e;">04</div>
+    <div class="step-info">
+      <div class="step-title" style="color:#22c55e">Make the Edits</div>
+      <div class="step-subtitle">Apply exactly what you drafted in step 3. Nothing more. No "while I'm in here" changes. Surgical only.</div>
+    </div>
+    <div class="step-badge" style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);color:#22c55e;">Step 4 of 6</div>
+  </div>
+
+  <div class="check-list">
+    <div class="c-item" onclick="toggleCheck(this)">
+      <div class="c-item-main">
+        <div class="c-box"><span class="c-tick">✓</span></div>
+        <div class="c-content">
+          <div class="c-label">Backup / git stash the current state</div>
+          <div class="c-desc">Stage your current working state before making changes. You must be able to revert in one command.</div>
+        </div>
+      </div>
+      <div class="c-expand">
+        <div class="solution">
+          <div class="sol-title">Always have an undo</div>
+          <div class="sol-body">Never edit without a rollback path. Git stash or commit before you change anything. No exceptions.</div>
+        </div>
+        <div class="cmd"><span class="cmd-text">git add -A && git stash</span><button class="cbtn" onclick="cp(event,this)">COPY</button></div>
+        <div class="cmd"><span class="cmd-text">git add -A && git commit -m "chore: snapshot before fix"</span><button class="cbtn" onclick="cp(event,this)">COPY</button></div>
+      </div>
+    </div>
+
+    <div class="c-item" onclick="toggleCheck(this)">
+      <div class="c-item-main">
+        <div class="c-box"><span class="c-tick">✓</span></div>
+        <div class="c-content">
+          <div class="c-label">Apply ONLY the changes from your diff list</div>
+          <div class="c-desc">Change line by line. Do not add comments, do not clean up nearby code, do not rename anything else. One fix, one change.</div>
+        </div>
+      </div>
+      <div class="c-expand">
+        <div class="solution">
+          <div class="sol-title">Discipline prevents new bugs</div>
+          <div class="sol-body">Every "while I'm in here" change is a new bug waiting to happen. If you notice something else broken — write it down for the next run through this pipeline. Fix one thing at a time.</div>
+        </div>
+        <div class="prompt-box">
+          <div class="prompt-label">Claude Prompt</div>
+          <div class="prompt-text">Edit [filename]. Apply ONLY these changes: [paste your diff list]. Do not change anything else. Do not clean up nearby code.</div>
+          <button class="prompt-copy" onclick="cpPrompt(event,this)">COPY PROMPT</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="c-item" onclick="toggleCheck(this)">
+      <div class="c-item-main">
+        <div class="c-box"><span class="c-tick">✓</span></div>
+        <div class="c-content">
+          <div class="c-label">Verify the diff after editing</div>
+          <div class="c-desc">Run git diff. Confirm ONLY the lines you intended to change are different. If extra lines changed — undo and redo.</div>
+        </div>
+      </div>
+      <div class="c-expand">
+        <div class="solution">
+          <div class="sol-title">Check before you run</div>
+          <div class="sol-body">Reading the diff before testing catches copy-paste errors, whitespace-only changes that look invisible, and accidental deletions before they waste your test cycle.</div>
+        </div>
+        <div class="cmd"><span class="cmd-text">git diff</span><button class="cbtn" onclick="cp(event,this)">COPY</button></div>
+        <div class="cmd"><span class="cmd-text">git diff --stat</span><button class="cbtn" onclick="cp(event,this)">COPY</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-actions">
+    <button class="btn-back" onclick="prevStep(4)">← Back</button>
+    <button class="btn-next" onclick="nextStep(4)">Edits Applied — Test Now →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     STEP 5 — TEST EDIT
+══════════════════════════════════════════════ -->
+<div class="step-card" id="step-5">
+  <div class="step-header">
+    <div class="step-num-big" style="background:rgba(255,102,51,.12);color:#ff6633;">05</div>
+    <div class="step-info">
+      <div class="step-title" style="color:#ff6633">Test the Edit</div>
+      <div class="step-subtitle">Run it. Check the original error is gone. Check you didn't break anything else. Document the result.</div>
+    </div>
+    <div class="step-badge" style="background:rgba(255,102,51,.1);border:1px solid rgba(255,102,51,.2);color:#ff6633;">Step 5 of 6</div>
+  </div>
+
+  <div class="check-list">
+    <div class="c-item" onclick="toggleCheck(this)">
+      <div class="c-item-main">
+        <div class="c-box"><span class="c-tick">✓</span></div>
+        <div class="c-content">
+          <div class="c-label">Run the code — confirm original error is gone</div>
+          <div class="c-desc">Run the exact same flow that triggered the original error. If the original error is still there — the edit didn't fix the root cause. Go back to step 2.</div>
+        </div>
+      </div>
+      <div class="c-expand">
+        <div class="solution">
+          <div class="sol-title">Reproduce the original bug first</div>
+          <div class="sol-body">Run the same test case that originally showed the bug. Not a different test — the same one. If it passes, move on. If same error: return to step 2, root cause was wrong.</div>
+        </div>
+        <div class="cmd"><span class="cmd-text">npm test</span><button class="cbtn" onclick="cp(event,this)">COPY</button></div>
+        <div class="cmd"><span class="cmd-text">python -m pytest tests/ -v</span><button class="cbtn" onclick="cp(event,this)">COPY</button></div>
+        <div class="cmd"><span class="cmd-text">node path/to/file.js</span><button class="cbtn" onclick="cp(event,this)">COPY</button></div>
+      </div>
+    </div>
+
+    <div class="c-item" onclick="toggleCheck(this)">
+      <div class="c-item-main">
+        <div class="c-box"><span class="c-tick">✓</span></div>
+        <div class="c-content">
+          <div class="c-label">Test the 3 edge cases around the fix</div>
+          <div class="c-desc">What happens with: (1) empty/null input, (2) the normal case, (3) the extreme case. All 3 must pass.</div>
+        </div>
+      </div>
+      <div class="c-expand">
+        <div class="solution">
+          <div class="sol-title">Edge cases that always bite</div>
+          <div class="sol-body">For any fix, test:<br>• Empty string / null / undefined input<br>• Single item vs array of items<br>• Async timing (what if it takes 0ms? 5000ms?)<br>• User is not logged in / session expired<br>• The function called twice in a row</div>
+        </div>
+        <div class="prompt-box">
+          <div class="prompt-label">Claude Prompt</div>
+          <div class="prompt-text">Here is my fix: [paste fixed code]. What are the 3 most likely edge cases that could still break this? Write me a test for each one.</div>
+          <button class="prompt-copy" onclick="cpPrompt(event,this)">COPY PROMPT</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="c-item" onclick="toggleCheck(this)">
+      <div class="c-item-main">
+        <div class="c-box"><span class="c-tick">✓</span></div>
+        <div class="c-content">
+          <div class="c-label">Check that nothing else broke (regression test)</div>
+          <div class="c-desc">Run the full test suite or manually test the 2 features most likely to be affected by your change.</div>
+        </div>
+      </div>
+      <div class="c-expand">
+        <div class="solution">
+          <div class="sol-title">Find regression risk with grep</div>
+          <div class="sol-body">Search for everywhere the function you changed is called. Manually test each caller. A fix that breaks 3 other things is not a fix — it is a new set of bugs.</div>
+        </div>
+        <div class="cmd"><span class="cmd-text">npm run test:all 2>&1 | grep -E "FAIL|PASS|ERROR"</span><button class="cbtn" onclick="cp(event,this)">COPY</button></div>
+        <div class="prompt-box">
+          <div class="prompt-label">Claude Prompt</div>
+          <div class="prompt-text">I changed [function name] in [file]. Search the codebase for all callers of this function and tell me which ones might be affected by [description of change].</div>
+          <button class="prompt-copy" onclick="cpPrompt(event,this)">COPY PROMPT</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-actions">
+    <button class="btn-back" onclick="prevStep(5)">← Back</button>
+    <button class="btn-fail" onclick="testFailed()">Test Failed → Back to Step 2</button>
+    <button class="btn-next" onclick="nextStep(5)">Tests Pass — Get Output →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     STEP 6 — RETURN OUTPUT
+══════════════════════════════════════════════ -->
+<div class="step-card" id="step-6">
+  <div class="step-header">
+    <div class="step-num-big" style="background:rgba(34,197,94,.15);color:#22c55e;">✓</div>
+    <div class="step-info">
+      <div class="step-title" style="color:#22c55e">Return the Output</div>
+      <div class="step-subtitle">Fix confirmed. Document what you did, commit the change, log the solution so you never debug this again.</div>
+    </div>
+    <div class="step-badge" style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#22c55e;">Step 6 of 6</div>
+  </div>
+
+  <div class="check-list">
+    <div class="c-item" onclick="toggleCheck(this)">
+      <div class="c-item-main">
+        <div class="c-box"><span class="c-tick">✓</span></div>
+        <div class="c-content">
+          <div class="c-label">Commit the fix with a clear message</div>
+          <div class="c-desc">Commit message must say: what broke, what the fix was, why. Future you will thank you.</div>
+        </div>
+      </div>
+      <div class="c-expand">
+        <div class="solution">
+          <div class="sol-title">Good commit message format</div>
+          <div class="sol-body">fix: [what was broken] — [root cause] → [what changed]<br><br>Example: "fix: login returning null on missing session — getUser() returned undefined instead of {} when session expired → added null guard with default return value"</div>
+        </div>
+        <div class="cmd"><span class="cmd-text">git add -A && git commit -m "fix: [what broke] — [root cause] → [what changed]"</span><button class="cbtn" onclick="cp(event,this)">COPY</button></div>
+      </div>
+    </div>
+
+    <div class="c-item" onclick="toggleCheck(this)">
+      <div class="c-item-main">
+        <div class="c-box"><span class="c-tick">✓</span></div>
+        <div class="c-content">
+          <div class="c-label">Log the fix to error-log.md</div>
+          <div class="c-desc">Append the error, root cause, and fix to ~/AI-OS/logs/error-log.md. Search {keyword} next time instead of debugging from scratch.</div>
+        </div>
+      </div>
+      <div class="c-expand">
+        <div class="solution">
+          <div class="sol-title">Log format</div>
+          <div class="sol-body">---<br>TIME: [date]<br>ERROR: [error message]<br>ROOT CAUSE: [why it happened]<br>FIX: [what you changed]<br>FILE: [filename:line]<br>STATUS: RESOLVED<br>---</div>
+        </div>
+        <div class="prompt-box">
+          <div class="prompt-label">Claude Prompt</div>
+          <div class="prompt-text">Append to ~/AI-OS/logs/error-log.md: ERROR: [error], ROOT CAUSE: [cause], FIX: [fix], FILE: [file], STATUS: RESOLVED</div>
+          <button class="prompt-copy" onclick="cpPrompt(event,this)">COPY PROMPT</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="c-item" onclick="toggleCheck(this)">
+      <div class="c-item-main">
+        <div class="c-box"><span class="c-tick">✓</span></div>
+        <div class="c-content">
+          <div class="c-label">Write the final output summary</div>
+          <div class="c-desc">One paragraph: what was broken, what you changed, what it does now. This is what you hand off or report.</div>
+        </div>
+      </div>
+      <div class="c-expand">
+        <div class="prompt-box">
+          <div class="prompt-label">Claude Prompt</div>
+          <div class="prompt-text">Summarize this fix in 3 sentences: the bug was [describe], caused by [root cause], fixed by [change made]. Output is now [expected behavior].</div>
+          <button class="prompt-copy" onclick="cpPrompt(event,this)">COPY PROMPT</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-actions">
+    <button class="btn-back" onclick="prevStep(6)">← Back</button>
+    <button class="btn-next" onclick="finish()">Complete — Save Output ✓</button>
+  </div>
+</div>
+
+<!-- ══ OUTPUT PANEL ══ -->
+<div class="output-panel" id="outputPanel">
+  <div class="output-card">
+    <div class="out-title">Pipeline Complete — Document Your Fix</div>
+    <textarea class="out-input" id="outWhat" placeholder="What was broken..."></textarea>
+    <textarea class="out-input" id="outWhy" placeholder="Root cause..." style="margin-top:8px"></textarea>
+    <textarea class="out-input" id="outFix" placeholder="What you changed (file:line → new code)..." style="margin-top:8px"></textarea>
+    <button class="save-btn" onclick="saveOutput()">SAVE TO error-log.md</button>
+  </div>
+  <button class="restart-btn" onclick="restart()">↺ Run Pipeline Again (new bug)</button>
+</div>
+
+<div class="toast" id="toast">Copied</div>
+
+<script>
+const TOTAL = 6;
+let currentStep = 1;
+let unlockedUpTo = 1;
+
+// step check counts
+const stepChecks = {1:4, 2:4, 3:3, 4:3, 5:3, 6:3};
+const stepDone = {1:0, 2:0, 3:0, 4:0, 5:0, 6:0};
+
+window.toggleCheck = function(el) {
+  const card = el.closest('.step-card');
+  const step = parseInt(card.id.split('-')[1]);
+  const wasOpen = el.classList.contains('open');
+  const wasDone = el.classList.contains('done');
+
+  if (!wasDone) {
+    el.classList.add('done','open');
+    stepDone[step]++;
+  } else {
+    el.classList.remove('done');
+    el.classList.toggle('open', !wasOpen || false);
+    if (!el.classList.contains('open')) el.classList.remove('open');
+    stepDone[step] = Math.max(0, stepDone[step]-1);
+  }
+  updateProgress();
+};
+
+function updateProgress() {
+  const total = Object.values(stepChecks).reduce((a,b)=>a+b,0);
+  const done = Object.values(stepDone).reduce((a,b)=>a+b,0);
+  const pct = Math.round((done/total)*100);
+  document.getElementById('spBar').style.width = pct+'%';
+  document.getElementById('spLeft').textContent = 'Step '+currentStep+' of 6';
+  document.getElementById('spRight').textContent = pct+'% complete';
+}
+
+window.nextStep = function(from) {
+  const next = from + 1;
+  if (next > TOTAL) { finish(); return; }
+  // unlock next
+  if (next > unlockedUpTo) unlockedUpTo = next;
+  // mark from as done in pipeline
+  setPipe(from, 'done');
+  setPipe(next, 'active');
+  for (let s = next+1; s <= TOTAL; s++) {
+    if (s > unlockedUpTo) setPipe(s,'locked');
+  }
+  showStep(next);
+};
+
+window.prevStep = function(from) {
+  const prev = from - 1;
+  if (prev < 1) return;
+  setPipe(from, from <= unlockedUpTo ? 'unlocked' : 'locked');
+  setPipe(prev, 'active');
+  showStep(prev);
+};
+
+window.goToStep = function(s) {
+  if (s > unlockedUpTo) return;
+  // mark current inactive
+  const cur = document.querySelector('.pipe-step.active');
+  if (cur) {
+    const cs = parseInt(cur.dataset.step);
+    if (cs !== s) setPipe(cs, cs < s ? 'done' : 'unlocked');
+  }
+  setPipe(s,'active');
+  showStep(s);
+};
+
+window.testFailed = function() {
+  // jump back to step 2
+  for (let s = currentStep; s >= 2; s--) setPipe(s, s===2?'active':'unlocked');
+  showStep(2);
+  showToast('Test failed — back to Research. Find the real root cause.');
+};
+
+function setPipe(s, cls) {
+  const el = document.querySelector('.pipe-step[data-step="'+s+'"]');
+  if (!el) return;
+  el.className = 'pipe-step ' + cls;
+}
+
+function showStep(s) {
+  document.querySelectorAll('.step-card').forEach(c => c.classList.remove('active'));
+  const card = document.getElementById('step-'+s);
+  if (card) card.classList.add('active');
+  currentStep = s;
+  updateProgress();
+  window.scrollTo({top: 0, behavior:'smooth'});
+  document.getElementById('outputPanel').classList.remove('visible');
+}
+
+window.finish = function() {
+  document.querySelectorAll('.step-card').forEach(c=>c.classList.remove('active'));
+  setPipe(6,'done');
+  document.getElementById('outputPanel').classList.add('visible');
+  document.getElementById('spBar').style.width='100%';
+  document.getElementById('spRight').textContent='100% complete';
+  document.getElementById('spLeft').textContent='Pipeline complete';
+  document.getElementById('outputPanel').scrollIntoView({behavior:'smooth'});
+};
+
+window.saveOutput = function() {
+  const what = document.getElementById('outWhat').value.trim();
+  const why = document.getElementById('outWhy').value.trim();
+  const fix = document.getElementById('outFix').value.trim();
+  if (!what && !why && !fix) { showToast('Fill in the fields first'); return; }
+  const entry = `---\nTIME: ${new Date().toLocaleString()}\nERROR: ${what}\nROOT CAUSE: ${why}\nFIX: ${fix}\nSTATUS: RESOLVED\n---\n\n`;
+  const prompt = `Append this to ~/AI-OS/logs/error-log.md:\n\n${entry}`;
+  navigator.clipboard.writeText(prompt).catch(()=>{});
+  showToast('Copied — paste into Claude to save to error-log.md');
+};
+
+window.restart = function() {
+  // reset everything
+  document.querySelectorAll('.c-item').forEach(i=>i.classList.remove('done','open'));
+  for(let s=1;s<=6;s++){stepDone[s]=0; setPipe(s,s===1?'active':'locked');}
+  unlockedUpTo=1; currentStep=1;
+  document.getElementById('outWhat').value='';
+  document.getElementById('outWhy').value='';
+  document.getElementById('outFix').value='';
+  document.getElementById('outputPanel').classList.remove('visible');
+  showStep(1);
+  updateProgress();
+};
+
+// ── COPY HANDLERS
+window.cp = function(e, btn) {
+  e.stopPropagation();
+  const txt = btn.previousElementSibling.textContent.trim();
+  navigator.clipboard.writeText(txt).catch(()=>{const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);});
+  btn.textContent='COPIED!'; btn.classList.add('ok');
+  setTimeout(()=>{btn.textContent='COPY';btn.classList.remove('ok');},1600);
+  showToast('Copied — paste into Terminal');
+};
+
+window.cpPrompt = function(e, btn) {
+  e.stopPropagation();
+  const txt = btn.previousElementSibling.textContent.trim();
+  navigator.clipboard.writeText(txt).catch(()=>{const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);});
+  btn.textContent='COPIED!';
+  setTimeout(()=>{btn.textContent='COPY PROMPT';},1600);
+  showToast('Prompt copied — paste into Claude');
+};
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2000);
+}
+
+updateProgress();
+</script>
+</body>
+</html>
