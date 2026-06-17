@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UMAS Elder Care Services — Check Eligibility Free</title>
+<style>
+:root {
+  --primary: #E87055;
+  --primary-dark: #c85a3f;
+  --primary-light: rgba(232,112,85,.12);
+  --primary-glow: rgba(232,112,85,.3);
+  --bg: #0d0a08;
+  --surface: #160f0b;
+  --surface2: #1e1510;
+  --text: #f5ede8;
+  --muted: rgba(245,237,232,.5);
+  --border: rgba(232,112,85,.12);
+  --radius: 14px;
+  --shadow: 0 24px 64px rgba(0,0,0,.5);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;overflow-x:hidden;line-height:1.6}
+
+/* ── NAV (logo only — funnel rule) ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:16px 40px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(13,10,8,.9);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo img{height:40px;object-fit:contain}
+.nav-logo-text{font-size:18px;font-weight:900;letter-spacing:-.5px;color:var(--primary)}
+.nav-phone{font-size:15px;font-weight:700;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:8px}
+.nav-phone:hover{color:var(--primary)}
+@media(max-width:600px){nav{padding:12px 20px}.nav-phone span{display:none}}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  padding:120px 24px 80px;position:relative;overflow:hidden;
+}
+.hero-bg{
+  position:absolute;inset:0;z-index:0;
+  background:radial-gradient(ellipse 70% 60% at 30% 50%,rgba(232,112,85,.14) 0%,transparent 65%),
+             radial-gradient(ellipse 50% 40% at 70% 70%,rgba(232,112,85,.06) 0%,transparent 60%);
+}
+#hero-canvas{position:absolute;inset:0;z-index:1;pointer-events:none}
+.hero-inner{
+  position:relative;z-index:2;
+  display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;
+  max-width:1100px;width:100%;
+}
+@media(max-width:900px){.hero-inner{grid-template-columns:1fr;text-align:center}}
+.hero-left{}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--primary);background:var(--primary-light);border:1px solid rgba(232,112,85,.25);
+  padding:6px 14px;border-radius:20px;margin-bottom:24px;opacity:0;
+}
+.hero-eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--primary);flex-shrink:0}
+.hero h1{
+  font-size:clamp(36px,5.5vw,68px);font-weight:900;line-height:1.05;letter-spacing:-2px;
+  margin-bottom:20px;
+}
+.hero h1 .line{display:block;overflow:hidden}
+.hero h1 .word{display:inline-block;transform:translateY(110%)}
+.hero h1 em{font-style:normal;color:var(--primary)}
+.hero-sub{
+  font-size:clamp(15px,2vw,18px);color:var(--muted);max-width:500px;
+  margin-bottom:36px;opacity:0;line-height:1.7;
+}
+@media(max-width:900px){.hero-sub{margin:0 auto 36px}}
+.hero-trust{
+  display:flex;align-items:center;gap:20px;flex-wrap:wrap;opacity:0;
+}
+@media(max-width:900px){.hero-trust{justify-content:center}}
+.trust-badge{
+  display:flex;align-items:center;gap:8px;
+  font-size:13px;font-weight:600;color:var(--muted);
+}
+.trust-badge-dot{width:8px;height:8px;border-radius:50%;background:var(--primary);flex-shrink:0}
+
+/* ── FORM CARD (right side) ── */
+.form-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:20px;padding:40px 36px;
+  box-shadow:0 32px 80px rgba(0,0,0,.6);
+  opacity:0;transform:translateY(30px);
+}
+@media(max-width:900px){.form-card{margin-top:40px}}
+@media(max-width:480px){.form-card{padding:28px 20px;border-radius:16px}}
+
+/* Progress bar */
+.form-progress-wrap{margin-bottom:32px}
+.form-progress-label{
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:12px;font-weight:600;color:var(--muted);margin-bottom:10px;
+}
+.form-progress-label .step-counter{color:var(--primary);font-weight:700}
+.progress-track{height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
+.progress-fill{
+  height:100%;border-radius:2px;
+  background:linear-gradient(90deg,var(--primary-dark),var(--primary));
+  transition:width .5s cubic-bezier(.16,1,.3,1);
+}
+
+/* Questions */
+.question-wrap{min-height:200px;position:relative}
+.question{display:none;animation:qIn .4s cubic-bezier(.16,1,.3,1) both}
+.question.active{display:block}
+@keyframes qIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+@keyframes qOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-30px)}}
+.question-label{
+  font-size:16px;font-weight:700;margin-bottom:20px;line-height:1.4;
+}
+.question-sub{font-size:13px;color:var(--muted);margin-top:-12px;margin-bottom:16px}
+
+/* Option tiles */
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.options-grid.single{grid-template-columns:1fr}
+.options-grid.three{grid-template-columns:1fr 1fr 1fr}
+@media(max-width:400px){.options-grid,.options-grid.three{grid-template-columns:1fr}}
+.option-tile{
+  padding:14px 16px;border:1.5px solid var(--border);border-radius:10px;
+  cursor:pointer;transition:all .15s ease;
+  display:flex;align-items:center;gap:10px;
+  font-size:14px;font-weight:500;color:var(--text);
+  background:var(--surface2);user-select:none;
+}
+.option-tile:hover{border-color:rgba(232,112,85,.4);background:var(--primary-light)}
+.option-tile.selected{
+  border-color:var(--primary);background:var(--primary-light);
+  color:var(--primary);font-weight:700;
+}
+.option-tile .tile-icon{font-size:20px;flex-shrink:0}
+.option-tile .tile-text{flex:1;line-height:1.3}
+.option-tile .tile-check{
+  width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border);
+  flex-shrink:0;transition:all .15s;display:flex;align-items:center;justify-content:center;
+}
+.option-tile.selected .tile-check{background:var(--primary);border-color:var(--primary)}
+.option-tile.selected .tile-check::after{content:'✓';color:#fff;font-size:10px;font-weight:800}
+
+/* Multi-select note */
+.multi-note{font-size:11px;color:var(--muted);margin-bottom:12px;font-style:italic}
+
+/* Text inputs */
+.form-input{
+  width:100%;background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:10px;padding:14px 16px;color:var(--text);font-size:15px;
+  outline:none;transition:border-color .2s;font-family:inherit;
+}
+.form-input:focus{border-color:var(--primary)}
+.form-input::placeholder{color:var(--muted)}
+.input-group{display:flex;flex-direction:column;gap:12px}
+
+/* Nav buttons */
+.form-nav{display:flex;gap:12px;margin-top:24px;align-items:center}
+.btn-back{
+  background:transparent;border:1.5px solid var(--border);color:var(--muted);
+  padding:12px 20px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;
+  transition:all .2s;font-family:inherit;flex-shrink:0;
+}
+.btn-back:hover{border-color:rgba(255,255,255,.2);color:var(--text)}
+.btn-next{
+  flex:1;background:var(--primary);color:#fff;border:none;
+  padding:14px 28px;border-radius:10px;cursor:pointer;font-size:15px;font-weight:700;
+  transition:all .2s;font-family:inherit;
+}
+.btn-next:hover{background:var(--primary-dark);transform:translateY(-1px);box-shadow:0 8px 24px var(--primary-glow)}
+.btn-next:disabled{background:rgba(255,255,255,.1);color:var(--muted);cursor:not-allowed;transform:none;box-shadow:none}
+.btn-submit{
+  width:100%;background:var(--primary);color:#fff;border:none;
+  padding:16px;border-radius:10px;cursor:pointer;font-size:16px;font-weight:800;
+  transition:all .2s;font-family:inherit;margin-top:20px;
+  box-shadow:0 8px 24px var(--primary-glow);
+}
+.btn-submit:hover{background:var(--primary-dark);transform:translateY(-2px)}
+
+/* Error */
+.field-error{font-size:12px;color:#ef4444;margin-top:6px;display:none}
+
+/* Thank you state */
+.ty-state{
+  display:none;text-align:center;padding:20px 0;
+  animation:qIn .4s cubic-bezier(.16,1,.3,1) both;
+}
+.ty-icon{font-size:56px;margin-bottom:16px;display:block}
+.ty-state h3{font-size:22px;font-weight:800;margin-bottom:10px;color:var(--primary)}
+.ty-state p{font-size:15px;color:var(--muted);line-height:1.6}
+.ty-phone{
+  display:inline-block;margin-top:20px;font-size:22px;font-weight:900;
+  color:var(--text);text-decoration:none;
+}
+.ty-phone:hover{color:var(--primary)}
+
+/* ── SERVICES SECTION ── */
+.services{padding:100px 24px;max-width:1100px;margin:0 auto}
+.s-label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--primary);margin-bottom:14px;opacity:0;transform:translateY(20px)}
+.s-title{font-size:clamp(28px,5vw,52px);font-weight:900;letter-spacing:-1.5px;margin-bottom:14px;line-height:1.1;opacity:0;transform:translateY(30px)}
+.s-sub{font-size:17px;color:var(--muted);max-width:520px;margin-bottom:56px;opacity:0;transform:translateY(20px)}
+.services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:900px){.services-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.services-grid{grid-template-columns:1fr}}
+.svc-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:32px 24px;opacity:0;transform:translateY(40px);
+  transition:border-color .2s,transform .2s,box-shadow .2s;cursor:default;
+}
+.svc-card:hover{border-color:rgba(232,112,85,.35);transform:translateY(-4px) !important;box-shadow:0 20px 48px rgba(0,0,0,.4)}
+.svc-icon{
+  width:48px;height:48px;border-radius:12px;
+  background:var(--primary-light);border:1px solid rgba(232,112,85,.2);
+  display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:18px;
+}
+.svc-card h3{font-size:17px;font-weight:700;margin-bottom:8px}
+.svc-card p{font-size:13px;color:var(--muted);line-height:1.6}
+.svc-covered{
+  display:inline-block;margin-top:14px;font-size:11px;font-weight:700;
+  color:var(--primary);background:var(--primary-light);border:1px solid rgba(232,112,85,.2);
+  padding:3px 10px;border-radius:6px;
+}
+
+/* ── STATS ── */
+.stats-band{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.stats-inner{max-width:1100px;margin:0 auto;padding:72px 24px}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px}
+@media(max-width:768px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+.stat{
+  background:var(--surface2);padding:36px 24px;text-align:center;
+  border-radius:var(--radius);border:1px solid var(--border);
+  opacity:0;transform:translateY(30px);
+}
+.stat-num{
+  display:block;font-size:clamp(34px,5vw,56px);font-weight:900;
+  letter-spacing:-2px;line-height:1;color:var(--primary);margin-bottom:6px;
+}
+.stat-label{font-size:13px;color:var(--muted);line-height:1.4}
+
+/* ── PROCESS ── */
+.process{padding:100px 24px 80px;max-width:1100px;margin:0 auto}
+.process-steps{position:relative;padding-left:48px}
+.p-line{position:absolute;left:20px;top:8px;bottom:8px;width:2px;background:var(--border)}
+.p-fill{position:absolute;left:20px;top:8px;width:2px;background:linear-gradient(to bottom,var(--primary),var(--primary-dark));height:0;border-radius:1px}
+.p-step{display:flex;align-items:flex-start;gap:24px;padding:28px 0;opacity:0;transform:translateX(-24px)}
+.p-num{
+  position:absolute;left:-48px;width:40px;height:40px;border-radius:50%;
+  background:var(--surface2);border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;font-size:16px;color:var(--muted);flex-shrink:0;
+  transition:all .3s;z-index:2;
+}
+.p-step.lit .p-num{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:0 0 20px var(--primary-glow)}
+.p-step{position:relative}
+.p-step h3{font-size:19px;font-weight:700;margin-bottom:6px}
+.p-step p{font-size:14px;color:var(--muted);line-height:1.6;max-width:420px}
+
+/* ── TESTIMONIALS ── */
+.testi{padding:0 24px 100px;max-width:1100px;margin:0 auto}
+.testi-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:680px){.testi-grid{grid-template-columns:1fr}}
+.tcard{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:28px 24px;opacity:0;transform:translateY(30px);
+}
+.tcard-stars{color:var(--primary);font-size:13px;letter-spacing:3px;margin-bottom:12px}
+.tcard-quote{font-size:14px;color:var(--muted);line-height:1.7;font-style:italic;margin-bottom:18px}
+.tcard-quote::before{content:'"';color:var(--primary);font-size:24px;line-height:0;vertical-align:-7px;margin-right:3px}
+.tcard-name{font-size:13px;font-weight:700}
+.tcard-role{font-size:12px;color:var(--muted)}
+
+/* ── BOTTOM CTA ── */
+.bottom-cta{
+  background:linear-gradient(135deg,rgba(232,112,85,.2),rgba(232,112,85,.05));
+  border-top:1px solid rgba(232,112,85,.2);
+  padding:100px 24px;text-align:center;
+}
+.bottom-cta h2{font-size:clamp(26px,5vw,52px);font-weight:900;letter-spacing:-1.5px;max-width:640px;margin:0 auto 18px;opacity:0;transform:translateY(30px)}
+.bottom-cta p{font-size:17px;color:var(--muted);max-width:460px;margin:0 auto 32px;opacity:0;transform:translateY(20px)}
+.bottom-cta a.big-phone{
+  display:block;font-size:clamp(32px,6vw,60px);font-weight:900;
+  color:var(--primary);text-decoration:none;margin-bottom:28px;
+  opacity:0;transform:scale(.9);letter-spacing:-1px;
+}
+.bottom-cta a.big-phone:hover{color:var(--text)}
+.bottom-cta .cta-wrap{opacity:0;transform:translateY(20px)}
+.cta-sub{font-size:13px;color:var(--muted);margin-top:14px}
+
+/* ── FOOTER ── */
+footer{background:var(--surface);border-top:1px solid var(--border);padding:40px 24px;text-align:center}
+footer p{font-size:12px;color:var(--muted);margin-bottom:6px}
+footer a{color:var(--primary);text-decoration:none}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo-text">UMAS</div>
+  <a href="tel:8473067606" class="nav-phone">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8a19.79 19.79 0 01-3.07-8.64A2 2 0 012.18 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.09a16 16 0 006 6l.56-.56a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/></svg>
+    <span>847-306-7606</span>
+  </a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-inner">
+    <!-- LEFT: headline -->
+    <div class="hero-left">
+      <div class="hero-eyebrow" id="eyebrow">Medicaid-Covered Elder Care · Chicagoland</div>
+      <h1 id="hero-h1">
+        <span class="line"><span class="word">Trusted care</span></span>
+        <span class="line"><span class="word">for your</span></span>
+        <span class="line"><span class="word"><em>loved one.</em></span></span>
+      </h1>
+      <p class="hero-sub" id="hero-sub">
+        Home care, adult day services, transportation, hot meals, and community — fully covered by Medicaid. No cost to your family.
+      </p>
+      <div class="hero-trust" id="hero-trust">
+        <div class="trust-badge"><div class="trust-badge-dot"></div>30+ years serving Illinois</div>
+        <div class="trust-badge"><div class="trust-badge-dot"></div>3,000+ families helped</div>
+        <div class="trust-badge"><div class="trust-badge-dot"></div>$0 out of pocket</div>
+      </div>
+    </div>
+
+    <!-- RIGHT: multi-step form -->
+    <div class="form-card" id="form-card">
+      <!-- Progress -->
+      <div class="form-progress-wrap">
+        <div class="form-progress-label">
+          <span id="q-label">Check Your Eligibility</span>
+          <span class="step-counter" id="step-counter">Step 1 of 9</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill" style="width:11%"></div>
+        </div>
+      </div>
+
+      <!-- Questions -->
+      <div class="question-wrap" id="question-wrap">
+
+        <!-- Q1: Who needs care -->
+        <div class="question active" id="q1">
+          <div class="question-label">Who needs care?</div>
+          <div class="options-grid single">
+            <div class="option-tile" data-val="self"><div class="tile-icon">🙋</div><div class="tile-text">I need care for myself</div><div class="tile-check"></div></div>
+            <div class="option-tile" data-val="parent"><div class="tile-icon">👴</div><div class="tile-text">My parent or grandparent</div><div class="tile-check"></div></div>
+            <div class="option-tile" data-val="spouse"><div class="tile-icon">💑</div><div class="tile-text">My spouse or partner</div><div class="tile-check"></div></div>
+            <div class="option-tile" data-val="client"><div class="tile-icon">🤝</div><div class="tile-text">A client / someone I support</div><div class="tile-check"></div></div>
+          </div>
+        </div>
+
+        <!-- Q2: Services needed (multi) -->
+        <div class="question" id="q2">
+          <div class="question-label">What services are you interested in?</div>
+          <div class="multi-note">Select all that apply</div>
+          <div class="options-grid single">
+            <div class="option-tile multi" data-val="homecare"><div class="tile-icon">🏠</div><div class="tile-text">Home Care (personal aide at home)</div><div class="tile-check"></div></div>
+            <div class="option-tile multi" data-val="inhome"><div class="tile-icon">🛁</div><div class="tile-text">In-Home Care (bathing, dressing, meals)</div><div class="tile-check"></div></div>
+            <div class="option-tile multi" data-val="daycare"><div class="tile-icon">☀️</div><div class="tile-text">Adult Day Care Center</div><div class="tile-check"></div></div>
+            <div class="option-tile multi" data-val="transport"><div class="tile-icon">🚌</div><div class="tile-text">Transportation to appointments</div><div class="tile-check"></div></div>
+            <div class="option-tile multi" data-val="meals"><div class="tile-icon">🍲</div><div class="tile-text">Hot Lunch Program</div><div class="tile-check"></div></div>
+            <div class="option-tile multi" data-val="community"><div class="tile-icon">🎉</div><div class="tile-text">Community Gatherings & Activities</div><div class="tile-check"></div></div>
+          </div>
+        </div>
+
+        <!-- Q3: County -->
+        <div class="question" id="q3">
+          <div class="question-label">Which county is the person in?</div>
+          <div class="options-grid">
+            <div class="option-tile" data-val="cook"><div class="tile-icon">🏙️</div><div class="tile-text">Cook County</div><div class="tile-check"></div></div>
+            <div class="option-tile" data-val="dupage"><div class="tile-icon">🌳</div><div class="tile-text">DuPage County</div><div class="tile-check"></div></div>
+            <div class="option-tile" data-val="lake"><div class="tile-icon">💧</div><div class="tile-text">Lake County</div><div class="tile-check"></div></div>
+            <div class="option-tile" data-val="will"><div class="tile-icon">🌾</div><div class="tile-text">Will County</div><div class="tile-check"></div></div>
+            <div class="option-tile" data-val="other"><div class="tile-icon">📍</div><div class="tile-text">Other / Not sure</div><div class="tile-check"></div></div>
+          </div>
+        </div>
+
+        <!-- Q4: Medicaid -->
+        <div class="question" id="q4">
+          <div class="question-label">Is your loved one on Medicaid or Medicare?</div>
+          <div class="question-sub">Don't worry if you're unsure — we can check for free.</div>
+          <div class="options-grid">
+            <div class="option-tile" data-val="medicaid"><div class="tile-icon">✅</div><div class="tile-text">Yes — Medicaid</div><div class="tile-check"></div></div>
+            <div class="option-tile" data-val="medicare"><div class="tile-icon">🔵</div><div class="tile-text">Yes — Medicare</div><div class="tile-check"></div></div>
+            <div class="option-tile" data-val="both"><div class="tile-icon">💊</div><div class="tile-text">Both</div><div class="tile-check"></div></div>
+            <div class="option-tile" data-val="unsure"><div class="tile-icon">❓</div><div class="tile-text">Not sure</div><div class="tile-check"></div></div>
+            <div class="option-tile" data-val="none"><div class="tile-icon">🚫</div><div class="tile-text">No coverage yet</div><div class="tile-check"></div></div>
+          </div>
+        </div>
+
+        <!-- Q5: Age -->
+        <div class="question" id="q5">
+          <div class="question-label">How old is the person needing care?</div>
+          <div class="options-grid">
+            <div class="option-tile" data-val="60-64"><div class="tile-icon">👤</div><div class="tile-text">60–64</div><div class="tile-check"></div></div>
+            <div class="option-tile" data-val="65-74"><div class="tile-icon">👤</div><div class="tile-text">65–74</div><div class="tile-check"></div></div>
+            <div class="option-tile" data-val="75-84"><div class="tile-icon">👤</div><div class="tile-text">75–84</div><div class="tile-check"></div></div>
+            <div class="option-tile" data-val="85+"><div class="tile-icon">👤</div><div class="tile-text">85 or older</div><div class="tile-check"></div></div>
+          </div>
+        </div>
+
+        <!-- Q6: Urgency -->
+        <div class="question" id="q6">
+          <div class="question-label">How soon do you need services?</div>
+          <div class="options-grid single">
+            <div class="option-tile" data-val="asap"><div class="tile-icon">🚨</div><div class="tile-text">As soon as possible</div><div class="tile-check"></div></div>
+            <div class="option-tile" data-val="month"><div class="tile-icon">📅</div><div class="tile-text">Within the next month</div><div class="tile-check"></div></div>
+            <div class="option-tile" data-val="planning"><div class="tile-icon">🔭</div><div class="tile-text">Just planning ahead</div><div class="tile-check"></div></div>
+          </div>
+        </div>
+
+        <!-- Q7: Name -->
+        <div class="question" id="q7">
+          <div class="question-label">What's your name?</div>
+          <div class="input-group">
+            <input type="text" class="form-input" id="inp-fname" placeholder="First name" autocomplete="given-name">
+            <input type="text" class="form-input" id="inp-lname" placeholder="Last name" autocomplete="family-name">
+            <div class="field-error" id="name-err">Please enter your name.</div>
+          </div>
+        </div>
+
+        <!-- Q8: Phone -->
+        <div class="question" id="q8">
+          <div class="question-label">Best phone number to reach you?</div>
+          <div class="question-sub">A care coordinator will call you — usually within 24 hours.</div>
+          <div class="input-group">
+            <input type="tel" class="form-input" id="inp-phone" placeholder="(312) 555-0100" autocomplete="tel">
+            <div class="field-error" id="phone-err">Please enter a valid 10-digit phone number.</div>
+          </div>
+        </div>
+
+        <!-- Q9: Email + submit -->
+        <div class="question" id="q9">
+          <div class="question-label">Email address <span style="font-weight:400;color:var(--muted)">(optional)</span></div>
+          <div class="input-group">
+            <input type="email" class="form-input" id="inp-email" placeholder="your@email.com" autocomplete="email">
+          </div>
+          <button class="btn-submit" id="btn-submit">Get My Free Eligibility Check →</button>
+          <p style="font-size:11px;color:var(--muted);margin-top:12px;text-align:center">No spam. No obligation. We call you.</p>
+        </div>
+
+      </div><!-- /question-wrap -->
+
+      <!-- Nav -->
+      <div class="form-nav" id="form-nav">
+        <button class="btn-back" id="btn-back" style="display:none">← Back</button>
+        <button class="btn-next" id="btn-next">Next →</button>
+      </div>
+
+      <!-- Thank you -->
+      <div class="ty-state" id="ty-state">
+        <span class="ty-icon">✅</span>
+        <h3>You're all set!</h3>
+        <p>A UMAS care coordinator will call you within 24 hours to walk through your options — at no cost to you.</p>
+        <a href="tel:8473067606" class="ty-phone">Or call now: 847-306-7606</a>
+      </div>
+
+    </div><!-- /form-card -->
+  </div><!-- /hero-inner -->
+</section>
+
+<!-- STATS -->
+<div class="stats-band">
+  <div class="stats-inner">
+    <div class="stats-grid">
+      <div class="stat"><span class="stat-num" data-target="3000" data-suffix="+">0+</span><div class="stat-label">Families served across Chicagoland</div></div>
+      <div class="stat"><span class="stat-num" data-target="30" data-suffix="+">0+</span><div class="stat-label">Years of nonprofit elder care</div></div>
+      <div class="stat"><span class="stat-num" data-target="4">0</span><div class="stat-label">Illinois counties covered</div></div>
+      <div class="stat"><span class="stat-num" data-prefix="$" data-target="0">$0</span><div class="stat-label">Out-of-pocket cost with Medicaid</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section class="services" id="services">
+  <div class="s-label reveal">What We Provide</div>
+  <h2 class="s-title reveal">Six ways we support<br>your family</h2>
+  <p class="s-sub reveal">Every service covered by Medicaid — no insurance complexity, no hidden costs.</p>
+  <div class="services-grid">
+    <div class="svc-card"><div class="svc-icon">🏠</div><h3>Home Care</h3><p>A personal care aide assists your loved one at home with daily tasks — bathing, dressing, grooming, and more.</p><span class="svc-covered">Medicaid Covered</span></div>
+    <div class="svc-card"><div class="svc-icon">🛁</div><h3>In-Home Care</h3><p>Skilled aides provide hands-on personal care and light housekeeping inside the comfort of the senior's own home.</p><span class="svc-covered">Medicaid Covered</span></div>
+    <div class="svc-card"><div class="svc-icon">☀️</div><h3>Adult Day Care Center</h3><p>Structured daytime programming with activities, health monitoring, and social connection in a safe group setting.</p><span class="svc-covered">Medicaid Covered</span></div>
+    <div class="svc-card"><div class="svc-icon">🚌</div><h3>Transportation</h3><p>Door-to-door rides to medical appointments, the day center, and community events — no arranging rides yourself.</p><span class="svc-covered">Medicaid Covered</span></div>
+    <div class="svc-card"><div class="svc-icon">🍲</div><h3>Hot Lunch Program</h3><p>Nutritious, hot meals served daily at the day center — or delivered to the home for qualifying seniors.</p><span class="svc-covered">Included</span></div>
+    <div class="svc-card"><div class="svc-icon">🎉</div><h3>Community Gatherings</h3><p>Regular social events, holiday celebrations, and cultural programs that keep seniors connected and engaged.</p><span class="svc-covered">Included</span></div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="process" id="process">
+  <div class="s-label reveal">How It Works</div>
+  <h2 class="s-title reveal">Get started in 3 steps</h2>
+  <p class="s-sub reveal">From your first call to your first day of care — we handle everything.</p>
+  <div class="process-steps" id="psteps">
+    <div class="p-line"></div>
+    <div class="p-fill" id="pfill"></div>
+    <div class="p-step" id="ps1"><div class="p-num">1</div><div><h3>Free eligibility check</h3><p>Call us or submit the form above. We verify Medicaid eligibility and explain exactly what's covered — usually within 24 hours.</p></div></div>
+    <div class="p-step" id="ps2"><div class="p-num">2</div><div><h3>Personalized care plan</h3><p>A care coordinator meets your family, understands your needs, and builds a plan tailored to your loved one's life.</p></div></div>
+    <div class="p-step" id="ps3"><div class="p-num">3</div><div><h3>Care begins — often within days</h3><p>Services start fast. Your coordinator stays involved, monitors quality, and adjusts the plan as needs change over time.</p></div></div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testi">
+  <div class="s-label reveal">What Families Say</div>
+  <h2 class="s-title reveal">Real families. Real peace of mind.</h2>
+  <div class="testi-grid" style="margin-top:48px">
+    <div class="tcard"><div class="tcard-stars">★★★★★</div><div class="tcard-quote">UMAS made the whole process easy. My mother gets the home care she needs and it's completely covered. I had no idea this was available.</div><div class="tcard-name">Maria R.</div><div class="tcard-role">Daughter of UMAS client, Cook County</div></div>
+    <div class="tcard"><div class="tcard-stars">★★★★★</div><div class="tcard-quote">The coordinator guided us through every step. My father loves the adult day program. The staff genuinely cares — you feel it immediately.</div><div class="tcard-name">James T.</div><div class="tcard-role">Son of UMAS client, DuPage County</div></div>
+    <div class="tcard"><div class="tcard-stars">★★★★★</div><div class="tcard-quote">I was burning out as a full-time caregiver. UMAS set up home care and transportation within a week. I can finally rest knowing she's safe.</div><div class="tcard-name">Robert K.</div><div class="tcard-role">Spouse of UMAS client, Lake County</div></div>
+    <div class="tcard"><div class="tcard-stars">★★★★★</div><div class="tcard-quote">UMAS handled all the Medicaid paperwork and had services started fast. The hot lunch program and community events have been a blessing.</div><div class="tcard-name">Sandra M.</div><div class="tcard-role">Daughter of UMAS client, Will County</div></div>
+  </div>
+</section>
+
+<!-- BOTTOM CTA -->
+<div class="bottom-cta" id="bcta">
+  <h2 class="reveal">One call starts everything.</h2>
+  <p class="reveal">Free consultation. Medicaid covered. No obligation. Chicagoland's most trusted elder care nonprofit.</p>
+  <a href="tel:8473067606" class="big-phone reveal">847-306-7606</a>
+  <div class="cta-wrap reveal">
+    <a href="#" onclick="document.getElementById('form-card').scrollIntoView({behavior:'smooth'});return false" class="btn-next" style="display:inline-block;text-decoration:none;padding:16px 40px;font-size:17px;border-radius:10px;color:#fff">Check Eligibility Free →</a>
+    <p class="cta-sub">Or scroll up to fill out the form — takes 90 seconds</p>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p><strong>Universal Metro Aging Services</strong></p>
+  <p>Cook · DuPage · Lake · Will Counties · Est. 1992</p>
+  <p><a href="tel:8473067606">847-306-7606</a> &nbsp;·&nbsp; <a href="https://umasinc.com">umasinc.com</a></p>
+  <p style="margin-top:16px">© 2026 UMAS. A nonprofit organization. All rights reserved.</p>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+<script>
+/* ── PARTICLES ── */
+const cv = document.getElementById('hero-canvas');
+const cx = cv.getContext('2d');
+let W,H,pts=[];
+function resize(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight}
+resize(); window.addEventListener('resize',resize);
+for(let i=0;i<60;i++) pts.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.4+.3,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,a:Math.random()*.3+.05});
+function drawPts(){cx.clearRect(0,0,W,H);pts.forEach(p=>{cx.beginPath();cx.arc(p.x,p.y,p.r,0,Math.PI*2);cx.fillStyle=`rgba(232,112,85,${p.a})`;cx.fill();p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;});requestAnimationFrame(drawPts);}
+drawPts();
+
+/* ── HERO ENTRANCE ── */
+anime.timeline({easing:'easeOutExpo'})
+  .add({targets:'#eyebrow',opacity:[0,1],translateY:[16,0],duration:600})
+  .add({targets:'.hero h1 .word',translateY:['110%','0%'],duration:900,delay:anime.stagger(90),easing:'cubicBezier(.16,1,.3,1)'}, '-=400')
+  .add({targets:'#hero-sub',opacity:[0,1],translateY:[20,0],duration:700},'-=500')
+  .add({targets:'#hero-trust',opacity:[0,1],translateY:[20,0],duration:600},'-=400')
+  .add({targets:'#form-card',opacity:[0,1],translateY:[30,0],duration:700},'-=500');
+
+/* ── MULTI-STEP FORM ── */
+const TOTAL = 9;
+let current = 1;
+const answers = {};
+const multiSelected = new Set();
+
+const pfill = document.getElementById('progress-fill');
+const stepCounter = document.getElementById('step-counter');
+const qLabel = document.getElementById('q-label');
+const btnNext = document.getElementById('btn-next');
+const btnBack = document.getElementById('btn-back');
+const btnSubmit = document.getElementById('btn-submit');
+const formNav = document.getElementById('form-nav');
+
+const labels = ['Who needs care?','Services needed','Your county','Insurance status','Age of person','How soon?','Your name','Your phone','Almost done!'];
+
+function setProgress(n){
+  pfill.style.width = (n/TOTAL*100)+'%';
+  stepCounter.textContent = `Step ${n} of ${TOTAL}`;
+  qLabel.textContent = labels[n-1] || 'Check Your Eligibility';
+}
+
+function showQ(n, dir=1){
+  const prev = document.getElementById('q'+current);
+  const next = document.getElementById('q'+n);
+  if(prev){ prev.style.animation=''; prev.classList.remove('active'); }
+  current = n;
+  next.classList.add('active');
+  next.style.animation = dir>0 ? 'qIn .4s cubic-bezier(.16,1,.3,1) both' : 'qInBack .4s cubic-bezier(.16,1,.3,1) both';
+  setProgress(n);
+  btnBack.style.display = n>1 ? 'block' : 'none';
+  // Hide next on Q9 (has its own submit)
+  btnNext.style.display = n===9 ? 'none' : 'block';
+  // Disable next until selection (for tile questions)
+  if(n<=6) btnNext.disabled = !answers['q'+n] && !([...multiSelected].length && n===2);
+  else btnNext.disabled = false;
+}
+
+// Tile click (single select)
+document.querySelectorAll('.option-tile:not(.multi)').forEach(t=>{
+  t.addEventListener('click',()=>{
+    const q = t.closest('.question');
+    q.querySelectorAll('.option-tile').forEach(x=>x.classList.remove('selected'));
+    t.classList.add('selected');
+    answers['q'+current] = t.dataset.val;
+    btnNext.disabled = false;
+    // Auto-advance after short delay
+    setTimeout(()=>{ if(current < 9) advance(); }, 300);
+  });
+});
+
+// Tile click (multi select for Q2)
+document.querySelectorAll('.option-tile.multi').forEach(t=>{
+  t.addEventListener('click',()=>{
+    t.classList.toggle('selected');
+    const v = t.dataset.val;
+    if(multiSelected.has(v)) multiSelected.delete(v); else multiSelected.add(v);
+    answers['q2'] = [...multiSelected].join(',');
+    btnNext.disabled = multiSelected.size === 0;
+  });
+});
+
+function advance(){
+  if(current === 9) return;
+  // Validate text fields
+  if(current === 7){
+    const fn = document.getElementById('inp-fname').value.trim();
+    const ln = document.getElementById('inp-lname').value.trim();
+    if(!fn || !ln){ document.getElementById('name-err').style.display='block'; return; }
+    document.getElementById('name-err').style.display='none';
+    answers.fname = fn; answers.lname = ln;
+  }
+  if(current === 8){
+    const ph = document.getElementById('inp-phone').value.replace(/\D/g,'');
+    if(ph.length < 10){ document.getElementById('phone-err').style.display='block'; return; }
+    document.getElementById('phone-err').style.display='none';
+    answers.phone = ph;
+  }
+  showQ(current+1, 1);
+}
+
+btnNext.addEventListener('click', advance);
+btnBack.addEventListener('click',()=>{ if(current>1) showQ(current-1,-1); });
+
+// Submit
+btnSubmit.addEventListener('click', async ()=>{
+  answers.email = document.getElementById('inp-email').value.trim();
+
+  // POST to GHL webhook — replace URL with your GHL webhook
+  const GHL_WEBHOOK = 'YOUR_GHL_WEBHOOK_URL'; // ← paste GHL webhook here
+
+  const payload = {
+    firstName: answers.fname,
+    lastName: answers.lname,
+    phone: answers.phone,
+    email: answers.email,
+    source: 'UMAS Funnel',
+    services: answers.q2,
+    county: answers.q3,
+    insurance: answers.q4,
+    urgency: answers.q6,
+    who: answers.q1,
+    age: answers.q5,
+    tags: ['umas-funnel','elder-care-lead']
+  };
+
+  try {
+    if(GHL_WEBHOOK !== 'YOUR_GHL_WEBHOOK_URL'){
+      await fetch(GHL_WEBHOOK, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      });
+    }
+  } catch(e){ console.warn('Webhook failed',e); }
+
+  // Show thank you
+  document.getElementById('question-wrap').style.display='none';
+  formNav.style.display='none';
+  document.getElementById('form-progress-wrap').style.display='none';
+  const ty = document.getElementById('ty-state');
+  ty.style.display='block';
+  anime({targets:ty,opacity:[0,1],translateY:[20,0],duration:600,easing:'easeOutExpo'});
+});
+
+// Enter key on text inputs
+['inp-fname','inp-lname','inp-phone','inp-email'].forEach(id=>{
+  const el = document.getElementById(id);
+  if(el) el.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); advance(); } });
+});
+
+// Init state
+setProgress(1);
+btnNext.disabled = true;
+
+/* ── SCROLL REVEALS ── */
+function onEnter(el, fn){
+  new IntersectionObserver(e=>{if(e[0].isIntersecting){fn();e[0].target._io?.disconnect();}},{threshold:.12}).observe(el);
+}
+document.querySelectorAll('.reveal').forEach(el=>onEnter(el,()=>anime({targets:el,opacity:[0,1],translateY:[24,0],duration:700,easing:'easeOutExpo'})));
+document.querySelectorAll('.stat').forEach((s,i)=>onEnter(s,()=>{
+  anime({targets:s,opacity:[0,1],translateY:[30,0],duration:700,delay:i*90,easing:'easeOutExpo'});
+  const n=s.querySelector('.stat-num');
+  const t=+n.dataset.target;
+  if(!t)return;
+  const pf=n.dataset.prefix||'', sf=n.dataset.suffix||'';
+  anime({targets:{v:0},v:t,duration:1800,delay:i*90+200,easing:'easeOutExpo',update(a){n.textContent=pf+Math.round(a.animatables[0].target.v).toLocaleString()+sf;}});
+}));
+document.querySelectorAll('.svc-card').forEach((c,i)=>onEnter(c,()=>anime({targets:c,opacity:[0,1],translateY:[40,0],duration:700,delay:i*70,easing:'easeOutExpo'})));
+document.querySelectorAll('.tcard').forEach((c,i)=>onEnter(c,()=>anime({targets:c,opacity:[0,1],translateY:[30,0],duration:700,delay:i*100,easing:'easeOutExpo'})));
+
+// Process steps
+const psteps = document.getElementById('psteps');
+onEnter(psteps,()=>{
+  [1,2,3].forEach((n,i)=>{
+    const s=document.getElementById('ps'+n);
+    anime({targets:s,opacity:[0,1],translateX:[-24,0],duration:600,delay:i*180,easing:'easeOutExpo',complete(){s.classList.add('lit');}});
+  });
+  anime({targets:'#pfill',height:[0,psteps.offsetHeight],duration:1200,delay:300,easing:'easeOutCubic'});
+});
+
+// Bottom CTA
+onEnter(document.getElementById('bcta'),()=>{
+  anime.timeline({easing:'easeOutExpo'})
+    .add({targets:'#bcta .reveal',opacity:[0,1],translateY:[30,0],duration:700,delay:anime.stagger(100)});
+});
+</script>
+</body>
+</html>
