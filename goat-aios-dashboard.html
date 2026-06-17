@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GOAT AIOS — Live Operations Dashboard</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --primary:#00e5ff;
+  --gold:#ffd600;
+  --magenta:#e040fb;
+  --bg:#000008;
+  --surface:rgba(0,20,40,0.75);
+  --border:rgba(0,229,255,0.2);
+  --radius:10px;
+  --text:#e2e8f0;
+  --muted:rgba(255,255,255,0.45);
+}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:'Courier New',Courier,monospace;color:var(--text);}
+#canvas-container{position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;}
+canvas{display:block;}
+
+/* HUD */
+#hud{position:fixed;top:0;left:0;width:100%;height:100%;z-index:10;pointer-events:none;display:flex;flex-direction:column;justify-content:space-between;}
+.glass{pointer-events:all;background:var(--surface);border:1px solid var(--border);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:var(--radius);}
+
+/* TOP BAR */
+#top-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 20px;margin:12px;border-radius:var(--radius);
+  background:rgba(0,10,25,0.88);border:1px solid var(--border);
+  backdrop-filter:blur(12px);pointer-events:all;
+}
+#top-logo{font-size:18px;font-weight:bold;color:var(--primary);letter-spacing:2px;text-shadow:0 0 12px var(--primary);}
+#top-clock{font-size:22px;letter-spacing:4px;color:#fff;text-shadow:0 0 8px rgba(255,255,255,0.35);}
+#top-right{display:flex;align-items:center;gap:16px;}
+#live-indicator{display:flex;align-items:center;gap:8px;font-size:13px;}
+#live-dot{width:10px;height:10px;border-radius:50%;background:#ff1744;box-shadow:0 0 8px #ff1744;animation:pulse-red 1.2s ease-in-out infinite;}
+#daemon-count{font-size:13px;color:var(--primary);}
+#offline-badge{display:none;color:#ff1744;font-size:13px;font-weight:bold;letter-spacing:1px;animation:blink 1s step-end infinite;}
+@keyframes pulse-red{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.35;transform:scale(0.8);}}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+
+/* BRAIN GRAPH BUTTON */
+#brain-btn{
+  display:flex;align-items:center;gap:7px;
+  padding:6px 14px;border-radius:6px;cursor:pointer;
+  background:rgba(0,229,255,0.08);border:1px solid rgba(0,229,255,0.35);
+  color:var(--primary);font-size:12px;font-family:'Courier New',Courier,monospace;
+  letter-spacing:1px;transition:all .2s;
+}
+#brain-btn:hover{background:rgba(0,229,255,0.18);box-shadow:0 0 14px rgba(0,229,255,0.2);}
+#brain-btn-dot{width:7px;height:7px;border-radius:50%;background:var(--primary);box-shadow:0 0 6px var(--primary);animation:pulse-red 1.8s ease-in-out infinite;}
+
+/* BRAIN GRAPH OVERLAY */
+#brain-overlay{
+  position:fixed;top:0;left:0;width:100%;height:100%;z-index:999;
+  background:rgba(0,0,8,0.96);
+  display:none;opacity:0;
+  flex-direction:column;
+  transition:opacity .3s ease;
+}
+#brain-overlay.open{display:flex;opacity:1;}
+#brain-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 20px;background:rgba(0,10,25,0.95);
+  border-bottom:1px solid var(--border);flex-shrink:0;
+}
+#brain-title{color:var(--primary);font-size:14px;letter-spacing:2px;}
+#brain-close{
+  padding:5px 16px;border-radius:6px;cursor:pointer;
+  background:rgba(255,23,68,0.1);border:1px solid rgba(255,23,68,0.35);
+  color:#ff1744;font-size:12px;font-family:'Courier New',Courier,monospace;
+  letter-spacing:1px;transition:all .2s;
+}
+#brain-close:hover{background:rgba(255,23,68,0.22);}
+#brain-iframe{flex:1;width:100%;border:none;}
+
+/* SIDE PANELS ROW */
+#side-panels{display:flex;justify-content:space-between;align-items:flex-start;padding:0 12px;flex:1;pointer-events:none;}
+
+/* LEFT PANEL */
+#left-panel{width:240px;padding:14px;pointer-events:all;background:var(--surface);border:1px solid var(--border);backdrop-filter:blur(12px);border-radius:var(--radius);}
+.panel-title{font-size:11px;letter-spacing:2px;color:var(--primary);border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:12px;text-transform:uppercase;}
+.workflow-row{display:flex;align-items:center;gap:10px;padding:8px 6px;border-radius:6px;margin-bottom:6px;cursor:pointer;transition:background .2s;border:1px solid transparent;}
+.workflow-row:hover{background:rgba(0,229,255,0.07);}
+.workflow-row.selected{background:rgba(0,229,255,0.1);border-color:rgba(0,229,255,0.25);}
+.status-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;transition:box-shadow .3s;}
+.status-dot.running{background:#00e676;box-shadow:0 0 7px #00e676;}
+.status-dot.stopped{background:#ff1744;box-shadow:0 0 7px #ff1744;}
+.wf-info{flex:1;min-width:0;}
+.wf-name{font-size:12px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.wf-time{font-size:10px;color:var(--muted);margin-top:2px;}
+.post-badge{background:rgba(0,229,255,0.13);border:1px solid rgba(0,229,255,0.3);border-radius:4px;padding:2px 7px;font-size:11px;color:var(--primary);flex-shrink:0;}
+.post-badge.gold{background:rgba(255,214,0,0.1);border-color:rgba(255,214,0,0.32);color:var(--gold);}
+.post-badge.magenta{background:rgba(224,64,251,0.1);border-color:rgba(224,64,251,0.32);color:var(--magenta);}
+
+/* RIGHT PANEL */
+#right-panel{width:260px;padding:14px;pointer-events:all;background:var(--surface);border:1px solid var(--border);backdrop-filter:blur(12px);border-radius:var(--radius);animation:border-glow 3s ease-in-out infinite alternate;}
+@keyframes border-glow{
+  from{border-color:rgba(0,229,255,0.2);box-shadow:0 0 8px rgba(0,229,255,0.04);}
+  to{border-color:rgba(0,229,255,0.55);box-shadow:0 0 22px rgba(0,229,255,0.14);}
+}
+.post-card{padding:10px;border-radius:6px;background:rgba(0,229,255,0.04);border:1px solid rgba(0,229,255,0.1);margin-bottom:8px;transition:background .3s;}
+.post-card:hover{background:rgba(0,229,255,0.08);}
+.post-caption{font-size:11px;line-height:1.5;color:var(--text);margin-bottom:4px;max-height:34px;overflow:hidden;}
+.post-tags{font-size:10px;color:var(--primary);opacity:0.7;}
+.post-card.new-flash{animation:card-flash .6s ease;}
+@keyframes card-flash{0%{background:rgba(0,229,255,0.22);}100%{background:rgba(0,229,255,0.04);}}
+.no-posts{font-size:11px;color:var(--muted);text-align:center;padding:20px 0;}
+
+/* CENTER BOTTOM LOG TERMINAL */
+#center-bottom{position:absolute;bottom:64px;left:50%;transform:translateX(-50%);width:380px;pointer-events:all;}
+#log-terminal{background:rgba(0,6,18,0.92);border:1px solid var(--border);backdrop-filter:blur(12px);border-radius:var(--radius);overflow:hidden;}
+#log-tabs{display:flex;border-bottom:1px solid var(--border);background:rgba(0,12,28,0.6);}
+.log-tab{padding:7px 20px;font-size:12px;cursor:pointer;color:var(--muted);transition:all .2s;border:none;background:none;font-family:'Courier New',Courier,monospace;border-bottom:2px solid transparent;}
+.log-tab:hover{color:var(--text);}
+.log-tab.active{color:var(--primary);border-bottom-color:var(--primary);}
+#log-body{height:172px;overflow-y:auto;padding:10px;scroll-behavior:smooth;}
+#log-body::-webkit-scrollbar{width:4px;}
+#log-body::-webkit-scrollbar-track{background:transparent;}
+#log-body::-webkit-scrollbar-thumb{background:rgba(0,229,255,0.28);border-radius:2px;}
+.log-line{font-size:11px;padding:2px 0;opacity:0;animation:fadein-line .35s forwards;line-height:1.5;}
+@keyframes fadein-line{from{opacity:0;transform:translateY(3px);}to{opacity:1;transform:translateY(0);}}
+.log-line.cyan{color:var(--primary);}
+.log-line.gold{color:var(--gold);}
+.log-line.magenta{color:var(--magenta);}
+.log-line.muted{color:var(--muted);}
+.log-prefix{color:rgba(255,255,255,0.28);margin-right:6px;}
+
+/* BOTTOM BAR */
+#bottom-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 20px;margin:0 12px 12px;border-radius:var(--radius);
+  background:rgba(0,10,25,0.88);border:1px solid var(--border);
+  backdrop-filter:blur(12px);pointer-events:all;
+}
+.counter-group{display:flex;gap:28px;}
+.counter-item{display:flex;align-items:center;gap:9px;font-size:12px;}
+.counter-label{color:var(--muted);}
+.counter-val{color:var(--primary);font-size:15px;font-weight:bold;min-width:28px;display:inline-block;}
+.counter-val.gold-val{color:var(--gold);}
+.counter-val.tick{animation:tick-anim .3s ease;}
+@keyframes tick-anim{0%{transform:translateY(-5px);opacity:0;}100%{transform:translateY(0);opacity:1;}}
+#countdown-area{display:flex;align-items:center;gap:4px;}
+#countdown-label{font-size:12px;color:var(--muted);}
+#countdown-val{color:var(--primary);font-size:14px;letter-spacing:2px;margin-left:8px;}
+</style>
+</head>
+<body>
+
+<div id="canvas-container"></div>
+
+<!-- HUD OVERLAY -->
+<div id="hud">
+
+  <!-- TOP BAR -->
+  <div id="top-bar">
+    <div id="top-logo">&#x2B21; GOAT AIOS</div>
+    <div id="top-clock">00:00:00</div>
+    <div id="top-right">
+      <div id="live-indicator">
+        <span id="live-dot"></span>
+        <span>LIVE</span>
+      </div>
+      <div id="daemon-count">DAEMONS: 0/3</div>
+      <div id="offline-badge">&#9654; SERVER OFFLINE</div>
+      <div id="brain-btn" onclick="openBrainGraph()">
+        <div id="brain-btn-dot"></div>
+        BRAIN GRAPH
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDE PANELS -->
+  <div id="side-panels">
+
+    <!-- LEFT: WORKFLOW STATUS -->
+    <div id="left-panel">
+      <div class="panel-title">Workflow Status</div>
+
+      <div class="workflow-row" data-wf="0" id="wf-row-0">
+        <div class="status-dot stopped" id="dot-0"></div>
+        <div class="wf-info">
+          <div class="wf-name" style="color:var(--primary)">W1 Social Loop</div>
+          <div class="wf-time" id="wf-time-0">No cycle yet</div>
+        </div>
+        <div class="post-badge" id="badge-0">0</div>
+      </div>
+
+      <div class="workflow-row" data-wf="1" id="wf-row-1">
+        <div class="status-dot stopped" id="dot-1"></div>
+        <div class="wf-info">
+          <div class="wf-name" style="color:var(--gold)">W2 GitHub AutoFix</div>
+          <div class="wf-time" id="wf-time-1">No cycle yet</div>
+        </div>
+        <div class="post-badge gold" id="badge-1">0</div>
+      </div>
+
+      <div class="workflow-row" data-wf="2" id="wf-row-2">
+        <div class="status-dot stopped" id="dot-2"></div>
+        <div class="wf-info">
+          <div class="wf-name" style="color:var(--magenta)">W3 Competitor Loop</div>
+          <div class="wf-time" id="wf-time-2">No cycle yet</div>
+        </div>
+        <div class="post-badge magenta" id="badge-2">0</div>
+      </div>
+    </div>
+
+    <!-- RIGHT: LATEST POSTS -->
+    <div id="right-panel">
+      <div class="panel-title">Latest Posts</div>
+      <div id="posts-container">
+        <div class="no-posts">Awaiting server data...</div>
+      </div>
+    </div>
+
+  </div><!-- /side-panels -->
+
+  <!-- CENTER BOTTOM: LOG TERMINAL -->
+  <div id="center-bottom">
+    <div id="log-terminal">
+      <div id="log-tabs">
+        <button class="log-tab active" data-tab="0">[W1]</button>
+        <button class="log-tab" data-tab="1">[W2]</button>
+        <button class="log-tab" data-tab="2">[W3]</button>
+      </div>
+      <div id="log-body"></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM BAR -->
+  <div id="bottom-bar">
+    <div class="counter-group">
+      <div class="counter-item">
+        <span class="counter-label">Social Posts:</span>
+        <span class="counter-val" id="social-count">0</span>
+      </div>
+      <div class="counter-item">
+        <span class="counter-label">Competitor Posts:</span>
+        <span class="counter-val gold-val" id="competitor-count">0</span>
+      </div>
+    </div>
+    <div id="countdown-area">
+      <span id="countdown-label">Next W1 cycle in:</span>
+      <span id="countdown-val">--:--:--</span>
+    </div>
+  </div>
+
+</div><!-- /hud -->
+
+<!-- BRAIN GRAPH OVERLAY -->
+<div id="brain-overlay">
+  <div id="brain-header">
+    <div id="brain-title">&#x2B21; BRAIN GRAPH — 1,660 nodes · 3,749 edges</div>
+    <button id="brain-close" onclick="closeBrainGraph()">&#x2715; CLOSE</button>
+  </div>
+  <iframe id="brain-iframe" src="" title="Brain Graph"></iframe>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+'use strict';
+
+/* ── CONSTANTS ── */
+var API_BASE = 'http://localhost:7777';
+var POLL_MS  = 5000;
+var ORB_COLORS  = [0x00e5ff, 0xffd600, 0xe040fb];
+var ORB_CSS     = ['#00e5ff','#ffd600','#e040fb'];
+var ORB_RADII   = [12, 16, 20];
+var ORB_SPEEDS  = [0.40, 0.25, 0.15];
+var LOG_CLS     = ['cyan','gold','magenta'];
+
+/* ── STATE ── */
+var S = {
+  activeTab    : 0,
+  logs         : [[],[],[]],
+  wfStatus     : [
+    {running:false, postCount:0, lastCycle:null},
+    {running:false, postCount:0, lastCycle:null},
+    {running:false, postCount:0, lastCycle:null}
+  ],
+  posts        : [],
+  socialCount  : 0,
+  compCount    : 0,
+  lastPostTime : null,
+  serverOnline : false,
+  daemonCount  : 0
+};
+
+/* ── THREE REFS ── */
+var T = {
+  scene:null, cam:null, renderer:null,
+  clock:null, raycaster:null,
+  stars:null, coreHalos:[],
+  orbs:[],          // {mesh, group, beam, pSys, pProg}
+  angles:[0,0,0],
+  drag:{active:false,x0:0,y0:0,phi0:0,theta0:0},
+  phi:0.55, theta:0.4, radius:35
+};
+
+/* ══════════════════════════════════════════════
+   CLOCK
+══════════════════════════════════════════════ */
+function tickClock(){
+  var d=new Date(),
+      h=('0'+d.getHours()).slice(-2),
+      m=('0'+d.getMinutes()).slice(-2),
+      s=('0'+d.getSeconds()).slice(-2);
+  document.getElementById('top-clock').textContent = h+':'+m+':'+s;
+}
+setInterval(tickClock,1000); tickClock();
+
+/* ══════════════════════════════════════════════
+   COUNTDOWN
+══════════════════════════════════════════════ */
+function tickCountdown(){
+  var el=document.getElementById('countdown-val');
+  if(!S.lastPostTime){el.textContent='--:--:--';return;}
+  var rem = (4*3600000) - (Date.now()-S.lastPostTime);
+  if(rem<=0){el.textContent='00:00:00';return;}
+  var h=Math.floor(rem/3600000),
+      m=Math.floor((rem%3600000)/60000),
+      s=Math.floor((rem%60000)/1000);
+  el.textContent=('0'+h).slice(-2)+':'+('0'+m).slice(-2)+':'+('0'+s).slice(-2);
+}
+setInterval(tickCountdown,1000);
+
+/* ══════════════════════════════════════════════
+   COUNTER ANIMATION
+══════════════════════════════════════════════ */
+function animCounter(id,val){
+  var el=document.getElementById(id);
+  if(!el)return;
+  if(parseInt(el.textContent,10)===val)return;
+  el.textContent=String(val);
+  el.classList.remove('tick');
+  void el.offsetWidth;
+  el.classList.add('tick');
+}
+
+/* ══════════════════════════════════════════════
+   LOG TERMINAL
+══════════════════════════════════════════════ */
+function addLog(tab,text,cls){
+  var now=new Date(),
+      ts=('0'+now.getHours()).slice(-2)+':'+('0'+now.getMinutes()).slice(-2)+':'+('0'+now.getSeconds()).slice(-2);
+  S.logs[tab].push({ts:ts, text:text, cls:cls||LOG_CLS[tab]});
+  if(S.logs[tab].length>300) S.logs[tab].shift();
+  if(S.activeTab===tab) renderLog(tab);
+}
+
+function renderLog(tab){
+  var body=document.getElementById('log-body');
+  while(body.firstChild) body.removeChild(body.firstChild);
+  var lines=S.logs[tab];
+  var start=Math.max(0,lines.length-60);
+  for(var i=start;i<lines.length;i++){
+    var l=lines[i];
+    var div=document.createElement('div');
+    div.className='log-line '+l.cls;
+    var pre=document.createElement('span');
+    pre.className='log-prefix';
+    pre.textContent='['+l.ts+']';
+    div.appendChild(pre);
+    div.appendChild(document.createTextNode(' '+l.text));
+    body.appendChild(div);
+  }
+  body.scrollTop=body.scrollHeight;
+}
+
+document.querySelectorAll('.log-tab').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var tab=parseInt(btn.getAttribute('data-tab'),10);
+    S.activeTab=tab;
+    document.querySelectorAll('.log-tab').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+    renderLog(tab);
+    highlightOrbRow(tab);
+  });
+});
+
+/* ══════════════════════════════════════════════
+   LEFT PANEL ROW CLICKS
+══════════════════════════════════════════════ */
+function highlightOrbRow(idx){
+  document.querySelectorAll('.workflow-row').forEach(function(r){r.classList.remove('selected');});
+  var row=document.getElementById('wf-row-'+idx);
+  if(row) row.classList.add('selected');
+}
+
+document.querySelectorAll('.workflow-row').forEach(function(row){
+  row.addEventListener('click',function(){
+    var wf=parseInt(row.getAttribute('data-wf'),10);
+    highlightOrbRow(wf);
+    S.activeTab=wf;
+    document.querySelectorAll('.log-tab').forEach(function(b){b.classList.remove('active');});
+    var tab=document.querySelector('.log-tab[data-tab="'+wf+'"]');
+    if(tab) tab.classList.add('active');
+    renderLog(wf);
+  });
+});
+
+/* ══════════════════════════════════════════════
+   LEFT PANEL STATUS UPDATE
+══════════════════════════════════════════════ */
+function updateLeftPanel(data){
+  var specs=[
+    {key:'w1', running: data.w1&&data.w1.running, count:(data.w1&&data.w1.postCount)||0, lastCycle:data.w1&&data.w1.lastCycle},
+    {key:'w2', running: data.w2&&data.w2.running, count:(data.w2&&data.w2.postCount)||0, lastCycle:data.w2&&data.w2.lastCycle},
+    {key:'w3', running: data.w3&&data.w3.running, count:(data.w3&&data.w3.postCount)||0, lastCycle:data.w3&&data.w3.lastCycle}
+  ];
+  var daemons=0;
+  specs.forEach(function(sp,i){
+    var dot=document.getElementById('dot-'+i);
+    var badge=document.getElementById('badge-'+i);
+    var timeEl=document.getElementById('wf-time-'+i);
+    if(sp.running){dot.className='status-dot running';daemons++;}
+    else{dot.className='status-dot stopped';}
+    if(badge) badge.textContent=String(sp.count);
+    if(timeEl){
+      if(sp.lastCycle){
+        var d=new Date(sp.lastCycle);
+        timeEl.textContent='Last: '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+':'+('0'+d.getSeconds()).slice(-2);
+      } else {
+        timeEl.textContent='No cycle yet';
+      }
+    }
+    if(T.orbs[i]) T.orbs[i].running=sp.running;
+  });
+  S.daemonCount=daemons;
+  document.getElementById('daemon-count').textContent='DAEMONS: '+daemons+'/3';
+}
+
+/* ══════════════════════════════════════════════
+   RIGHT PANEL POSTS
+══════════════════════════════════════════════ */
+function updatePostsPanel(posts){
+  var container=document.getElementById('posts-container');
+  while(container.firstChild) container.removeChild(container.firstChild);
+  if(!posts||posts.length===0){
+    var empty=document.createElement('div');
+    empty.className='no-posts';
+    empty.textContent='No posts yet — awaiting server data';
+    container.appendChild(empty);
+    return;
+  }
+  var recent=posts.slice(-3).reverse();
+  recent.forEach(function(post,idx){
+    var card=document.createElement('div');
+    card.className='post-card'+(idx===0?' new-flash':'');
+    var cap=document.createElement('div');
+    cap.className='post-caption';
+    var captionText=String(post.caption||'(no caption)');
+    if(captionText.length>90) captionText=captionText.substring(0,90)+'…';
+    cap.textContent=captionText;
+    var tags=document.createElement('div');
+    tags.className='post-tags';
+    tags.textContent=String(post.hashtags||'');
+    card.appendChild(cap);
+    card.appendChild(tags);
+    container.appendChild(card);
+  });
+}
+
+/* ══════════════════════════════════════════════
+   ONLINE / OFFLINE UI
+══════════════════════════════════════════════ */
+function setOnline(on){
+  S.serverOnline=on;
+  var off=document.getElementById('offline-badge');
+  var dot=document.getElementById('live-dot');
+  if(on){
+    off.style.display='none';
+    dot.style.display='block';
+  } else {
+    off.style.display='block';
+    dot.style.display='none';
+    document.getElementById('daemon-count').textContent='DAEMONS: —/3';
+  }
+}
+
+/* ══════════════════════════════════════════════
+   API POLLING
+══════════════════════════════════════════════ */
+function safeStr(v){ return (v===null||v===undefined)?'':String(v); }
+
+async function fetchJSON(path){
+  var res=await fetch(API_BASE+path,{
+    signal: typeof AbortSignal.timeout==='function'?AbortSignal.timeout(4000):undefined
+  });
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  return res.json();
+}
+
+async function pollStatus(){
+  try{
+    var data=await fetchJSON('/status');
+    setOnline(true);
+    updateLeftPanel(data);
+  }catch(e){ setOnline(false); }
+}
+
+async function pollSocial(){
+  try{
+    var data=await fetchJSON('/posts/social');
+    var posts=Array.isArray(data)?data:(data.posts||[]);
+    var prev=S.socialCount;
+    S.socialCount=posts.length;
+    if(posts.length>0){
+      var last=posts[posts.length-1];
+      S.lastPostTime=new Date(last.timestamp||Date.now()).getTime();
+    }
+    animCounter('social-count',S.socialCount);
+    if(S.socialCount>prev){
+      var last2=posts[posts.length-1];
+      addLog(0,'New post: '+safeStr(last2.caption).substring(0,45)+'...','cyan');
+    }
+    S.posts=posts;
+    updatePostsPanel(posts);
+  }catch(e){}
+}
+
+async function pollLogEndpoint(path,tab){
+  try{
+    var data=await fetchJSON(path);
+    var lines=Array.isArray(data)?data:(data.lines||[]);
+    var slice=lines.slice(-5);
+    slice.forEach(function(line){
+      var text=typeof line==='string'?line:safeStr(line.message||line.text||JSON.stringify(line));
+      addLog(tab,text);
+    });
+  }catch(e){}
+}
+
+async function pollCompetitor(){
+  try{
+    var data=await fetchJSON('/logs/competitor');
+    var lines=Array.isArray(data)?data:(data.lines||[]);
+    var count=typeof data.count==='number'?data.count:lines.length;
+    var prev=S.compCount;
+    S.compCount=count;
+    animCounter('competitor-count',S.compCount);
+    if(count>prev&&lines.length>0){
+      addLog(2,'Competitor captured: '+safeStr(lines[lines.length-1]).substring(0,50),'magenta');
+    }
+  }catch(e){}
+}
+
+async function pollAll(){
+  await pollStatus();
+  await pollSocial();
+  await pollLogEndpoint('/logs/social',0);
+  await pollLogEndpoint('/logs/github',1);
+  await pollCompetitor();
+}
+
+/* ══════════════════════════════════════════════
+   THREE.JS SCENE
+══════════════════════════════════════════════ */
+function camPos(){
+  var r=T.radius, ph=T.phi, th=T.theta;
+  T.cam.position.set(
+    r*Math.sin(ph)*Math.cos(th),
+    r*Math.cos(ph),
+    r*Math.sin(ph)*Math.sin(th)
+  );
+  T.cam.lookAt(0,0,0);
+}
+
+function initThree(){
+  var W=window.innerWidth, H=window.innerHeight;
+  T.scene=new THREE.Scene();
+  T.clock=new THREE.Clock();
+  T.cam=new THREE.PerspectiveCamera(55,W/H,0.1,1200);
+  camPos();
+
+  T.renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});
+  T.renderer.setSize(W,H);
+  T.renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  T.renderer.setClearColor(0x000008,1);
+  document.getElementById('canvas-container').appendChild(T.renderer.domElement);
+
+  T.raycaster=new THREE.Raycaster();
+  buildScene();
+  attachCanvasEvents();
+  window.addEventListener('resize',function(){
+    var W2=window.innerWidth,H2=window.innerHeight;
+    T.cam.aspect=W2/H2;
+    T.cam.updateProjectionMatrix();
+    T.renderer.setSize(W2,H2);
+  });
+  loop();
+}
+
+function buildScene(){
+  var scene=T.scene;
+
+  /* STARS: 2000 particles slow drift */
+  var sg=new THREE.BufferGeometry();
+  var sp=new Float32Array(6000);
+  for(var i=0;i<2000;i++){
+    sp[i*3]  =(Math.random()-.5)*600;
+    sp[i*3+1]=(Math.random()-.5)*600;
+    sp[i*3+2]=(Math.random()-.5)*600;
+  }
+  sg.setAttribute('position',new THREE.BufferAttribute(sp,3));
+  T.stars=new THREE.Points(sg,new THREE.PointsMaterial({color:0xffffff,size:0.55,sizeAttenuation:true,transparent:true,opacity:0.72}));
+  scene.add(T.stars);
+
+  /* CORE SPHERE */
+  var cGeo=new THREE.SphereGeometry(3,64,64);
+  scene.add(new THREE.Mesh(cGeo,new THREE.MeshBasicMaterial({color:0x88ddff,transparent:true,opacity:0.88})));
+
+  var cgGeo=new THREE.SphereGeometry(3.5,32,32);
+  var cgMat=new THREE.MeshBasicMaterial({color:0x00e5ff,transparent:true,opacity:0.18,side:THREE.BackSide,blending:THREE.AdditiveBlending,depthWrite:false});
+  scene.add(new THREE.Mesh(cgGeo,cgMat));
+
+  var coGeo=new THREE.SphereGeometry(5,24,24);
+  scene.add(new THREE.Mesh(coGeo,new THREE.MeshBasicMaterial({color:0x004466,transparent:true,opacity:0.13,side:THREE.BackSide,blending:THREE.AdditiveBlending,depthWrite:false})));
+
+  /* CORE HALOS: 3 rings rotating on different axes */
+  var haloSizes=[5.6,7.1,8.7];
+  var haloAxes=[
+    new THREE.Vector3(1,0,0),
+    new THREE.Vector3(0,1,0.35).normalize(),
+    new THREE.Vector3(0.35,0.5,1).normalize()
+  ];
+  haloSizes.forEach(function(r,i){
+    var hg=new THREE.RingGeometry(r,r+0.14,64);
+    var hm=new THREE.MeshBasicMaterial({color:0x00e5ff,transparent:true,opacity:0.22-i*0.05,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,depthWrite:false});
+    var halo=new THREE.Mesh(hg,hm);
+    halo.userData.axis=haloAxes[i];
+    halo.userData.speed=0.28+i*0.14;
+    T.coreHalos.push(halo);
+    scene.add(halo);
+  });
+
+  /* GRID FLOOR */
+  var grid=new THREE.GridHelper(90,32,0x00bcd4,0x00bcd4);
+  grid.position.y=-15;
+  grid.material.transparent=true;
+  grid.material.opacity=0.3;
+  scene.add(grid);
+
+  /* AMBIENT LIGHT */
+  scene.add(new THREE.AmbientLight(0x001122,1));
+
+  /* ORB SYSTEMS */
+  var orbTilt=Math.PI/8;
+  ORB_COLORS.forEach(function(color,i){
+    var grp=new THREE.Group();
+    grp.rotation.x=orbTilt;
+    scene.add(grp);
+
+    /* Orb sphere */
+    var oGeo=new THREE.SphereGeometry(1.2,32,32);
+    var oMat=new THREE.MeshBasicMaterial({color:color,transparent:true,opacity:0.9});
+    var orb=new THREE.Mesh(oGeo,oMat);
+    orb.userData.orbIndex=i;
+
+    /* Glow shell */
+    var ogGeo=new THREE.SphereGeometry(1.75,16,16);
+    var ogMat=new THREE.MeshBasicMaterial({color:color,transparent:true,opacity:0.17,side:THREE.BackSide,blending:THREE.AdditiveBlending,depthWrite:false});
+    orb.add(new THREE.Mesh(ogGeo,ogMat));
+
+    /* 2 local halos */
+    [2.2,3.1].forEach(function(hr,hi){
+      var rhGeo=new THREE.RingGeometry(hr,hr+0.09,32);
+      var rhMat=new THREE.MeshBasicMaterial({color:color,transparent:true,opacity:0.28,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,depthWrite:false});
+      var rh=new THREE.Mesh(rhGeo,rhMat);
+      rh.userData.localHalo=true;
+      rh.userData.spd=0.55+hi*0.4;
+      orb.add(rh);
+    });
+
+    grp.add(orb);
+
+    /* Beam line: orb → core (dynamically updated) */
+    var bGeo=new THREE.BufferGeometry();
+    var bArr=new Float32Array(6);
+    bGeo.setAttribute('position',new THREE.BufferAttribute(bArr,3));
+    var bMat=new THREE.LineBasicMaterial({color:color,transparent:true,opacity:0.32,blending:THREE.AdditiveBlending,depthWrite:false});
+    var beam=new THREE.Line(bGeo,bMat);
+    scene.add(beam);
+
+    /* Particle stream: 200 particles flowing orb → core */
+    var pN=200;
+    var pGeo=new THREE.BufferGeometry();
+    var pArr=new Float32Array(pN*3);
+    var pProg=new Float32Array(pN);
+    for(var j=0;j<pN;j++) pProg[j]=Math.random();
+    pGeo.setAttribute('position',new THREE.BufferAttribute(pArr,3));
+    var pMat=new THREE.PointsMaterial({color:color,size:0.17,sizeAttenuation:true,transparent:true,opacity:0.58,blending:THREE.AdditiveBlending,depthWrite:false});
+    var pSys=new THREE.Points(pGeo,pMat);
+    scene.add(pSys);
+
+    T.orbs.push({mesh:orb,group:grp,beam:beam,pSys:pSys,pProg:pProg,pN:pN,running:false});
+  });
+}
+
+/* ── MAIN RENDER LOOP ── */
+function loop(){
+  requestAnimationFrame(loop);
+  var dt=T.clock.getDelta();
+  var el=T.clock.elapsedTime;
+
+  /* Star drift */
+  if(T.stars){ T.stars.rotation.y+=dt*0.007; T.stars.rotation.x+=dt*0.003; }
+
+  /* Core halos spin */
+  T.coreHalos.forEach(function(h){
+    var q=new THREE.Quaternion().setFromAxisAngle(h.userData.axis, dt*h.userData.speed);
+    h.quaternion.multiplyQuaternions(q,h.quaternion);
+  });
+
+  /* Auto-rotate camera */
+  if(!T.drag.active) T.theta+=dt*0.04;
+  camPos();
+
+  /* Orb orbits */
+  var wp=new THREE.Vector3();
+  T.orbs.forEach(function(od,i){
+    var spd=ORB_SPEEDS[i]*(od.running?1.35:1.0);
+    T.angles[i]=(T.angles[i]||0)+dt*spd;
+    var ang=T.angles[i], r=ORB_RADII[i];
+    od.mesh.position.set(Math.cos(ang)*r, 0, Math.sin(ang)*r);
+
+    /* Local halo spin */
+    od.mesh.children.forEach(function(c){
+      if(c.userData&&c.userData.localHalo) c.rotation.z+=dt*c.userData.spd;
+    });
+
+    /* Orb glow pulse */
+    var base=od.running?0.92:0.68;
+    od.mesh.material.opacity=base+Math.sin(el*3+i*1.5)*0.07;
+
+    /* Beam update */
+    od.mesh.getWorldPosition(wp);
+    var bArr=od.beam.geometry.attributes.position.array;
+    bArr[0]=wp.x; bArr[1]=wp.y; bArr[2]=wp.z;
+    bArr[3]=0;    bArr[4]=0;    bArr[5]=0;
+    od.beam.geometry.attributes.position.needsUpdate=true;
+    od.beam.material.opacity=0.18+Math.sin(el*2.2+i*2)*0.14;
+
+    /* Particle stream: interpolate orb→core */
+    var pArr=od.pSys.geometry.attributes.position;
+    for(var j=0;j<od.pN;j++){
+      od.pProg[j]+=dt*0.28;
+      if(od.pProg[j]>1) od.pProg[j]=0;
+      var t=od.pProg[j];
+      var jitter=Math.sin(t*6.28+j)*0.35;
+      pArr.setXYZ(j,
+        wp.x*(1-t)+jitter,
+        wp.y*(1-t)+Math.sin(t*3.14+j*0.4)*0.28,
+        wp.z*(1-t)
+      );
+    }
+    pArr.needsUpdate=true;
+  });
+
+  T.renderer.render(T.scene,T.cam);
+}
+
+/* ── CANVAS EVENT LISTENERS ── */
+function attachCanvasEvents(){
+  var cv=T.renderer.domElement;
+
+  cv.addEventListener('mousedown',function(e){
+    T.drag.active=true;
+    T.drag.x0=e.clientX; T.drag.y0=e.clientY;
+    T.drag.phi0=T.phi;  T.drag.theta0=T.theta;
+  });
+  cv.addEventListener('mousemove',function(e){
+    if(!T.drag.active)return;
+    var dx=e.clientX-T.drag.x0, dy=e.clientY-T.drag.y0;
+    T.theta=T.drag.theta0-dx*0.008;
+    T.phi=Math.max(0.1,Math.min(Math.PI-0.1,T.drag.phi0+dy*0.006));
+    camPos();
+  });
+  cv.addEventListener('mouseup',function(){T.drag.active=false;});
+  cv.addEventListener('mouseleave',function(){T.drag.active=false;});
+  cv.addEventListener('wheel',function(e){
+    T.radius=Math.max(10,Math.min(80,T.radius+e.deltaY*0.05));
+    camPos();
+  },{passive:true});
+
+  /* Click → select orb via raycasting */
+  cv.addEventListener('click',function(e){
+    var dx=e.clientX-T.drag.x0, dy=e.clientY-T.drag.y0;
+    if(Math.abs(dx)>5||Math.abs(dy)>5)return; /* dragged, skip */
+    var rect=cv.getBoundingClientRect();
+    var mouse=new THREE.Vector2(
+      ((e.clientX-rect.left)/rect.width)*2-1,
+      -((e.clientY-rect.top)/rect.height)*2+1
+    );
+    T.raycaster.setFromCamera(mouse,T.cam);
+    var meshes=T.orbs.map(function(o){return o.mesh;});
+    var hits=T.raycaster.intersectObjects(meshes,true);
+    if(hits.length>0){
+      var obj=hits[0].object;
+      while(obj&&obj.userData.orbIndex===undefined) obj=obj.parent;
+      if(obj&&obj.userData.orbIndex!==undefined){
+        var idx=obj.userData.orbIndex;
+        highlightOrbRow(idx);
+        S.activeTab=idx;
+        document.querySelectorAll('.log-tab').forEach(function(b){b.classList.remove('active');});
+        var tab=document.querySelector('.log-tab[data-tab="'+idx+'"]');
+        if(tab) tab.classList.add('active');
+        renderLog(idx);
+      }
+    }
+  });
+}
+
+/* ══════════════════════════════════════════════
+   BOOT LOG — shown while server is offline
+══════════════════════════════════════════════ */
+function bootLogs(){
+  addLog(0,'GOAT AIOS boot sequence initiated','cyan');
+  addLog(0,'Social Loop daemon starting...','muted');
+  addLog(0,'Polling '+API_BASE+' every '+POLL_MS+'ms','muted');
+  addLog(1,'GitHub AutoFix watcher loaded','gold');
+  addLog(1,'Scanning open PRs and issues...','muted');
+  addLog(2,'Competitor Loop monitor ready','magenta');
+  addLog(2,'RSS / social feed trackers active','muted');
+}
+
+/* ══════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════ */
+initThree();
+bootLogs();
+pollAll();
+setInterval(pollAll, POLL_MS);
+
+})();
+
+/* ── BRAIN GRAPH OVERLAY ── */
+function openBrainGraph(){
+  var overlay=document.getElementById('brain-overlay');
+  var iframe=document.getElementById('brain-iframe');
+  if(!iframe.src||iframe.src==='about:blank'||iframe.src===''){
+    iframe.src='https://dare-devil-11.github.io/umas-hologram/brain-graph.html';
+  }
+  overlay.style.display='flex';
+  requestAnimationFrame(function(){overlay.style.opacity='1';});
+  document.body.style.overflow='hidden';
+}
+function closeBrainGraph(){
+  var overlay=document.getElementById('brain-overlay');
+  overlay.style.opacity='0';
+  setTimeout(function(){overlay.style.display='none';},300);
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape') closeBrainGraph();
+});
+</script>
+</body>
+</html>
