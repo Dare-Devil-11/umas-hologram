@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MAFS — Family Services | Chicagoland</title>
+<meta name="description" content="MAFS provides family counseling, youth programs, housing assistance, and crisis support across Chicagoland. Connect with a coordinator today.">
+<style>
+/* ── Root ─────────────────────────────────────────────── */
+:root {
+  --primary: #2c97f3;
+  --primary-dark: #1a7ed4;
+  --primary-glow: rgba(44,151,243,.35);
+  --navy: #0a1628;
+  --navy-mid: #162444;
+  --navy-light: #1e3460;
+  --surface: #ffffff;
+  --bg-soft: #f0f6ff;
+  --text: #0a1628;
+  --muted: #6b7a94;
+  --border: #d1dfef;
+  --accent: #e8f4ff;
+  --radius: 20px;
+  --shadow: 0 20px 60px rgba(44,151,243,.18);
+  --shadow-card: 0 8px 32px rgba(10,22,40,.12);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--surface);
+  color: var(--text);
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* ── Particles canvas ─────────────────────────────────── */
+#particles-canvas {
+  position: absolute; inset: 0; pointer-events: none; z-index: 1;
+}
+
+/* ── Nav ──────────────────────────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 16px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(10,22,40,.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(44,151,243,.15);
+  transition: background .3s;
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 12px;
+}
+.nav-logo-mark {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--primary), #6cb8f8);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 900; color: #fff; letter-spacing: -1px;
+}
+.nav-logo-text { color: #fff; font-size: 16px; font-weight: 700; }
+.nav-logo-sub { color: rgba(255,255,255,.5); font-size: 12px; }
+.nav-cta {
+  padding: 10px 22px; border-radius: 999px;
+  background: var(--primary); color: #fff;
+  font-size: 14px; font-weight: 700; text-decoration: none;
+  transition: transform .18s, box-shadow .18s;
+  box-shadow: 0 4px 16px var(--primary-glow);
+}
+.nav-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 28px var(--primary-glow); }
+
+/* ── Hero ─────────────────────────────────────────────── */
+#hero {
+  min-height: 100vh;
+  background: linear-gradient(160deg, var(--navy) 0%, var(--navy-mid) 55%, #0f2040 100%);
+  display: flex; align-items: center;
+  position: relative; overflow: hidden;
+  padding: 120px 24px 96px;
+}
+.hero-grid-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(44,151,243,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(44,151,243,.05) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+.hero-glow {
+  position: absolute; border-radius: 50%; filter: blur(80px); z-index: 0;
+}
+.hero-glow-1 {
+  width: 600px; height: 600px; top: -100px; right: -100px;
+  background: radial-gradient(circle, rgba(44,151,243,.25) 0%, transparent 70%);
+}
+.hero-glow-2 {
+  width: 400px; height: 400px; bottom: -80px; left: -80px;
+  background: radial-gradient(circle, rgba(44,100,243,.2) 0%, transparent 70%);
+}
+.hero-inner {
+  max-width: 1100px; margin: 0 auto; width: 100%;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center;
+  position: relative; z-index: 2;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(44,151,243,.15); border: 1px solid rgba(44,151,243,.3);
+  color: #6cb8f8; font-size: 13px; font-weight: 600; letter-spacing: .5px;
+  padding: 6px 16px; border-radius: 999px; margin-bottom: 24px;
+}
+.hero-badge::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #2c97f3; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
+.hero-h1 {
+  font-size: clamp(36px, 5vw, 62px);
+  font-weight: 900; line-height: 1.08; color: #fff;
+  margin-bottom: 24px;
+}
+.hero-h1 .grad {
+  background: linear-gradient(90deg, #2c97f3, #a8d8ff);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero-sub {
+  font-size: 18px; color: rgba(255,255,255,.65); line-height: 1.7; max-width: 480px; margin-bottom: 40px;
+}
+.hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+.btn-primary {
+  padding: 16px 32px; border-radius: 999px;
+  background: linear-gradient(135deg, var(--primary), #6cb8f8);
+  color: #fff; font-size: 17px; font-weight: 800; text-decoration: none;
+  box-shadow: 0 6px 28px var(--primary-glow);
+  transition: transform .2s, box-shadow .2s;
+  display: inline-block;
+}
+.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 40px var(--primary-glow); }
+.btn-outline {
+  padding: 16px 32px; border-radius: 999px;
+  border: 2px solid rgba(255,255,255,.2);
+  color: rgba(255,255,255,.85); font-size: 17px; font-weight: 700; text-decoration: none;
+  transition: border-color .2s, color .2s;
+  display: inline-block;
+}
+.btn-outline:hover { border-color: rgba(255,255,255,.5); color: #fff; }
+
+/* Hero visual — anime-style layered card stack */
+.hero-visual {
+  position: relative; display: flex; align-items: center; justify-content: center;
+}
+.hero-card-stack {
+  position: relative; width: 380px; height: 420px;
+}
+.hcs-card {
+  position: absolute; border-radius: 24px;
+  box-shadow: 0 24px 60px rgba(0,0,0,.4);
+  overflow: hidden;
+}
+.hcs-card-1 {
+  width: 260px; height: 320px;
+  background: linear-gradient(145deg, #162444, #0d1c36);
+  border: 1px solid rgba(44,151,243,.2);
+  top: 40px; left: 0;
+  transform: rotate(-6deg);
+  animation: cardFloat1 6s ease-in-out infinite;
+}
+.hcs-card-2 {
+  width: 280px; height: 340px;
+  background: linear-gradient(145deg, #1a2f55, #122238);
+  border: 1px solid rgba(44,151,243,.3);
+  top: 20px; left: 60px;
+  transform: rotate(-2deg);
+  animation: cardFloat2 7s ease-in-out infinite;
+}
+.hcs-card-3 {
+  width: 300px; height: 360px;
+  background: linear-gradient(145deg, #1e3668, #152a4a);
+  border: 1px solid rgba(44,151,243,.4);
+  top: 0; left: 80px;
+  animation: cardFloat3 5s ease-in-out infinite;
+}
+@keyframes cardFloat1 { 0%,100%{transform:rotate(-6deg) translateY(0)} 50%{transform:rotate(-6deg) translateY(-10px)} }
+@keyframes cardFloat2 { 0%,100%{transform:rotate(-2deg) translateY(0)} 50%{transform:rotate(-2deg) translateY(-14px)} }
+@keyframes cardFloat3 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+.hcs-card-3-inner { padding: 28px; }
+.hcs-service-tag {
+  display: inline-block; padding: 4px 12px; border-radius: 999px;
+  font-size: 11px; font-weight: 700; letter-spacing: .5px;
+  background: rgba(44,151,243,.2); color: #6cb8f8;
+  margin-bottom: 16px;
+}
+.hcs-icon { font-size: 48px; margin-bottom: 12px; }
+.hcs-label { color: #fff; font-size: 18px; font-weight: 800; margin-bottom: 6px; }
+.hcs-desc { color: rgba(255,255,255,.5); font-size: 13px; line-height: 1.5; }
+.hcs-bar {
+  margin-top: 20px; height: 4px; background: rgba(255,255,255,.1); border-radius: 999px; overflow: hidden;
+}
+.hcs-bar-fill {
+  height: 100%; width: 75%; border-radius: 999px;
+  background: linear-gradient(90deg, var(--primary), #6cb8f8);
+  animation: barPulse 3s ease-in-out infinite;
+}
+@keyframes barPulse { 0%,100%{opacity:1}50%{opacity:.6} }
+.hcs-dots {
+  display: flex; gap: 6px; margin-top: 12px;
+}
+.hcs-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: rgba(255,255,255,.15);
+}
+.hcs-dot.on { background: var(--primary); }
+
+/* Floating badges */
+.hero-stat-badge {
+  position: absolute; background: rgba(255,255,255,.08);
+  backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,.12);
+  border-radius: 16px; padding: 12px 16px; color: #fff;
+  font-size: 13px; font-weight: 700;
+}
+.hero-stat-badge .big { font-size: 24px; font-weight: 900; color: #6cb8f8; display: block; }
+.badge-1 { bottom: 30px; left: -20px; animation: badgeFloat 5s ease-in-out infinite; }
+.badge-2 { top: 10px; right: -20px; animation: badgeFloat 7s ease-in-out infinite reverse; }
+@keyframes badgeFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+
+/* ── Trust bar ────────────────────────────────────────── */
+#trust {
+  background: var(--navy);
+  border-top: 1px solid rgba(44,151,243,.1);
+  border-bottom: 1px solid rgba(44,151,243,.1);
+  padding: 24px 32px;
+}
+.trust-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: center;
+  gap: 48px; flex-wrap: wrap;
+}
+.trust-item {
+  display: flex; align-items: center; gap: 10px;
+  color: rgba(255,255,255,.65); font-size: 14px; font-weight: 600;
+}
+.trust-item .ti-icon { font-size: 20px; }
+
+/* ── Section base ─────────────────────────────────────── */
+section { padding: 96px 24px; }
+.container { max-width: 1100px; margin: 0 auto; }
+.section-label {
+  font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--primary); margin-bottom: 12px;
+}
+.section-h2 {
+  font-size: clamp(28px, 4vw, 44px); font-weight: 900; line-height: 1.15;
+  color: var(--navy); margin-bottom: 16px;
+}
+.section-h2-light { color: #fff; }
+.section-sub {
+  font-size: 18px; color: var(--muted); max-width: 560px; line-height: 1.7;
+}
+.section-sub-light { color: rgba(255,255,255,.6); }
+.section-head { margin-bottom: 64px; }
+
+/* ── Services ─────────────────────────────────────────── */
+#services { background: var(--bg-soft); }
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+.service-card {
+  background: var(--surface);
+  border-radius: 24px;
+  padding: 36px 32px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+  transition: transform .25s, box-shadow .25s, border-color .25s;
+  cursor: default;
+  opacity: 0; transform: translateY(32px);
+}
+.service-card.visible {
+  animation: cardIn .5s cubic-bezier(.4,0,.2,1) both;
+}
+@keyframes cardIn { to { opacity:1; transform:translateY(0); } }
+.service-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 24px 60px rgba(44,151,243,.18);
+  border-color: rgba(44,151,243,.3);
+}
+.sc-icon-wrap {
+  width: 64px; height: 64px; border-radius: 18px;
+  background: linear-gradient(135deg, rgba(44,151,243,.15), rgba(44,151,243,.05));
+  border: 1px solid rgba(44,151,243,.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; margin-bottom: 20px;
+  transition: transform .25s;
+}
+.service-card:hover .sc-icon-wrap { transform: scale(1.1) rotate(-5deg); }
+.sc-title { font-size: 20px; font-weight: 800; color: var(--navy); margin-bottom: 10px; }
+.sc-desc { font-size: 15px; color: var(--muted); line-height: 1.6; }
+.sc-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--primary); font-size: 14px; font-weight: 700;
+  text-decoration: none; margin-top: 16px;
+  transition: gap .2s;
+}
+.sc-link:hover { gap: 10px; }
+
+/* ── Impact stats ─────────────────────────────────────── */
+#impact {
+  background: linear-gradient(160deg, var(--navy) 0%, var(--navy-mid) 100%);
+  position: relative; overflow: hidden;
+}
+.impact-glow {
+  position: absolute; border-radius: 50%; filter: blur(100px); pointer-events: none;
+}
+.impact-glow-1 { width: 500px; height: 500px; top: -150px; right: -100px; background: radial-gradient(circle, rgba(44,151,243,.2), transparent 70%); }
+.impact-glow-2 { width: 400px; height: 400px; bottom: -120px; left: -80px; background: radial-gradient(circle, rgba(44,80,243,.15), transparent 70%); }
+.stats-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px;
+  position: relative; z-index: 1;
+}
+.stat-card {
+  text-align: center;
+  padding: 40px 24px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 24px;
+  backdrop-filter: blur(8px);
+  opacity: 0; transform: translateY(24px);
+}
+.stat-card.visible { animation: cardIn .5s cubic-bezier(.4,0,.2,1) both; }
+.stat-num {
+  font-size: clamp(36px, 4vw, 56px); font-weight: 900;
+  background: linear-gradient(90deg, #fff, #6cb8f8);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  line-height: 1; margin-bottom: 8px;
+}
+.stat-label { color: rgba(255,255,255,.55); font-size: 15px; font-weight: 600; }
+
+/* ── Process ──────────────────────────────────────────── */
+#process { background: var(--surface); }
+.process-steps {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 40px;
+  position: relative;
+}
+.process-steps::before {
+  content: '';
+  position: absolute; top: 40px; left: calc(16.6% + 16px); right: calc(16.6% + 16px);
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary), transparent 50%, var(--primary));
+  opacity: .2;
+}
+.process-step {
+  text-align: center;
+  opacity: 0; transform: translateY(24px);
+}
+.process-step.visible { animation: cardIn .5s cubic-bezier(.4,0,.2,1) both; }
+.ps-num {
+  width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 20px;
+  background: linear-gradient(135deg, var(--primary), #6cb8f8);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; font-weight: 900; color: #fff;
+  box-shadow: 0 8px 32px var(--primary-glow);
+  position: relative; z-index: 1;
+}
+.ps-title { font-size: 20px; font-weight: 800; color: var(--navy); margin-bottom: 10px; }
+.ps-desc { color: var(--muted); font-size: 15px; line-height: 1.6; max-width: 240px; margin: 0 auto; }
+
+/* ── Testimonial ──────────────────────────────────────── */
+#testimonials { background: var(--bg-soft); }
+.testimonials-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;
+}
+.testi-card {
+  background: var(--surface); border-radius: 24px; padding: 36px 32px;
+  border: 1px solid var(--border); box-shadow: var(--shadow-card);
+  opacity: 0; transform: translateY(24px);
+}
+.testi-card.visible { animation: cardIn .5s cubic-bezier(.4,0,.2,1) both; }
+.testi-stars { color: #f59e0b; font-size: 18px; margin-bottom: 16px; }
+.testi-text { font-size: 16px; color: var(--text); line-height: 1.7; margin-bottom: 24px; font-style: italic; }
+.testi-author { display: flex; align-items: center; gap: 14px; }
+.testi-avatar {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), #6cb8f8);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 18px; font-weight: 800;
+}
+.testi-name { font-size: 15px; font-weight: 700; color: var(--navy); }
+.testi-role { font-size: 13px; color: var(--muted); }
+
+/* ── Form section ─────────────────────────────────────── */
+#get-help {
+  background: linear-gradient(160deg, var(--navy) 0%, var(--navy-mid) 100%);
+  padding: 96px 24px;
+  position: relative; overflow: hidden;
+}
+.form-section-glow {
+  position: absolute; border-radius: 50%; filter: blur(100px); pointer-events: none;
+}
+.form-glow-1 { width: 600px; height: 600px; top: -200px; right: -100px; background: radial-gradient(circle, rgba(44,151,243,.22), transparent 70%); }
+.form-glow-2 { width: 400px; height: 400px; bottom: -100px; left: -50px; background: radial-gradient(circle, rgba(44,80,243,.15), transparent 70%); }
+.form-section-inner {
+  max-width: 760px; margin: 0 auto; position: relative; z-index: 1;
+  text-align: center;
+}
+.form-section-inner .section-label { justify-content: center; display: block; }
+.form-section-inner .section-h2 { color: #fff; margin-bottom: 12px; }
+.form-section-inner .section-sub { color: rgba(255,255,255,.6); margin: 0 auto 48px; }
+
+/* MAFS Form (inlined + themed) */
+.mf-card {
+  background: var(--surface); border-radius: 28px;
+  box-shadow: 0 32px 80px rgba(0,0,0,.4);
+  overflow: hidden; position: relative;
+}
+.mf-header {
+  background: linear-gradient(135deg, #0a1628, #162444);
+  padding: 24px 32px 20px;
+  display: flex; align-items: center; gap: 16px;
+  border-bottom: 1px solid rgba(44,151,243,.15);
+}
+.mf-logo-mark {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary), #6cb8f8);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 900; color: #fff;
+  flex-shrink: 0;
+}
+.mf-header-text h2 { color: #fff; font-size: 18px; font-weight: 700; }
+.mf-header-text p { color: rgba(255,255,255,.55); font-size: 13px; margin-top: 3px; }
+.mf-progress-area {
+  background: #fff; border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+}
+.mf-progress-meta {
+  display: flex; justify-content: space-between;
+  font-size: 13px; font-weight: 600; color: var(--muted);
+  margin-bottom: 8px;
+}
+.mf-step-text { color: var(--primary); font-weight: 700; }
+.mf-track { height: 6px; background: #e8f0f9; border-radius: 999px; overflow: hidden; }
+.mf-fill {
+  height: 100%; width: 0;
+  background: linear-gradient(90deg, var(--primary), #6cb8f8);
+  border-radius: 999px; transition: width .4s cubic-bezier(.4,0,.2,1);
+}
+.mf-body { padding: 36px 32px; }
+.mf-step { display: none; }
+.mf-step.active { display: block; animation: mfSlideIn .35s cubic-bezier(.4,0,.2,1) both; }
+@keyframes mfSlideIn { from{opacity:0;transform:translateX(24px)} to{opacity:1;transform:translateX(0)} }
+.mf-question { font-size: 26px; font-weight: 800; color: var(--navy); line-height: 1.25; margin-bottom: 8px; }
+.mf-subtext { font-size: 14px; color: var(--muted); margin-bottom: 24px; }
+.mf-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.mf-cards.single-col { grid-template-columns: 1fr; }
+.mf-opt {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 18px; border-radius: 14px;
+  border: 2px solid var(--border);
+  cursor: pointer; background: #fff;
+  font-size: 15px; font-weight: 600; color: var(--navy);
+  transition: all .18s ease;
+}
+.mf-opt:hover { border-color: var(--primary); background: rgba(44,151,243,.06); }
+.mf-opt.selected { border-color: var(--primary); background: rgba(44,151,243,.08); color: var(--primary-dark); }
+.mf-opt .mf-icon { font-size: 22px; min-width: 28px; text-align: center; }
+.mf-input {
+  width: 100%; border: 2px solid var(--border); border-radius: 14px;
+  padding: 16px 20px; font-size: 18px; color: var(--navy);
+  outline: none; background: #fff; font-family: inherit;
+  transition: border-color .2s, box-shadow .2s, transform .15s;
+}
+.mf-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(44,151,243,.12);
+  transform: translateY(-1px);
+}
+.mf-actions { display: flex; gap: 12px; margin-top: 28px; }
+.mf-back-btn {
+  padding: 14px 22px; border-radius: 13px;
+  border: 2px solid var(--border);
+  background: #fff; color: var(--muted);
+  font-size: 16px; font-weight: 700;
+  cursor: pointer; display: none;
+  transition: all .18s; font-family: inherit;
+}
+.mf-back-btn:hover { border-color: var(--primary); color: var(--primary); }
+.mf-next-btn, .mf-submit-btn {
+  flex: 1; padding: 16px 28px; border-radius: 13px; border: none;
+  background: linear-gradient(135deg, var(--primary), #6cb8f8);
+  color: #fff; font-size: 17px; font-weight: 800;
+  cursor: pointer; font-family: inherit;
+  transition: transform .18s, box-shadow .18s;
+  box-shadow: 0 4px 20px rgba(44,151,243,.35);
+}
+.mf-next-btn:hover, .mf-submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(44,151,243,.45); }
+.mf-submit-btn { display: none; }
+.mf-consent { font-size: 12px; color: var(--muted); margin-top: 16px; line-height: 1.5; }
+.mf-status { margin-top: 12px; font-weight: 700; font-size: 15px; color: var(--primary); min-height: 20px; }
+.mf-success {
+  text-align: center; padding: 64px 32px;
+  animation: mfSlideIn .4s ease both; display: none;
+}
+.mf-success-icon { font-size: 72px; margin-bottom: 16px; }
+.mf-success h3 { font-size: 28px; font-weight: 800; color: var(--navy); margin-bottom: 10px; }
+.mf-success p { color: var(--muted); font-size: 16px; line-height: 1.6; }
+@keyframes mfShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+.mf-shake { animation: mfShake .28s ease; }
+
+/* ── Footer ───────────────────────────────────────────── */
+footer {
+  background: var(--navy);
+  border-top: 1px solid rgba(44,151,243,.12);
+  padding: 56px 24px 32px;
+}
+.footer-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 48px;
+  margin-bottom: 48px;
+}
+.footer-brand p { color: rgba(255,255,255,.5); font-size: 15px; line-height: 1.7; margin-top: 14px; max-width: 320px; }
+.footer-col h4 { color: #fff; font-size: 15px; font-weight: 700; margin-bottom: 16px; }
+.footer-col a {
+  display: block; color: rgba(255,255,255,.5); font-size: 14px; text-decoration: none;
+  margin-bottom: 10px; transition: color .18s;
+}
+.footer-col a:hover { color: #6cb8f8; }
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,.08); padding-top: 28px;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 12px;
+}
+.footer-bottom p { color: rgba(255,255,255,.35); font-size: 13px; }
+
+/* ── Scroll animations ────────────────────────────────── */
+.fade-up { opacity: 0; transform: translateY(32px); transition: opacity .6s ease, transform .6s ease; }
+.fade-up.visible { opacity: 1; transform: translateY(0); }
+
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 900px) {
+  .hero-inner { grid-template-columns: 1fr; gap: 48px; text-align: center; }
+  .hero-sub { margin: 0 auto 40px; }
+  .hero-actions { justify-content: center; }
+  .hero-visual { display: none; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .process-steps { grid-template-columns: 1fr; }
+  .process-steps::before { display: none; }
+  .footer-inner { grid-template-columns: 1fr; gap: 32px; }
+}
+@media (max-width: 580px) {
+  nav { padding: 14px 20px; }
+  .nav-logo-sub { display: none; }
+  section { padding: 72px 20px; }
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 16px; }
+  .stat-card { padding: 28px 16px; }
+  .mf-body { padding: 24px 20px; }
+  .mf-cards { grid-template-columns: 1fr; }
+  .mf-actions { flex-direction: column; }
+  .trust-inner { gap: 24px; }
+  .footer-bottom { flex-direction: column; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-mark">M</div>
+    <div>
+      <div class="nav-logo-text">MAFS</div>
+      <div class="nav-logo-sub">Family Services</div>
+    </div>
+  </div>
+  <a href="#get-help" class="nav-cta">Get Help Now</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-glow hero-glow-1"></div>
+  <div class="hero-glow hero-glow-2"></div>
+  <canvas id="particles-canvas"></canvas>
+
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="hero-badge">Serving Chicagoland since 1995</div>
+      <h1 class="hero-h1">
+        Every family deserves<br>
+        <span class="grad">real support.</span>
+      </h1>
+      <p class="hero-sub">
+        MAFS connects Chicagoland families with counseling, housing, youth programs, and crisis services — at no cost, no judgment, no delay.
+      </p>
+      <div class="hero-actions">
+        <a href="#get-help" class="btn-primary">Find the Right Service →</a>
+        <a href="tel:+13125550000" class="btn-outline">📞 Call Us</a>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="hero-card-stack">
+        <div class="hcs-card hcs-card-1"></div>
+        <div class="hcs-card hcs-card-2"></div>
+        <div class="hcs-card hcs-card-3">
+          <div class="hcs-card-3-inner">
+            <div class="hcs-service-tag">Family Services</div>
+            <div class="hcs-icon">💬</div>
+            <div class="hcs-label">Family Counseling</div>
+            <div class="hcs-desc">Professional support for families navigating difficult times.</div>
+            <div class="hcs-bar"><div class="hcs-bar-fill"></div></div>
+            <div class="hcs-dots">
+              <div class="hcs-dot on"></div>
+              <div class="hcs-dot on"></div>
+              <div class="hcs-dot on"></div>
+              <div class="hcs-dot"></div>
+            </div>
+          </div>
+        </div>
+        <div class="hero-stat-badge badge-1">
+          <span class="big">12k+</span>
+          Families served
+        </div>
+        <div class="hero-stat-badge badge-2">
+          <span class="big">7</span>
+          Services offered
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST BAR -->
+<div id="trust">
+  <div class="trust-inner">
+    <div class="trust-item"><span class="ti-icon">🏛️</span> State Licensed</div>
+    <div class="trust-item"><span class="ti-icon">🤝</span> Free Services</div>
+    <div class="trust-item"><span class="ti-icon">🌐</span> Bilingual Staff</div>
+    <div class="trust-item"><span class="ti-icon">🔒</span> Confidential</div>
+    <div class="trust-item"><span class="ti-icon">📍</span> Chicagoland Area</div>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="container">
+    <div class="section-head fade-up">
+      <div class="section-label">What We Offer</div>
+      <h2 class="section-h2">Services built around<br>your family's needs.</h2>
+      <p class="section-sub">Every program is free or low-cost. No referral required. We meet you where you are.</p>
+    </div>
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="sc-icon-wrap">💬</div>
+        <div class="sc-title">Family Counseling</div>
+        <div class="sc-desc">Licensed therapists providing individual, couples, and family sessions. In-person and telehealth available.</div>
+        <a href="#get-help" class="sc-link">Get connected →</a>
+      </div>
+      <div class="service-card">
+        <div class="sc-icon-wrap">🌟</div>
+        <div class="sc-title">Youth Programs</div>
+        <div class="sc-desc">After-school mentorship, life skills, and summer programs for youth ages 6–18 across Chicagoland.</div>
+        <a href="#get-help" class="sc-link">Learn more →</a>
+      </div>
+      <div class="service-card">
+        <div class="sc-icon-wrap">🏠</div>
+        <div class="sc-title">Housing Assistance</div>
+        <div class="sc-desc">Emergency rental support, utility assistance, and housing navigation for families at risk of displacement.</div>
+        <a href="#get-help" class="sc-link">Apply now →</a>
+      </div>
+      <div class="service-card">
+        <div class="sc-icon-wrap">📋</div>
+        <div class="sc-title">Benefits Navigation</div>
+        <div class="sc-desc">We help families enroll in Medicaid, SNAP, childcare subsidies, and other state and federal programs.</div>
+        <a href="#get-help" class="sc-link">Check eligibility →</a>
+      </div>
+      <div class="service-card">
+        <div class="sc-icon-wrap">🌐</div>
+        <div class="sc-title">Immigration Services</div>
+        <div class="sc-desc">Documentation support, DACA assistance, and connection to legal aid for immigrant families.</div>
+        <a href="#get-help" class="sc-link">Get support →</a>
+      </div>
+      <div class="service-card">
+        <div class="sc-icon-wrap">🆘</div>
+        <div class="sc-title">Crisis Support</div>
+        <div class="sc-desc">24-hour crisis line and emergency case management for families in immediate need.</div>
+        <a href="#get-help" class="sc-link">Reach us now →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- IMPACT STATS -->
+<section id="impact">
+  <div class="impact-glow impact-glow-1"></div>
+  <div class="impact-glow impact-glow-2"></div>
+  <div class="container">
+    <div class="section-head fade-up" style="text-align:center">
+      <div class="section-label">Our Impact</div>
+      <h2 class="section-h2 section-h2-light">Numbers that represent real families.</h2>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-num" data-target="12000">0</div>
+        <div class="stat-label">Families served</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" data-target="30">0</div>
+        <div class="stat-label">Years serving Chicagoland</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" data-target="7">0</div>
+        <div class="stat-label">Core programs</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" data-target="95">0</div>
+        <div class="stat-label">% client satisfaction</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="container">
+    <div class="section-head fade-up" style="text-align:center">
+      <div class="section-label">How It Works</div>
+      <h2 class="section-h2">Getting help is simple.</h2>
+      <p class="section-sub" style="margin:0 auto">No long waitlists. No complicated paperwork. We take it one step at a time.</p>
+    </div>
+    <div class="process-steps">
+      <div class="process-step">
+        <div class="ps-num">1</div>
+        <div class="ps-title">Tell us about your situation</div>
+        <div class="ps-desc">Fill out our short form — takes 2 minutes. No judgment, no wrong answers.</div>
+      </div>
+      <div class="process-step">
+        <div class="ps-num">2</div>
+        <div class="ps-title">A coordinator reaches out</div>
+        <div class="ps-desc">A real person from our team calls or texts within 24 hours to discuss your options.</div>
+      </div>
+      <div class="process-step">
+        <div class="ps-num">3</div>
+        <div class="ps-title">We connect you to the right service</div>
+        <div class="ps-desc">We match you to the program that fits — and stay with you throughout the process.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="container">
+    <div class="section-head fade-up">
+      <div class="section-label">Families We've Helped</div>
+      <h2 class="section-h2">Real stories. Real results.</h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-text">"MAFS helped us get our housing assistance within a week. I didn't know where to turn and they walked us through every step. I can't thank them enough."</div>
+        <div class="testi-author">
+          <div class="testi-avatar">M</div>
+          <div>
+            <div class="testi-name">Maria G.</div>
+            <div class="testi-role">Pilsen, Chicago</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-text">"My son enrolled in the youth mentorship program and it changed his whole trajectory. The staff genuinely care about these kids. Grateful to have found MAFS."</div>
+        <div class="testi-author">
+          <div class="testi-avatar">D</div>
+          <div>
+            <div class="testi-name">David R.</div>
+            <div class="testi-role">Aurora, IL</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-text">"They helped me navigate SNAP and Medicaid enrollment for my whole family. Bilingual staff made all the difference. Fast, kind, and professional."</div>
+        <div class="testi-author">
+          <div class="testi-avatar">L</div>
+          <div>
+            <div class="testi-name">Luciana T.</div>
+            <div class="testi-role">Cicero, IL</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FORM -->
+<section id="get-help">
+  <div class="form-section-glow form-glow-1"></div>
+  <div class="form-section-glow form-glow-2"></div>
+  <div class="form-section-inner">
+    <div class="section-label">Get Started</div>
+    <h2 class="section-h2 section-h2-light">Connect with a coordinator today.</h2>
+    <p class="section-sub section-sub-light">Takes 2 minutes. Completely confidential. A real person will reach out within 24 hours.</p>
+
+    <!-- MAFS FORM -->
+    <div id="mafs-form-wrap">
+      <div class="mf-card" id="mafs-step-form" data-webhook-url="PASTE_GHL_WEBHOOK_URL" data-brand="MAFS">
+        <div class="mf-header">
+          <div class="mf-logo-mark">M</div>
+          <div class="mf-header-text">
+            <h2>MAFS — Family Services</h2>
+            <p>Helping families thrive · Chicagoland</p>
+          </div>
+        </div>
+        <div class="mf-progress-area">
+          <div class="mf-progress-meta">
+            <span class="mf-step-text" id="mf-step-label">Step 1 of 7</span>
+            <span id="mf-pct">14%</span>
+          </div>
+          <div class="mf-track"><div class="mf-fill" id="mf-fill"></div></div>
+        </div>
+        <div class="mf-body" id="mf-body">
+          <div class="mf-step active" data-field="who_seeking" data-event="form_step_who">
+            <div class="mf-question">Who is seeking services?</div>
+            <div class="mf-subtext">Help us connect you to the right team.</div>
+            <div class="mf-cards">
+              <div class="mf-opt" data-value="Myself"><span class="mf-icon">🙋</span>Myself</div>
+              <div class="mf-opt" data-value="My child"><span class="mf-icon">👧</span>My Child</div>
+              <div class="mf-opt" data-value="My family"><span class="mf-icon">👨‍👩‍👧</span>My Family</div>
+              <div class="mf-opt" data-value="Someone I care for"><span class="mf-icon">🤝</span>Someone I care for</div>
+            </div>
+            <input type="hidden" name="who_seeking">
+          </div>
+          <div class="mf-step" data-field="service_interest" data-event="form_step_service">
+            <div class="mf-question">What are you looking for?</div>
+            <div class="mf-subtext">Select the service that fits your needs.</div>
+            <div class="mf-cards single-col">
+              <div class="mf-opt" data-value="Family Counseling"><span class="mf-icon">💬</span>Family Counseling</div>
+              <div class="mf-opt" data-value="Youth Programs"><span class="mf-icon">🌟</span>Youth Programs</div>
+              <div class="mf-opt" data-value="Housing Assistance"><span class="mf-icon">🏠</span>Housing Assistance</div>
+              <div class="mf-opt" data-value="Benefits Navigation"><span class="mf-icon">📋</span>Benefits Navigation</div>
+              <div class="mf-opt" data-value="Immigration Services"><span class="mf-icon">🌐</span>Immigration Services</div>
+              <div class="mf-opt" data-value="Crisis Support"><span class="mf-icon">🆘</span>Crisis Support</div>
+              <div class="mf-opt" data-value="Volunteer / Donate"><span class="mf-icon">❤️</span>Volunteer / Donate</div>
+            </div>
+            <input type="hidden" name="service_interest">
+          </div>
+          <div class="mf-step" data-field="postal_code" data-event="form_step_zip">
+            <div class="mf-question">What's your ZIP code?</div>
+            <div class="mf-subtext">We serve the Chicagoland area.</div>
+            <input class="mf-input" name="postal_code" type="text" inputmode="numeric" placeholder="ZIP Code" maxlength="10">
+          </div>
+          <div class="mf-step" data-field="first_name" data-event="form_step_name">
+            <div class="mf-question">What's your first name?</div>
+            <div class="mf-subtext"></div>
+            <input class="mf-input" name="first_name" type="text" autocomplete="given-name" placeholder="First Name">
+          </div>
+          <div class="mf-step" data-field="last_name" data-event="form_step_lastname">
+            <div class="mf-question">And your last name?</div>
+            <div class="mf-subtext"></div>
+            <input class="mf-input" name="last_name" type="text" autocomplete="family-name" placeholder="Last Name">
+          </div>
+          <div class="mf-step" data-field="phone" data-event="form_step_phone">
+            <div class="mf-question">Best number to reach you?</div>
+            <div class="mf-subtext">We'll call or text — your preference.</div>
+            <input class="mf-input" name="phone" type="tel" autocomplete="tel" placeholder="Phone Number">
+          </div>
+          <div class="mf-step" data-field="email" data-event="form_step_email">
+            <div class="mf-question">What's your email address?</div>
+            <div class="mf-subtext">We'll send a confirmation right away.</div>
+            <input class="mf-input" name="email" type="email" autocomplete="email" placeholder="Email Address">
+            <div class="mf-consent">By submitting, you allow MAFS to contact you by phone, text, and email. Your information is private and never shared.</div>
+          </div>
+          <input type="hidden" name="source_site" value="mafsinc.com">
+          <input type="hidden" name="utm_source">
+          <input type="hidden" name="utm_medium">
+          <input type="hidden" name="utm_campaign">
+          <input type="hidden" name="landing_page">
+          <div class="mf-actions">
+            <button class="mf-back-btn" id="mf-back">← Back</button>
+            <button class="mf-next-btn" id="mf-next">Continue →</button>
+            <button class="mf-submit-btn" id="mf-submit">Submit →</button>
+          </div>
+          <div class="mf-status" id="mf-status" role="status" aria-live="polite"></div>
+        </div>
+        <div class="mf-success" id="mf-success">
+          <div class="mf-success-icon">✅</div>
+          <h3>Thank you — we'll be in touch!</h3>
+          <p>A MAFS coordinator will contact you within 24 hours.<br>Questions? Call us anytime at <strong>(312) 555-0000</strong>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="nav-logo">
+        <div class="nav-logo-mark">M</div>
+        <div>
+          <div class="nav-logo-text">MAFS</div>
+          <div class="nav-logo-sub">Family Services</div>
+        </div>
+      </div>
+      <p>Providing essential services to Chicagoland families since 1995. We believe every family deserves access to support — regardless of income or background.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Services</h4>
+      <a href="#get-help">Family Counseling</a>
+      <a href="#get-help">Youth Programs</a>
+      <a href="#get-help">Housing Assistance</a>
+      <a href="#get-help">Benefits Navigation</a>
+      <a href="#get-help">Immigration Services</a>
+      <a href="#get-help">Crisis Support</a>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <a href="tel:+13125550000">(312) 555-0000</a>
+      <a href="mailto:info@mafsinc.com">info@mafsinc.com</a>
+      <a href="#get-help">Get Help Now</a>
+      <a href="#">Volunteer</a>
+      <a href="#">Donate</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 MAFS — Family Services. All rights reserved.</p>
+    <p>Chicagoland, IL | Licensed · Confidential · Free Services Available</p>
+  </div>
+</footer>
+
+<script>
+/* ── Particles ──────────────────────────────────────────── */
+(function(){
+  const canvas = document.getElementById('particles-canvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+  function resize(){
+    const hero = document.getElementById('hero');
+    W = canvas.width = hero.offsetWidth;
+    H = canvas.height = hero.offsetHeight;
+  }
+  function Particle(){
+    this.x = Math.random() * W;
+    this.y = Math.random() * H;
+    this.r = Math.random() * 2.5 + .5;
+    this.vx = (Math.random() - .5) * .4;
+    this.vy = (Math.random() - .5) * .4;
+    this.alpha = Math.random() * .5 + .1;
+    this.color = Math.random() > .5 ? '44,151,243' : '108,184,248';
+  }
+  Particle.prototype.draw = function(){
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(${this.color},${this.alpha})`;
+    ctx.fill();
+  };
+  Particle.prototype.update = function(){
+    this.x += this.vx; this.y += this.vy;
+    if(this.x < 0) this.x = W;
+    if(this.x > W) this.x = 0;
+    if(this.y < 0) this.y = H;
+    if(this.y > H) this.y = 0;
+  };
+  function init(){
+    resize();
+    particles = Array.from({length: 80}, () => new Particle());
+  }
+  function loop(){
+    ctx.clearRect(0, 0, W, H);
+    // Draw connections
+    for(let i = 0; i < particles.length; i++){
+      for(let j = i+1; j < particles.length; j++){
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if(dist < 120){
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(44,151,243,${.08 * (1 - dist/120)})`;
+          ctx.lineWidth = .5;
+          ctx.stroke();
+        }
+      }
+      particles[i].draw();
+      particles[i].update();
+    }
+    requestAnimationFrame(loop);
+  }
+  init();
+  loop();
+  window.addEventListener('resize', init);
+})();
+
+/* ── Scroll animations ──────────────────────────────────── */
+(function(){
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if(e.isIntersecting){
+        const delay = e.target.dataset.delay || 0;
+        setTimeout(() => e.target.classList.add('visible'), +delay);
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  // Stagger cards
+  document.querySelectorAll('.service-card, .stat-card, .testi-card, .process-step').forEach((el, i) => {
+    el.dataset.delay = i * 80;
+    io.observe(el);
+  });
+  document.querySelectorAll('.fade-up').forEach(el => io.observe(el));
+})();
+
+/* ── Counter animation ──────────────────────────────────── */
+(function(){
+  const counters = document.querySelectorAll('[data-target]');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if(!e.isIntersecting) return;
+      const el = e.target;
+      const target = +el.dataset.target;
+      const duration = 1800;
+      const step = target / (duration / 16);
+      let current = 0;
+      const tick = () => {
+        current = Math.min(current + step, target);
+        el.textContent = target >= 1000
+          ? Math.round(current).toLocaleString() + '+'
+          : Math.round(current) + (target === 95 ? '%' : '');
+        if(current < target) requestAnimationFrame(tick);
+      };
+      tick();
+      io.unobserve(el);
+    });
+  }, { threshold: 0.3 });
+  counters.forEach(c => io.observe(c));
+})();
+
+/* ── MAFS Form Logic ────────────────────────────────────── */
+(function(){
+  const root = document.getElementById('mafs-step-form');
+  if(!root) return;
+  const steps = [...root.querySelectorAll('.mf-step')];
+  const nextBtn = document.getElementById('mf-next');
+  const backBtn = document.getElementById('mf-back');
+  const submitBtn = document.getElementById('mf-submit');
+  const fill = document.getElementById('mf-fill');
+  const stepLabel = document.getElementById('mf-step-label');
+  const pctEl = document.getElementById('mf-pct');
+  const statusEl = document.getElementById('mf-status');
+  const successEl = document.getElementById('mf-success');
+  const bodyEl = document.getElementById('mf-body');
+  let cur = 0, started = false;
+  const total = steps.length;
+
+  const qs = new URLSearchParams(location.search);
+  ['utm_source','utm_medium','utm_campaign'].forEach(k => {
+    const el = root.querySelector('[name="'+k+'"]');
+    if(el) el.value = qs.get(k) || '';
+  });
+  const lpEl = root.querySelector('[name="landing_page"]');
+  if(lpEl) lpEl.value = location.href;
+
+  function track(name, extra={}){
+    const data = {...extra, form_brand:'MAFS', step_index:cur+1, total_steps:total};
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({event:name, ...data});
+    if(window.gtag) window.gtag('event', name, data);
+    if(window.fbq) window.fbq('trackCustom', name, data);
+  }
+
+  function update(){
+    steps.forEach(s => s.classList.remove('active'));
+    steps[cur].classList.add('active');
+    const p = Math.round(((cur+1)/total)*100);
+    fill.style.width = p + '%';
+    stepLabel.textContent = 'Step '+(cur+1)+' of '+total;
+    pctEl.textContent = p + '%';
+    backBtn.style.display = cur > 0 ? 'inline-flex' : 'none';
+    nextBtn.style.display = cur < total-1 ? 'flex' : 'none';
+    submitBtn.style.display = cur === total-1 ? 'flex' : 'none';
+    track(steps[cur].dataset.event || 'form_step_view', {field: steps[cur].dataset.field});
+  }
+
+  function validate(){
+    const step = steps[cur];
+    const hidden = step.querySelector('input[type="hidden"]');
+    const input = step.querySelector('.mf-input');
+    if(hidden && hidden.name && !hidden.value){
+      step.classList.add('mf-shake');
+      setTimeout(() => step.classList.remove('mf-shake'), 320);
+      statusEl.textContent = 'Please make a selection.';
+      setTimeout(() => statusEl.textContent = '', 2200);
+      return false;
+    }
+    if(input && !input.value.trim()){
+      input.focus();
+      step.classList.add('mf-shake');
+      setTimeout(() => step.classList.remove('mf-shake'), 320);
+      statusEl.textContent = 'Please fill this in.';
+      setTimeout(() => statusEl.textContent = '', 2200);
+      return false;
+    }
+    if(input && input.type === 'email' && input.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value)){
+      input.focus();
+      statusEl.textContent = 'Please enter a valid email.';
+      setTimeout(() => statusEl.textContent = '', 2200);
+      return false;
+    }
+    statusEl.textContent = '';
+    return true;
+  }
+
+  root.querySelectorAll('.mf-opt').forEach(opt => {
+    opt.addEventListener('click', () => {
+      const step = opt.closest('.mf-step');
+      step.querySelectorAll('.mf-opt').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      const hidden = step.querySelector('input[type="hidden"]');
+      if(hidden) hidden.value = opt.dataset.value;
+      if(!started){ started = true; track('form_start'); }
+      setTimeout(() => {
+        if(validate()){
+          track('form_step_complete', {field: step.dataset.field, value: opt.dataset.value});
+          cur = Math.min(cur+1, total-1);
+          update();
+        }
+      }, 220);
+    });
+  });
+
+  root.querySelectorAll('.mf-input').forEach(inp => {
+    inp.addEventListener('input', () => { if(!started){ started = true; track('form_start'); } });
+    inp.addEventListener('keydown', e => { if(e.key === 'Enter' && inp.tagName !== 'TEXTAREA'){ e.preventDefault(); nextBtn.click(); } });
+  });
+
+  nextBtn.addEventListener('click', () => {
+    if(!validate()) return;
+    const field = steps[cur].dataset.field;
+    const input = steps[cur].querySelector('.mf-input');
+    track('form_step_complete', {field, value: input ? input.value : ''});
+    cur = Math.min(cur+1, total-1);
+    update();
+  });
+
+  backBtn.addEventListener('click', () => {
+    cur = Math.max(0, cur-1);
+    track('form_back_click', {from_step: cur+2});
+    update();
+  });
+
+  submitBtn.addEventListener('click', async () => {
+    if(!validate()) return;
+    const data = {};
+    root.querySelectorAll('[name]').forEach(el => { if(el.name && el.value) data[el.name] = el.value; });
+    track('form_submit_attempt', {service_interest: data.service_interest});
+    statusEl.textContent = 'Sending...';
+    submitBtn.disabled = true;
+    try {
+      const url = root.dataset.webhookUrl;
+      if(url && !url.includes('PASTE_')){
+        await fetch(url, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
+      }
+      track('form_submit_success', {service_interest: data.service_interest});
+      bodyEl.style.display = 'none';
+      successEl.style.display = 'block';
+    } catch(err) {
+      track('form_submit_error', {message: String(err)});
+      statusEl.textContent = 'Something went wrong. Please try again.';
+      submitBtn.disabled = false;
+    }
+  });
+
+  update();
+})();
+</script>
+</body>
+</html>
