@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GOAT AIOS — Prompt Library</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --primary:#00e5ff;--gold:#ffd600;--magenta:#e040fb;--green:#00e676;
+  --red:#ff1744;--orange:#ff6d00;--bg:#000008;
+  --surface:rgba(0,20,40,0.82);--surface2:rgba(0,10,28,0.9);
+  --border:rgba(0,229,255,0.18);--border2:rgba(0,229,255,0.08);
+  --text:#e2e8f0;--muted:rgba(255,255,255,0.45);--radius:10px;
+}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:'Courier New',Courier,monospace;color:var(--text);}
+body::after{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,229,255,.012) 2px,rgba(0,229,255,.012) 4px);pointer-events:none;z-index:9999;}
+#grid-bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;background-image:linear-gradient(rgba(0,229,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.04) 1px,transparent 1px);background-size:48px 48px;animation:gridShift 20s linear infinite;}
+@keyframes gridShift{0%{background-position:0 0}100%{background-position:48px 48px}}
+.orb{position:fixed;border-radius:50%;filter:blur(90px);pointer-events:none;z-index:0;}
+.orb1{width:500px;height:500px;top:-150px;left:-100px;background:radial-gradient(circle,rgba(0,229,255,.12),transparent 70%);}
+.orb2{width:400px;height:400px;bottom:-100px;right:-80px;background:radial-gradient(circle,rgba(224,64,251,.1),transparent 70%);}
+#app{position:relative;z-index:10;display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+#topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;margin:10px;border-radius:var(--radius);background:rgba(0,10,25,0.92);border:1px solid var(--border);backdrop-filter:blur(14px);flex-shrink:0;}
+#logo{font-size:16px;font-weight:bold;color:var(--primary);letter-spacing:3px;text-shadow:0 0 12px var(--primary);}
+#logo span{color:var(--gold);text-shadow:0 0 12px var(--gold);}
+#search-wrap{flex:1;max-width:500px;margin:0 24px;position:relative;}
+#search{width:100%;padding:8px 16px 8px 38px;background:rgba(0,229,255,.06);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:inherit;font-size:13px;outline:none;transition:border-color .2s,box-shadow .2s;}
+#search::placeholder{color:var(--muted);}
+#search:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(0,229,255,.12);}
+#si{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px;}
+#topbar-right{display:flex;align-items:center;gap:14px;font-size:12px;}
+.tb-badge{padding:4px 10px;border-radius:4px;border:1px solid var(--border);color:var(--primary);font-size:11px;letter-spacing:1px;}
+#main{display:flex;flex:1;overflow:hidden;padding:0 10px 10px;}
+#sidebar{width:200px;flex-shrink:0;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);padding:14px 10px;overflow-y:auto;margin-right:10px;}
+#sidebar::-webkit-scrollbar{width:3px;}
+#sidebar::-webkit-scrollbar-thumb{background:var(--border);}
+.sidebar-label{font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:10px;padding:0 4px;}
+.cat-btn{display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;border-radius:6px;border:1px solid transparent;background:none;color:var(--text);font-family:inherit;font-size:11px;cursor:pointer;transition:all .18s;text-align:left;margin-bottom:3px;}
+.cat-btn:hover{background:rgba(0,229,255,.07);border-color:var(--border2);}
+.cat-btn.active{background:rgba(0,229,255,.12);border-color:rgba(0,229,255,.3);color:var(--primary);}
+.cat-icon{font-size:14px;flex-shrink:0;}
+.cat-count{margin-left:auto;font-size:10px;color:var(--muted);flex-shrink:0;}
+.cat-btn.active .cat-count{color:var(--primary);}
+.sdiv{height:1px;background:var(--border2);margin:10px 0;}
+#content{flex:1;overflow-y:auto;padding-right:4px;}
+#content::-webkit-scrollbar{width:3px;}
+#content::-webkit-scrollbar-thumb{background:var(--border);}
+#content-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+#section-title{font-size:13px;letter-spacing:2px;color:var(--primary);text-transform:uppercase;}
+#result-count{font-size:11px;color:var(--muted);}
+#cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:12px;}
+.card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:18px;transition:border-color .2s,transform .2s,box-shadow .2s;display:flex;flex-direction:column;gap:10px;}
+.card:hover{border-color:rgba(0,229,255,.35);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,229,255,.1);}
+.card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+.card-title{font-size:13px;font-weight:bold;color:#fff;line-height:1.3;flex:1;}
+.card-cat{font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:3px;flex-shrink:0;border:1px solid;margin-top:1px;}
+.card-desc{font-size:12px;color:var(--muted);line-height:1.6;}
+.card-prompt{background:rgba(0,0,0,.5);border:1px solid var(--border2);border-radius:6px;padding:12px;font-size:11px;color:rgba(255,255,255,.8);line-height:1.7;max-height:180px;overflow-y:auto;font-family:'Courier New',Courier,monospace;}
+.card-prompt::-webkit-scrollbar{width:2px;}
+.card-prompt::-webkit-scrollbar-thumb{background:var(--border);}
+.card-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:2px;}
+.card-tags{display:flex;gap:5px;flex-wrap:wrap;flex:1;}
+.tag{font-size:9px;padding:2px 7px;border-radius:3px;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.15);color:rgba(0,229,255,.7);letter-spacing:.5px;}
+.copy-btn{padding:5px 14px;border-radius:5px;border:1px solid rgba(0,229,255,.3);background:rgba(0,229,255,.08);color:var(--primary);font-size:10px;font-family:inherit;cursor:pointer;letter-spacing:.5px;transition:all .18s;flex-shrink:0;}
+.copy-btn:hover{background:rgba(0,229,255,.18);border-color:var(--primary);}
+.copy-btn.copied{color:var(--green);border-color:var(--green);background:rgba(0,230,118,.1);}
+.theme-prompt .card-cat{color:#00e5ff;border-color:rgba(0,229,255,.3);background:rgba(0,229,255,.07);}
+.theme-marketing .card-cat{color:#ffd600;border-color:rgba(255,214,0,.3);background:rgba(255,214,0,.07);}
+.theme-social .card-cat{color:#e040fb;border-color:rgba(224,64,251,.3);background:rgba(224,64,251,.07);}
+.theme-sales .card-cat{color:#ff6d00;border-color:rgba(255,109,0,.3);background:rgba(255,109,0,.07);}
+.theme-ai .card-cat{color:#00e676;border-color:rgba(0,230,118,.3);background:rgba(0,230,118,.07);}
+.theme-auto .card-cat{color:#ff1744;border-color:rgba(255,23,68,.3);background:rgba(255,23,68,.07);}
+.theme-biz .card-cat{color:#ffd600;border-color:rgba(255,214,0,.3);background:rgba(255,214,0,.07);}
+.theme-claude .card-cat{color:#e040fb;border-color:rgba(224,64,251,.3);background:rgba(224,64,251,.07);}
+.theme-repos .card-cat{color:#00e676;border-color:rgba(0,230,118,.3);background:rgba(0,230,118,.07);}
+#no-results{text-align:center;padding:80px 20px;color:var(--muted);display:none;}
+#no-results .nr-icon{font-size:48px;margin-bottom:16px;}
+#no-results p{font-size:13px;letter-spacing:1px;}
+</style>
+</head>
+<body>
+<div id="grid-bg"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div id="app">
+  <div id="topbar">
+    <div id="logo">GOAT<span>.</span>AIOS <span style="color:var(--muted);font-size:12px;letter-spacing:1px">// PROMPT LIBRARY</span></div>
+    <div id="search-wrap">
+      <span id="si">⌕</span>
+      <input id="search" type="text" placeholder="Search prompts, tools, workflows..." autocomplete="off" spellcheck="false">
+    </div>
+    <div id="topbar-right">
+      <div class="tb-badge">1,182+ PROMPTS</div>
+      <div class="tb-badge" style="color:var(--gold)">12 CATEGORIES</div>
+    </div>
+  </div>
+  <div id="main">
+    <div id="sidebar">
+      <div class="sidebar-label">Filter</div>
+      <button class="cat-btn active" data-cat="all"><span class="cat-icon">⬡</span>All<span class="cat-count" id="cnt-all"></span></button>
+      <div class="sdiv"></div>
+      <button class="cat-btn" data-cat="prompt"><span class="cat-icon">📋</span>Templates<span class="cat-count" id="cnt-prompt"></span></button>
+      <button class="cat-btn" data-cat="marketing"><span class="cat-icon">📣</span>Marketing<span class="cat-count" id="cnt-marketing"></span></button>
+      <button class="cat-btn" data-cat="social"><span class="cat-icon">📱</span>Social<span class="cat-count" id="cnt-social"></span></button>
+      <button class="cat-btn" data-cat="sales"><span class="cat-icon">💰</span>Sales<span class="cat-count" id="cnt-sales"></span></button>
+      <button class="cat-btn" data-cat="ai"><span class="cat-icon">🤖</span>AI Tools<span class="cat-count" id="cnt-ai"></span></button>
+      <button class="cat-btn" data-cat="auto"><span class="cat-icon">⚡</span>Automation<span class="cat-count" id="cnt-auto"></span></button>
+      <button class="cat-btn" data-cat="biz"><span class="cat-icon">💼</span>Business<span class="cat-count" id="cnt-biz"></span></button>
+      <button class="cat-btn" data-cat="claude"><span class="cat-icon">🎓</span>Claude<span class="cat-count" id="cnt-claude"></span></button>
+      <button class="cat-btn" data-cat="repos"><span class="cat-icon">🏆</span>Repos<span class="cat-count" id="cnt-repos"></span></button>
+    </div>
+    <div id="content">
+      <div id="content-header">
+        <div id="section-title">ALL PROMPTS</div>
+        <div id="result-count"></div>
+      </div>
+      <div id="cards-grid"></div>
+      <div id="no-results"><div class="nr-icon">⌀</div><p id="nr-msg">No results</p></div>
+    </div>
+  </div>
+</div>
+<script>
+var PROMPTS=[
+{id:'p1',cat:'prompt',theme:'theme-prompt',title:'Brand Voice Setup',desc:'Run once, reuse forever. Outputs a BRAND CONTEXT block for every future prompt.',tags:['social','brand','foundation'],prompt:'You are my social media manager. Here is everything you need to know about my brand:\n\nName: [your name/brand]\nNiche: [topic]\nAudience: [who they are, their pain points]\nTone: [e.g. direct, punchy, no fluff]\nTop 3 performing posts ever: [paste them]\n\nConfirm you understand by summarizing my brand voice in 3 bullet points. Save this as BRAND CONTEXT.'},
+{id:'p2',cat:'prompt',theme:'theme-prompt',title:'4-Week Content Strategy',desc:'Month of themes, post ideas, formats, and emotional triggers per week.',tags:['content','strategy','planning'],prompt:'Using BRAND CONTEXT, create a 4-week content strategy.\nFor each week give me:\n- 1 core theme\n- 3 post ideas per theme\n- Best format for each (carousel/reel/text post)\n- The emotional trigger each post targets\n\nPrioritise content that drives comments over likes.'},
+{id:'p3',cat:'prompt',theme:'theme-prompt',title:'Viral Post Writer',desc:'3 variations ranked by predicted virality. Hook → Value → Pattern Interrupt → CTA.',tags:['viral','social','post'],prompt:'Using BRAND CONTEXT, write a Facebook post about [topic].\n\nStructure:\n- Hook: BREAKING or bold statement (max 10 words)\n- Body: 3 punchy value points, no fluff\n- Pattern interrupt line mid-post\n- CTA that drives comments, not just likes\n\nGive me 3 variations ranked by predicted virality.'},
+{id:'p4',cat:'prompt',theme:'theme-prompt',title:'Comment Reply Engine',desc:'Batch-process comments. Each reply personal, value-adding, authority-building.',tags:['engagement','replies','social'],prompt:'You are managing my social media comments.\nMy brand tone is [paste Prompt 1 summary].\n\nFor each comment below, write a reply that:\n- Feels personal, not automated\n- Adds value or sparks more conversation\n- Subtly reinforces my authority on [topic]\n\nComments: [paste]'},
+{id:'p5',cat:'prompt',theme:'theme-prompt',title:'Analytics Debrief',desc:'4 questions that surface what\'s working and the counterintuitive insight you\'re missing.',tags:['analytics','strategy','data'],prompt:'Here are my social media stats for [period]:\n[paste: reach, engagement, top posts, follower growth]\n\nTell me:\n1. What content theme is winning and why\n2. What flopped and the likely reason\n3. The exact type of post I should double down on next week\n4. One counterintuitive insight I\'m probably missing'},
+{id:'p6',cat:'prompt',theme:'theme-prompt',title:'Content Repurposing Machine',desc:'1 top post → carousel + 60s reel + 3 tweet one-liners + LinkedIn version.',tags:['repurpose','carousel','reel'],prompt:'Take my top performing post this week:\n[paste post]\n\nRepurpose it into:\n- 1 carousel script (7 slides, each slide max 15 words)\n- 1 60-second reel script with hook, 3 points, CTA\n- 3 tweet-style punchy one-liners\n- 1 LinkedIn version (more professional tone)\n\nKeep my brand voice consistent across all formats.'},
+{id:'p7',cat:'prompt',theme:'theme-prompt',title:'Inbound DM Handler',desc:'Qualify without being salesy. Under 80 words. Opens the door to a discovery call.',tags:['dm','sales','inbound'],prompt:'Someone just DMed me after seeing my post about [topic].\nTheir message: [paste]\n\nWrite a reply that:\n- Acknowledges their specific message\n- Positions me as the expert without being salesy\n- Naturally opens the door to a discovery call or next step\n- Is under 80 words'},
+{id:'p10',cat:'prompt',theme:'theme-prompt',title:'Self-Testing & Skill Validation',desc:'Turns any video or doc into a measurable skill with beginner→expert scoring criteria.',tags:['learning','validation','skill'],prompt:'Create a structured self-testing system based on this video that allows someone to verify whether they have truly mastered the content. Include:\n\n- A set of conceptual questions to test understanding\n- Practical challenges to test real application\n- Progressively harder scenarios to measure depth of mastery\n- Common trap answers that reveal shallow understanding\n- Scoring criteria (beginner, intermediate, advanced, expert level)\n\nGoal: turn this knowledge into a measurable skill, not just passive understanding.'},
+{id:'m1',cat:'marketing',theme:'theme-marketing',title:'UMAS Brand Voice',desc:'Warm, trustworthy, 8th-grade level. Never say "facility" or "placement".',tags:['umas','brand','eldercare'],prompt:'UMAS Brand Voice Rules:\n- Warm, trustworthy, community-focused\n- 8th-grade reading level, plain English\n- Never: "facility", "placement"\n- Use: "care", "support", "home"\n- Always include 847-306-7606 if CTA is present\n- Emphasize: family peace of mind, dignity, compassion\n- Lead with benefit, not feature\n- Specific CTA: "Check Eligibility" not "Learn More"'},
+{id:'m2',cat:'marketing',theme:'theme-marketing',title:'Mandelbrot Agency Voice',desc:'Sharp, data-driven, no fluff. Goal: get the lead on a call.',tags:['mandelbrot','agency','brand'],prompt:'Mandelbrot Marketing Brand Voice:\n- Sharp, data-driven, results-focused\n- Confident, direct, no fluff, speak like a strategist\n- Goal: get the lead on a call or reply\n- Pattern: Problem → Agitate → Solution → CTA\n- No em-dashes in copy\n- Lead with benefit, not feature\n- CTA: "Book Your Free Strategy Call" not "Learn More"'},
+{id:'m3',cat:'marketing',theme:'theme-marketing',title:'UMAS SEO Asset Status',desc:'Current deployment status of all SEO content for umasinc.com.',tags:['umas','seo','status'],prompt:'UMAS SEO Status (June 2026):\n\nDone:\n10 blog posts / 5 service pages / 3 location pages\nllms.txt deployed at dare-devil-11.github.io/umas-hologram/llms.txt\nOrganization JSON-LD + WebSite schema ready\nMeta Pixel + GTM block ready\n\nPending:\nGHL redirect: /llms.txt to GitHub Pages URL\nSchema: paste ghl-head-schema-LIVE.html into GHL head code\nGHL webhook URL: replace PASTE_GHL_WEBHOOK_URL in funnel'},
+{id:'s1',cat:'social',theme:'theme-social',title:'Viral Hook Formula',desc:'First line stops the scroll. Bold claim leads. Comments beat likes.',tags:['hook','viral','social'],prompt:'Viral Hook Formula:\n1. First line stops the scroll, ALWAYS\n2. Pattern: Problem → Agitate → Solution → CTA\n3. Bold claim OR counterintuitive insight leads\n4. Max 10 words for hook line\n5. No em-dashes in social copy\n6. CTA drives COMMENTS over likes (comments signal algorithm)\n\nStructure: Hook (10 words) → 3 value points → Pattern interrupt → CTA'},
+{id:'s2',cat:'social',theme:'theme-social',title:'AIOS Dashboard Reel Format',desc:'Chase AI format (466K followers). Show tool, state metric, Comment X to get Y.',tags:['reel','video','format'],prompt:'AIOS Dashboard / Tech Reel Format (Chase AI):\n\n1. Show dashboard/tool visually (screen recording)\n2. State a specific metric: "135,000 subs", "466K followers"\n3. Brief walkthrough: what it does, why it matters\n4. CTA: "Comment [WORD] to get [SPECIFIC THING]"\n\nDrives comments (algorithmic signal) + list building simultaneously.\nExample: "Comment STACK to get my full agency tool list"'},
+{id:'s3',cat:'social',theme:'theme-social',title:'Repurposing Pipeline',desc:'1 post → carousel (7 slides) + 60s reel + 3 tweets + LinkedIn.',tags:['repurpose','pipeline','content'],prompt:'Content Repurposing Pipeline:\n\nINPUT: Your top performing post this week\n\nOUTPUT:\nCarousel: 7 slides, max 15 words per slide, slide 1 = hook\n60s Reel: Hook (0-5s) + 3 value points (5-50s) + CTA (50-60s)\n3 Tweets: punchy, standalone, shareable\nLinkedIn: same message, professional tone, longer paragraphs\n\nKeep brand voice consistent. Hook concept stays, format adapts.'},
+{id:'s4',cat:'social',theme:'theme-social',title:'Top 10 Image-to-Video Tools',desc:'Ranked for GOAT Life animated series and general social video production.',tags:['video','tools','ai'],prompt:'Top 10 AI Image-to-Video Tools (2026):\n\n1. Runway Gen-3 Alpha (highlight pick, highest quality)\n2. Kling (high-fidelity motion, excellent for characters)\n3. Google Veo\n4. OpenAI Sora\n5. Luma AI Dream Machine\n6. Pika Labs\n7. Kaiber AI\n8. Synthesia\n9. HeyGen\n10. Adobe Firefly / InVideo AI\n\nGOAT Life Pipeline: Firefly → Nano Banana → Kling → ElevenLabs → CapCut'},
+{id:'sa1',cat:'sales',theme:'theme-sales',title:'Inbound DM Handler (Full)',desc:'Acknowledge → expert position → open the door. Under 80 words.',tags:['dm','inbound','qualify'],prompt:'Someone just DMed me after seeing my post about [topic].\nTheir message: [paste]\n\nWrite a reply that:\n- Acknowledges their specific message (feel seen, not templated)\n- Positions me as the expert without being salesy\n- Naturally opens the door to a discovery call or next step\n- Is under 80 words\n\nTone: confident, warm, direct. No em-dashes.'},
+{id:'sa2',cat:'sales',theme:'theme-sales',title:'W4 — Lead Intake Daemon',desc:'Polls new GHL contacts every 30min. Ollama generates personalized 3-sentence intro.',tags:['automation','ghl','leads'],prompt:'W4 — Lead Intake (Mandelbrot Marketing):\nStatus: STOPPED — needs GHL Location ID\n\n1. Polls GHL contacts every 30 minutes\n2. Finds contacts tagged "new" or created in last 30min\n3. Ollama llama3.2 generates personalized 3-sentence intro message\n4. Sends via GHL Conversations API\n5. Tags contact "aios-welcomed" to prevent duplicates\n\nFix: Set MANDELBROT_LOCATION_ID in ~/AI-OS/scripts/workflows-launch.sh'},
+{id:'sa3',cat:'sales',theme:'theme-sales',title:'W5 — Stale Opportunity Detector',desc:'Flags deals >7 days no activity. Ollama generates 2-sentence reactivation note.',tags:['pipeline','ghl','reactivation'],prompt:'W5 — Stale Opportunity Detector (Mandelbrot):\nStatus: STOPPED — needs GHL Location ID\n\n1. Polls GHL pipeline opportunities hourly\n2. Flags deals with >7 days since last activity\n3. Ollama generates 2-sentence reactivation strategy note\n4. Logs to ~/AI-OS/logs/stale-opps.jsonl\n5. Optional: auto-sends follow-up via GHL Conversations\n\nFix: Set MANDELBROT_LOCATION_ID in workflows-launch.sh'},
+{id:'ai1',cat:'ai',theme:'theme-ai',title:'AI Tool Routing Matrix',desc:'Which AI for which task. ChatGPT vs Claude vs Perplexity vs Gemini vs Ollama.',tags:['tools','routing','comparison'],prompt:'AI Tool Routing Guide:\n\nChatGPT     → cybersecurity research, threat summaries, vuln analysis\nPerplexity  → real-time intel, CVE lookups, live web research\nClaude      → long-context, orchestration, report writing, code decisions\nGemini      → code gen, tool docs, vuln research summaries\nOllama      → private/local content, batch tasks, free at scale\nCopilot     → inline code suggestions, scripts, debugging\nPhind       → technical research, exploit docs, troubleshooting\nNotebookLM  → YouTube/PDFs/articles → podcasts, flashcards\nBlackbox    → code gen, reverse engineering'},
+{id:'ai2',cat:'ai',theme:'theme-ai',title:'Top 20 Claude Connectors',desc:'Stack with purpose. Upload first. Read the reasoning chain. Correct in chat.',tags:['claude','connectors','mcp'],prompt:'Top 20 Claude Connectors:\n\n1. Google Drive\n2. Gmail\n3. Google Calendar\n4. Slack\n5. Notion\n6. HubSpot\n7. Canva\n8. Apollo.io\n9. Clay\n10. Asana\n11. Linear\n12. n8n\n13. Zapier\n14. Make\n15. Stripe\n16. Intercom\n17. Gamma\n18. Granola\n19. MailerLite\n20. Microsoft 365\n\nPower Tips:\n- Stack connectors with purpose\n- Upload before you ask\n- Read the reasoning chain\n- Correct it in chat to improve output'},
+{id:'ai3',cat:'ai',theme:'theme-ai',title:'Claude Model Reference 2026',desc:'All model IDs, best use cases, current session model.',tags:['claude','models','api'],prompt:'Claude Models (June 2026):\n\nclaude-fable-5         → Most capable, Mythos-class\nclaude-opus-4-8        → Complex multi-step reasoning\nclaude-sonnet-4-6      → Current session model, balanced\nclaude-haiku-4-5       → Fast, lightweight, routing tasks\n\nAlso: Claude Code, Claude Cowork, Claude in Chrome/Excel/PowerPoint\nMCP: https://mcp.higgsfield.ai/mcp (add via Settings → Connectors)'},
+{id:'au1',cat:'auto',theme:'theme-auto',title:'GOAT AIOS Daemon Status',desc:'W1-W6 status, intervals, accounts. Fix instructions for stopped daemons.',tags:['daemons','status','workflows'],prompt:'GOAT AIOS Daemons:\n\nW1 UMAS Social Loop     | 4h   | RUNNING\nW2 GitHub AutoFix       | 15m  | RUNNING\nW3 Competitor Content   | 6h   | RUNNING\nW4 Lead Intake          | 30m  | STOPPED (needs location ID)\nW5 Stale Opp Detector   | 1h   | STOPPED (needs location ID)\nW6 Mandelbrot Social    | 3h   | RUNNING\n\nLogs: ~/AI-OS/logs/\nLaunch: bash ~/AI-OS/scripts/workflows-launch.sh start'},
+{id:'au2',cat:'auto',theme:'theme-auto',title:'n8n Lead Nurture Pipeline',desc:'Webhook → GHL contact → dual email → Day 2 → Day 5. Full node map.',tags:['n8n','ghl','nurture'],prompt:'n8n Lead Nurture (UMAS):\n\n1. Webhook trigger → POST /umas-funnel\n2. Format Lead Data (Set node)\n3. Create GHL Contact → services.leadconnectorhq.com/contacts/\n   Headers: Version: 2021-07-28\n4. Parallel:\n   a. Email 1 — Confirmation to lead (instant)\n   b. Email — Internal alert to karana@umasinc.com\n5. Wait 24 hours\n6. Email 2 — Follow-up\n7. Wait 3 days\n8. Email 3 — Social proof + CTA\n\nImport: ~/AI-OS/outputs/n8n-workflows/umas-lead-nurture.json'},
+{id:'au3',cat:'auto',theme:'theme-auto',title:'GHL API Quick Reference',desc:'Base URL, endpoints, version header, Keychain token retrieval.',tags:['ghl','api','reference'],prompt:'GHL API Quick Reference:\n\nBase: https://services.leadconnectorhq.com\nContacts: /contacts/\nSocial: /social-media-posting/v1/posts\nVersion (contacts): 2021-07-28\nVersion (social): 2021-04-15\nAuth: Authorization: Bearer {token}\n\nToken:\nsecurity find-generic-password -a karanamin -s ghl-umas-token -w\n\nUMAS Location ID: 5opdoL1faiu1kTiGZ1Vx\nAPI key: [stored in Keychain — retrieve with: security find-generic-password -a karanamin -s ghl-umas-token -w]'},
+{id:'b1',cat:'biz',theme:'theme-biz',title:'Cardone $0→$125M Breakpoints',desc:'7 revenue stages. WHO appears 3 times — the people bottleneck never goes away.',tags:['strategy','revenue','cardone'],prompt:'Cardone Revenue Breakpoints:\n\nStage 0 | $0-1M   | WHY  | Why does this exist?\nStage 1 | $1-3M   | WHAT | What do we do?\nStage 2 | $3-8M   | WHO  | Who does what?\nStage 3 | $8-15M  | HOW  | How does it scale?\nStage 4 | $15-25M | WHO  | Who runs automation?\nStage 5 | $25-45M | HOW  | How does exec lead?\nStage 6 | $45-75M | WHAT | What does data show?\nStage 7 | $75-125M| WHO  | Who owns each channel?\n\nKey: WHO at stages 2, 4, 7 — people bottleneck never disappears.'},
+{id:'b2',cat:'biz',theme:'theme-biz',title:'Active Project Status',desc:'UMAS (Stage 2) and Mandelbrot (Stage 1) current automation goals.',tags:['projects','status','umas'],prompt:'Active Projects — June 2026:\n\nUMAS (Elder Care Nonprofit)\nStage: ~2 Process Creation\nGHL: 5opdoL1faiu1kTiGZ1Vx\nDone: 5 service pages, 10 blog posts, 3 location pages, W1/W3 running\nNext: Deploy schema to GHL, set webhook URLs, run W4/W5\n\nMandelbrot Marketing (Agency)\nStage: ~1 Role Duplication\nDone: W6 running\nNext: Set location ID, activate W4/W5 lead intake automations'},
+{id:'c1',cat:'claude',theme:'theme-claude',title:'Master Claude Code in 28 Days',desc:'Week-by-week curriculum from CLI install to autonomous multi-repo systems.',tags:['claude','learning','curriculum'],prompt:'28-Day Claude Code Curriculum:\n\nWEEK 1: Setup + first build\nDay 1 install | Day 2 GitHub | Day 3 structure | Day 4 CLAUDE.md\nDay 5 context | Day 6 /plan | Day 7 first build\n\nWEEK 2: Coding workflows\nDay 8 refactor | Day 9 debug | Day 10 review\nDay 11 docs | Day 12-13 testing | Day 14 architecture\n\nWEEK 3: Automation\nDay 15 slash commands | Day 16 skills | Day 17 hooks\nDay 18 MCP | Day 19 connectors | Day 20-21 CI/CD\n\nWEEK 4: Advanced systems\nDay 22 subagents | Day 23 parallel | Day 24 multi-repo\nDay 25-26 autonomous | Day 27 production | Day 28 final project'},
+{id:'c2',cat:'claude',theme:'theme-claude',title:'GOAT AIOS Install State',desc:'881 skills, 4 hooks, 4 plugins, 894 commands. All key file paths.',tags:['claude','install','state'],prompt:'GOAT AIOS Claude Install:\n\nSkills: 881 at ~/.claude/skills/\nHooks: 4 (SessionStart, PreToolUse, PostToolUse, Stop)\nPlugins: 4 installed\nSlash commands: 894\n\nKey Files:\n~/.claude/CLAUDE.md            global instructions\n~/brain.md                     owner context\n~/.claude/LAST_SESSION_SUMMARY.md  session continuity\n~/AI-OS/scripts/terminal-close-packager.py  session packager\n\nCron:\n*/15 * * * * packager.py (every 15min)\n0 3 * * 0 disk-cleanup.sh (Sunday 3am)'},
+{id:'r1',cat:'repos',theme:'theme-repos',title:'Top 40 Repos — Learning (1-15)',desc:'Foundation repos every developer should know before AI frameworks.',tags:['github','learning','repos'],prompt:'Top 40 Repos — Learning Stack (1-15):\n\n1.  public-apis\n2.  build-your-own-x\n3.  developer-roadmap\n4.  free-programming-books\n5.  system-design-primer\n6.  awesome\n7.  coding-interview-university\n8.  project-based-learning\n9.  the-art-of-command-line\n10. javascript-algorithms\n11. 30-seconds-of-code\n12. clean-code-javascript\n13. you-dont-know-js\n14. python (community hub)\n15. realworld (mother of all demo apps)'},
+{id:'r2',cat:'repos',theme:'theme-repos',title:'Top 40 Repos — AI & Agents (16-30)',desc:'Active AI/agent frameworks. n8n, LangChain, mem0, browser-use and more.',tags:['github','ai','agents'],prompt:'Top 40 Repos — AI & Agents (16-30):\n\n16. ollama\n17. langchain\n18. n8n\n19. dify\n20. mem0\n21. browser-use\n22. crewai\n23. aider\n24. open-webui\n25. lobe-chat\n26. anything-llm\n27. quivr\n28. gpt4all\n29. privateGPT\n30. autogpt'},
+{id:'r3',cat:'repos',theme:'theme-repos',title:'Top 40 Repos — Advanced (31-40)',desc:'AutoGen, MetaGPT, HuggingFace, Stable Diffusion, PyTorch, freeCodeCamp.',tags:['github','advanced','ml'],prompt:'Top 40 Repos — Advanced (31-40):\n\n31. autogen (Microsoft multi-agent)\n32. metagpt\n33. huggingface-transformers\n34. stable-diffusion-webui (Automatic1111)\n35. freeCodeCamp\n36. papers-we-love\n37. awesome-machine-learning\n38. pytorch\n39. tensorflow\n40. fastai'}
+];
+
+var activeCat='all',searchQuery='';
+var grid=document.getElementById('cards-grid');
+var searchEl=document.getElementById('search');
+var resultCount=document.getElementById('result-count');
+var sectionTitle=document.getElementById('section-title');
+var noResults=document.getElementById('no-results');
+var nrMsg=document.getElementById('nr-msg');
+
+var catLabels={all:'ALL PROMPTS',prompt:'PROMPT TEMPLATES',marketing:'MARKETING',social:'SOCIAL & REELS',sales:'SALES',ai:'AI TOOLS',auto:'AUTOMATION',biz:'BUSINESS',claude:'CLAUDE SETUP',repos:'TOP 40 REPOS'};
+
+function esc(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function buildCard(p){
+  var div=document.createElement('div');
+  div.className='card '+p.theme;
+
+  var head=document.createElement('div');
+  head.className='card-head';
+
+  var titleEl=document.createElement('div');
+  titleEl.className='card-title';
+  titleEl.textContent=p.title;
+
+  var catEl=document.createElement('div');
+  catEl.className='card-cat';
+  catEl.textContent=(catLabels[p.cat]||p.cat).toUpperCase();
+
+  head.appendChild(titleEl);
+  head.appendChild(catEl);
+
+  var descEl=document.createElement('div');
+  descEl.className='card-desc';
+  descEl.textContent=p.desc;
+
+  var promptEl=document.createElement('pre');
+  promptEl.className='card-prompt';
+  promptEl.textContent=p.prompt;
+
+  var footer=document.createElement('div');
+  footer.className='card-footer';
+
+  var tagsEl=document.createElement('div');
+  tagsEl.className='card-tags';
+  p.tags.forEach(function(t){
+    var tag=document.createElement('span');
+    tag.className='tag';
+    tag.textContent=t;
+    tagsEl.appendChild(tag);
+  });
+
+  var copyBtn=document.createElement('button');
+  copyBtn.className='copy-btn';
+  copyBtn.textContent='COPY';
+  copyBtn.addEventListener('click',function(){
+    navigator.clipboard.writeText(p.prompt).then(function(){
+      copyBtn.textContent='COPIED';
+      copyBtn.classList.add('copied');
+      setTimeout(function(){copyBtn.textContent='COPY';copyBtn.classList.remove('copied');},1800);
+    });
+  });
+
+  footer.appendChild(tagsEl);
+  footer.appendChild(copyBtn);
+
+  div.appendChild(head);
+  div.appendChild(descEl);
+  div.appendChild(promptEl);
+  div.appendChild(footer);
+  return div;
+}
+
+function render(){
+  var q=searchQuery.toLowerCase().trim();
+  var filtered=PROMPTS.filter(function(p){
+    if(activeCat!=='all'&&p.cat!==activeCat)return false;
+    if(!q)return true;
+    return p.title.toLowerCase().includes(q)||p.desc.toLowerCase().includes(q)||p.prompt.toLowerCase().includes(q)||p.tags.some(function(t){return t.includes(q);});
+  });
+
+  sectionTitle.textContent=catLabels[activeCat]||'ALL PROMPTS';
+  resultCount.textContent=filtered.length+' prompt'+(filtered.length!==1?'s':'');
+
+  while(grid.firstChild)grid.removeChild(grid.firstChild);
+
+  if(filtered.length===0){
+    noResults.style.display='block';
+    nrMsg.textContent='No results for "'+(q||activeCat)+'"';
+  }else{
+    noResults.style.display='none';
+    filtered.forEach(function(p){grid.appendChild(buildCard(p));});
+  }
+
+  var cats=['all','prompt','marketing','social','sales','ai','auto','biz','claude','repos'];
+  cats.forEach(function(c){
+    var el=document.getElementById('cnt-'+c);
+    if(!el)return;
+    el.textContent=c==='all'?PROMPTS.length:PROMPTS.filter(function(p){return p.cat===c;}).length;
+  });
+}
+
+document.querySelectorAll('.cat-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.cat-btn').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+    activeCat=btn.dataset.cat;
+    render();
+  });
+});
+
+searchEl.addEventListener('input',function(e){searchQuery=e.target.value;render();});
+render();
+</script>
+</body>
+</html>
