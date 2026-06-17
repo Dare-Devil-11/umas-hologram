@@ -1,0 +1,1756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="International University of Vedic Wellness (IUVW / VedicU) — Streamwood, IL. Accredited programs in Ayurveda, Yoga, Vedic Sciences, Indian Art & Culture. Admissions open.">
+<title>VedicU — International University of Vedic Wellness</title>
+<style>
+/* =============================================
+   DESIGN SYSTEM — CSS VARIABLES
+   ============================================= */
+:root {
+  --primary: #c77b2e;
+  --primary-dark: #a66020;
+  --primary-glow: rgba(199,123,46,.35);
+  --secondary: #2d6a4f;
+  --bg: #faf6f0;
+  --bg-dark: #1c110a;
+  --surface: #ffffff;
+  --text: #1c110a;
+  --muted: #8a7060;
+  --border: #e8ddd0;
+  --accent: #f5ede0;
+  --accent-green: #e8f4ee;
+  --radius: 16px;
+  --shadow: 0 4px 28px rgba(28,17,10,.10);
+  --shadow-md: 0 8px 40px rgba(28,17,10,.15);
+  --transition: all .22s ease;
+  --font-display: 'Georgia', 'Times New Roman', serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* =============================================
+   RESET & BASE
+   ============================================= */
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; font-size:16px; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  overflow-x: hidden;
+}
+img { max-width:100%; display:block; }
+a { color:inherit; text-decoration:none; }
+ul { list-style:none; }
+
+/* =============================================
+   UTILITY CLASSES
+   ============================================= */
+.container { max-width:1100px; margin:0 auto; padding:0 24px; }
+.section { padding:96px 0; }
+.section-sm { padding:64px 0; }
+.text-center { text-align:center; }
+.text-muted { color:var(--muted); }
+.btn {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:14px 28px; border-radius:50px; font-size:.95rem;
+  font-weight:700; cursor:pointer; transition:var(--transition);
+  border:none; text-decoration:none; line-height:1;
+}
+.btn-primary {
+  background:var(--primary); color:#fff;
+}
+.btn-primary:hover {
+  background:var(--primary-dark); transform:translateY(-2px);
+  box-shadow:0 6px 24px var(--primary-glow);
+}
+.btn-outline {
+  background:transparent; color:var(--primary);
+  border:2px solid var(--primary);
+}
+.btn-outline:hover {
+  background:var(--primary); color:#fff; transform:translateY(-2px);
+}
+.btn-outline-light {
+  background:transparent; color:#fff;
+  border:2px solid rgba(255,255,255,.5);
+}
+.btn-outline-light:hover {
+  background:rgba(255,255,255,.12); transform:translateY(-2px);
+}
+.badge {
+  display:inline-flex; align-items:center; gap:6px;
+  background:var(--accent); color:var(--primary-dark);
+  border:1.5px solid var(--border); border-radius:50px;
+  padding:5px 14px; font-size:.78rem; font-weight:600;
+}
+.tag {
+  display:inline-block; padding:4px 12px; border-radius:50px;
+  font-size:.75rem; font-weight:600; text-transform:uppercase; letter-spacing:.05em;
+}
+.tag-green { background:var(--accent-green); color:var(--secondary); }
+.tag-gold { background:var(--accent); color:var(--primary-dark); }
+
+/* Scroll animations */
+.fade-up {
+  opacity:0; transform:translateY(32px);
+  transition: opacity .6s ease, transform .6s ease;
+}
+.fade-up.visible { opacity:1; transform:translateY(0); }
+.stagger-1 { transition-delay:.05s; }
+.stagger-2 { transition-delay:.12s; }
+.stagger-3 { transition-delay:.20s; }
+.stagger-4 { transition-delay:.28s; }
+.stagger-5 { transition-delay:.36s; }
+.stagger-6 { transition-delay:.44s; }
+
+/* =============================================
+   NAVIGATION
+   ============================================= */
+.nav {
+  position:fixed; top:0; left:0; right:0; z-index:1000;
+  background:rgba(250,246,240,.95); backdrop-filter:blur(12px);
+  border-bottom:1.5px solid var(--border);
+  transition:var(--transition);
+}
+.nav-inner {
+  display:flex; align-items:center; justify-content:space-between;
+  height:68px; max-width:1100px; margin:0 auto; padding:0 24px;
+}
+.nav-logo {
+  display:flex; align-items:center; gap:10px;
+}
+.nav-logo-icon {
+  width:36px; height:36px;
+  background:var(--primary); border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:1rem;
+}
+.nav-wordmark {
+  font-family:var(--font-display); font-size:1.3rem;
+  font-weight:700; color:var(--text); letter-spacing:-.01em;
+}
+.nav-wordmark span { color:var(--primary); }
+.nav-links {
+  display:flex; align-items:center; gap:32px;
+}
+.nav-links a {
+  font-size:.88rem; font-weight:500; color:var(--muted);
+  transition:var(--transition);
+}
+.nav-links a:hover { color:var(--primary); }
+.nav-cta {
+  display:flex; align-items:center; gap:12px;
+}
+.nav-hamburger {
+  display:none; flex-direction:column; gap:5px;
+  cursor:pointer; padding:4px; background:none; border:none;
+}
+.nav-hamburger span {
+  display:block; width:22px; height:2px;
+  background:var(--text); border-radius:2px; transition:var(--transition);
+}
+.mobile-menu {
+  display:none; position:fixed; top:68px; left:0; right:0;
+  background:var(--bg); border-bottom:1.5px solid var(--border);
+  padding:20px 24px 28px; z-index:999;
+  flex-direction:column; gap:16px;
+}
+.mobile-menu.open { display:flex; }
+.mobile-menu a {
+  font-size:1rem; font-weight:500; color:var(--text);
+  padding:10px 0; border-bottom:1px solid var(--border);
+}
+
+/* =============================================
+   HERO SECTION
+   ============================================= */
+.hero {
+  background:var(--bg-dark);
+  min-height:100vh;
+  display:flex; align-items:center;
+  position:relative; overflow:hidden;
+  padding-top:68px;
+}
+
+/* Mandala CSS geometric pattern */
+.mandala-wrap {
+  position:absolute; right:-80px; top:50%;
+  transform:translateY(-50%);
+  width:580px; height:580px;
+  opacity:.08;
+  pointer-events:none;
+}
+.mandala {
+  width:100%; height:100%;
+  animation: mandala-spin 60s linear infinite;
+}
+.mandala-inner {
+  animation: mandala-spin-reverse 40s linear infinite;
+  transform-origin:50% 50%;
+}
+
+@keyframes mandala-spin {
+  from { transform:rotate(0deg); }
+  to   { transform:rotate(360deg); }
+}
+@keyframes mandala-spin-reverse {
+  from { transform:rotate(0deg); }
+  to   { transform:rotate(-360deg); }
+}
+
+/* Background radial glow */
+.hero::before {
+  content:'';
+  position:absolute; top:30%; left:0;
+  width:600px; height:600px;
+  background:radial-gradient(circle, rgba(199,123,46,.15) 0%, transparent 70%);
+  pointer-events:none;
+}
+
+.hero-content {
+  position:relative; z-index:2;
+  max-width:660px;
+}
+.hero-eyebrow {
+  display:flex; align-items:center; gap:10px; margin-bottom:24px;
+}
+.hero-eyebrow-line {
+  width:32px; height:2px; background:var(--primary);
+}
+.hero-eyebrow-text {
+  font-size:.82rem; font-weight:600; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--primary);
+}
+.hero-headline {
+  font-family:var(--font-display);
+  font-size:clamp(2.4rem, 5vw, 3.6rem);
+  line-height:1.18;
+  font-weight:700; color:#fff;
+  margin-bottom:20px;
+  background: linear-gradient(135deg, #f5e6c8 0%, #c77b2e 50%, #f5e6c8 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.hero-sub {
+  font-size:1.1rem; color:rgba(255,255,255,.68); line-height:1.7;
+  margin-bottom:36px; max-width:520px;
+}
+.hero-ctas {
+  display:flex; flex-wrap:wrap; gap:14px; margin-bottom:52px;
+}
+.hero-stats {
+  display:flex; flex-wrap:wrap; gap:12px;
+}
+.hero-stat-badge {
+  display:flex; align-items:center; gap:8px;
+  background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12);
+  border-radius:50px; padding:8px 16px;
+  font-size:.82rem; font-weight:600; color:rgba(255,255,255,.75);
+}
+.hero-stat-badge .dot {
+  width:7px; height:7px; border-radius:50%; background:var(--primary);
+  animation:pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%,100% { transform:scale(1); opacity:1; }
+  50% { transform:scale(1.4); opacity:.7; }
+}
+
+/* =============================================
+   TRUST BAR
+   ============================================= */
+.trust-bar {
+  background:var(--accent); border-top:1.5px solid var(--border);
+  border-bottom:1.5px solid var(--border); padding:14px 0;
+}
+.trust-bar-inner {
+  display:flex; flex-wrap:wrap; align-items:center;
+  justify-content:center; gap:8px 32px;
+}
+.trust-item {
+  display:flex; align-items:center; gap:7px;
+  font-size:.82rem; font-weight:600; color:var(--muted);
+}
+.trust-item svg { flex-shrink:0; }
+.trust-divider {
+  width:1px; height:16px; background:var(--border);
+}
+
+/* =============================================
+   PROGRAMS SECTION
+   ============================================= */
+.programs-header { text-align:center; margin-bottom:56px; }
+.section-label {
+  display:inline-block; margin-bottom:12px;
+}
+.section-title {
+  font-family:var(--font-display);
+  font-size:clamp(1.9rem, 3.5vw, 2.6rem);
+  font-weight:700; color:var(--text);
+  line-height:1.25; margin-bottom:14px;
+}
+.section-sub {
+  font-size:1rem; color:var(--muted);
+  max-width:520px; margin:0 auto; line-height:1.65;
+}
+.programs-grid {
+  display:grid; grid-template-columns:repeat(3, 1fr); gap:24px;
+}
+.program-card {
+  background:var(--surface); border:1.5px solid var(--border);
+  border-radius:var(--radius); padding:32px 28px;
+  transition:var(--transition); cursor:default;
+  position:relative; overflow:hidden;
+}
+.program-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background:linear-gradient(90deg, var(--primary), var(--primary-dark));
+  transform:scaleX(0); transform-origin:left;
+  transition:transform .3s ease;
+}
+.program-card:hover {
+  border-color:var(--primary); box-shadow:var(--shadow-md);
+  transform:translateY(-4px);
+}
+.program-card:hover::before { transform:scaleX(1); }
+.program-icon {
+  width:52px; height:52px; border-radius:14px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.5rem; margin-bottom:18px;
+  background:var(--accent); border:1.5px solid var(--border);
+}
+.program-card h3 {
+  font-family:var(--font-display); font-size:1.12rem;
+  font-weight:700; color:var(--text); margin-bottom:8px; line-height:1.35;
+}
+.program-card p { font-size:.88rem; color:var(--muted); line-height:1.65; margin-bottom:18px; }
+.program-link {
+  display:inline-flex; align-items:center; gap:6px;
+  font-size:.82rem; font-weight:700; color:var(--primary);
+  transition:var(--transition);
+}
+.program-link:hover { gap:10px; }
+
+/* =============================================
+   MISSION SECTION
+   ============================================= */
+.mission {
+  background:var(--bg-dark); position:relative; overflow:hidden;
+}
+.mission::before {
+  content:'';
+  position:absolute; top:-100px; right:-100px;
+  width:500px; height:500px;
+  background:radial-gradient(circle, rgba(45,106,79,.2) 0%, transparent 70%);
+  pointer-events:none;
+}
+.mission-inner {
+  display:grid; grid-template-columns:1fr 1fr; gap:72px; align-items:center;
+}
+.mission-quote {
+  position:relative; padding-left:28px;
+}
+.mission-quote::before {
+  content:'"';
+  position:absolute; left:-8px; top:-20px;
+  font-family:var(--font-display); font-size:8rem;
+  color:var(--primary); opacity:.3; line-height:1;
+}
+.mission-quote-text {
+  font-family:var(--font-display);
+  font-size:clamp(1.25rem, 2.2vw, 1.6rem);
+  color:rgba(255,255,255,.85); line-height:1.55;
+  font-style:italic; margin-bottom:16px;
+}
+.mission-quote-source {
+  font-size:.82rem; color:var(--primary); font-weight:600; letter-spacing:.06em;
+}
+.mission-content {}
+.mission-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  background:rgba(199,123,46,.15); border:1px solid rgba(199,123,46,.3);
+  border-radius:50px; padding:6px 16px; margin-bottom:20px;
+  font-size:.78rem; font-weight:600; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--primary);
+}
+.mission-title {
+  font-family:var(--font-display);
+  font-size:clamp(1.7rem, 3vw, 2.2rem);
+  color:#fff; font-weight:700; margin-bottom:18px; line-height:1.3;
+}
+.mission-body {
+  font-size:.98rem; color:rgba(255,255,255,.65); line-height:1.75;
+  margin-bottom:28px;
+}
+.mission-pillars {
+  display:flex; flex-direction:column; gap:12px;
+}
+.mission-pillar {
+  display:flex; align-items:flex-start; gap:12px;
+}
+.pillar-dot {
+  width:8px; height:8px; border-radius:50%; background:var(--primary);
+  flex-shrink:0; margin-top:7px;
+}
+.pillar-text {
+  font-size:.88rem; color:rgba(255,255,255,.72); line-height:1.55;
+}
+
+/* =============================================
+   PANCHAKARMA SECTION
+   ============================================= */
+.panchakarma {
+  background:var(--accent); position:relative; overflow:hidden;
+}
+.panchakarma::before {
+  content:'';
+  position:absolute; top:0; right:0; bottom:0;
+  width:40%;
+  background:linear-gradient(135deg, transparent 0%, rgba(45,106,79,.08) 100%);
+  pointer-events:none;
+}
+.panchakarma-inner {
+  display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:center;
+}
+.pk-content {}
+.pk-eyebrow {
+  font-size:.78rem; font-weight:600; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--secondary);
+  margin-bottom:12px;
+}
+.pk-title {
+  font-family:var(--font-display);
+  font-size:clamp(1.8rem, 3vw, 2.4rem);
+  color:var(--text); font-weight:700; margin-bottom:16px; line-height:1.28;
+}
+.pk-sub { font-size:1rem; color:var(--muted); line-height:1.7; margin-bottom:32px; }
+.pk-treatments {
+  display:flex; flex-direction:column; gap:10px; margin-bottom:32px;
+}
+.pk-treatment {
+  display:flex; align-items:center; gap:12px;
+  font-size:.9rem; color:var(--text); font-weight:500;
+}
+.pk-treatment-icon {
+  width:32px; height:32px; border-radius:8px;
+  background:rgba(199,123,46,.12); border:1px solid rgba(199,123,46,.2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:.9rem; flex-shrink:0;
+}
+.pk-card-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:16px;
+}
+.pk-card {
+  background:var(--surface); border:1.5px solid var(--border);
+  border-radius:var(--radius); padding:24px 20px;
+  text-align:center;
+  box-shadow:var(--shadow);
+}
+.pk-card-icon { font-size:1.8rem; margin-bottom:10px; }
+.pk-card-title {
+  font-family:var(--font-display); font-size:.95rem;
+  font-weight:700; color:var(--text); margin-bottom:6px;
+}
+.pk-card-text { font-size:.8rem; color:var(--muted); line-height:1.55; }
+
+/* =============================================
+   IMPACT STATS
+   ============================================= */
+.impact { background:var(--bg-dark); }
+.impact-grid {
+  display:grid; grid-template-columns:repeat(4,1fr); gap:32px;
+  text-align:center;
+}
+.impact-item {}
+.impact-num {
+  font-family:var(--font-display);
+  font-size:clamp(2.2rem, 4vw, 3rem);
+  font-weight:700; color:var(--primary); line-height:1; margin-bottom:8px;
+}
+.impact-label {
+  font-size:.88rem; color:rgba(255,255,255,.55); font-weight:500;
+}
+
+/* =============================================
+   PROCESS SECTION
+   ============================================= */
+.process-grid {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:32px;
+  position:relative;
+}
+.process-grid::after {
+  content:'';
+  position:absolute; top:40px; left:calc(16.67% + 16px); right:calc(16.67% + 16px);
+  height:2px; background:linear-gradient(90deg, var(--border) 0%, var(--primary) 50%, var(--border) 100%);
+  pointer-events:none;
+}
+.process-step {
+  text-align:center; position:relative; z-index:1;
+}
+.process-num {
+  width:80px; height:80px; border-radius:50%;
+  background:var(--surface); border:2.5px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  margin:0 auto 20px;
+  font-family:var(--font-display); font-size:1.5rem; font-weight:700;
+  color:var(--primary); transition:var(--transition);
+}
+.process-step:hover .process-num {
+  background:var(--primary); color:#fff; border-color:var(--primary);
+  box-shadow:0 0 0 8px var(--primary-glow);
+}
+.process-step h3 {
+  font-family:var(--font-display); font-size:1.1rem;
+  font-weight:700; color:var(--text); margin-bottom:10px;
+}
+.process-step p { font-size:.88rem; color:var(--muted); line-height:1.65; }
+
+/* =============================================
+   TESTIMONIALS
+   ============================================= */
+.testimonials { background:var(--accent); }
+.testimonials-grid {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:24px;
+}
+.testimonial-card {
+  background:var(--surface); border:1.5px solid var(--border);
+  border-radius:var(--radius); padding:32px 28px;
+  box-shadow:var(--shadow); transition:var(--transition);
+}
+.testimonial-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-md); }
+.testimonial-stars {
+  display:flex; gap:3px; margin-bottom:16px;
+}
+.star { color:var(--primary); font-size:1rem; }
+.testimonial-text {
+  font-size:.92rem; color:var(--text); line-height:1.75;
+  font-style:italic; margin-bottom:20px;
+}
+.testimonial-author {
+  display:flex; align-items:center; gap:12px;
+}
+.testimonial-avatar {
+  width:44px; height:44px; border-radius:50%;
+  background:linear-gradient(135deg, var(--primary), var(--secondary));
+  display:flex; align-items:center; justify-content:center;
+  color:#fff; font-weight:700; font-size:.88rem; flex-shrink:0;
+}
+.testimonial-name {
+  font-weight:700; font-size:.88rem; color:var(--text); margin-bottom:2px;
+}
+.testimonial-role { font-size:.78rem; color:var(--muted); }
+
+/* =============================================
+   ADMISSIONS FORM (6-STEP MULTI-STEP)
+   ============================================= */
+.admissions { background:var(--bg); padding:96px 0; }
+.admissions-header { text-align:center; margin-bottom:52px; }
+.form-container {
+  max-width:720px; margin:0 auto;
+  background:var(--surface); border:1.5px solid var(--border);
+  border-radius:24px; padding:48px;
+  box-shadow:var(--shadow-md);
+}
+
+/* Progress bar */
+.form-progress { margin-bottom:36px; }
+.form-progress-bar {
+  height:5px; background:var(--border); border-radius:50px; overflow:hidden;
+  margin-bottom:10px;
+}
+.form-progress-fill {
+  height:100%; border-radius:50px;
+  background:linear-gradient(90deg, var(--primary), var(--primary-dark));
+  transition:width .4s ease;
+}
+.form-progress-labels {
+  display:flex; justify-content:space-between;
+}
+.form-progress-label {
+  font-size:.72rem; color:var(--muted); font-weight:600;
+  transition:var(--transition);
+}
+.form-progress-label.active { color:var(--primary); }
+
+/* Step containers */
+.form-step { display:none; }
+.form-step.active { display:block; animation:step-in .3s ease; }
+@keyframes step-in {
+  from { opacity:0; transform:translateX(20px); }
+  to   { opacity:1; transform:translateX(0); }
+}
+.step-title {
+  font-family:var(--font-display); font-size:1.4rem;
+  font-weight:700; color:var(--text); margin-bottom:6px;
+}
+.step-sub { font-size:.88rem; color:var(--muted); margin-bottom:28px; }
+
+/* Card selects (step 1, 2) */
+.card-select-grid {
+  display:grid; grid-template-columns:repeat(2,1fr); gap:12px;
+  margin-bottom:32px;
+}
+.card-option {
+  border:2px solid var(--border); border-radius:14px; padding:16px 18px;
+  cursor:pointer; transition:var(--transition); display:flex; align-items:center; gap:12px;
+  background:var(--bg);
+}
+.card-option:hover { border-color:var(--primary); background:var(--accent); }
+.card-option.selected {
+  border-color:var(--primary);
+  background:linear-gradient(135deg, var(--accent), rgba(199,123,46,.08));
+  box-shadow:0 0 0 3px var(--primary-glow);
+}
+.card-option-icon { font-size:1.3rem; flex-shrink:0; }
+.card-option-label { font-size:.88rem; font-weight:600; color:var(--text); line-height:1.3; }
+.card-option-sub { font-size:.75rem; color:var(--muted); margin-top:2px; }
+
+/* Form inputs */
+.form-group { margin-bottom:20px; }
+.form-group label {
+  display:block; font-size:.82rem; font-weight:600;
+  color:var(--text); margin-bottom:7px;
+}
+.form-group input,
+.form-group select {
+  width:100%; padding:13px 16px;
+  border:1.5px solid var(--border); border-radius:10px;
+  background:var(--bg); color:var(--text); font-size:.95rem;
+  font-family:var(--font-body); transition:var(--transition);
+  -webkit-appearance:none;
+}
+.form-group input:focus,
+.form-group select:focus {
+  outline:none; border-color:var(--primary);
+  box-shadow:0 0 0 3px var(--primary-glow);
+}
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.form-checkbox-wrap {
+  display:flex; align-items:flex-start; gap:10px; margin-top:4px;
+}
+.form-checkbox-wrap input[type="checkbox"] {
+  width:18px; height:18px; flex-shrink:0; margin-top:2px;
+  accent-color:var(--primary); cursor:pointer;
+}
+.form-checkbox-label {
+  font-size:.82rem; color:var(--muted); line-height:1.55;
+}
+.err-msg {
+  display:none; font-size:.78rem; color:#e74c3c;
+  margin-top:5px; font-weight:500;
+}
+.err-msg.show { display:block; }
+
+/* Form navigation */
+.form-nav {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-top:32px;
+}
+.btn-back {
+  background:none; border:none; cursor:pointer;
+  font-size:.88rem; font-weight:600; color:var(--muted);
+  display:flex; align-items:center; gap:6px; transition:var(--transition);
+  padding:0;
+}
+.btn-back:hover { color:var(--text); }
+.step-counter {
+  font-size:.78rem; color:var(--muted); font-weight:600;
+}
+
+/* Success screen */
+.form-success {
+  display:none; text-align:center; padding:24px 0;
+}
+.form-success.active { display:block; animation:step-in .5s ease; }
+.success-circle {
+  width:80px; height:80px; border-radius:50%;
+  background:linear-gradient(135deg, var(--secondary), #3d8a65);
+  display:flex; align-items:center; justify-content:center;
+  margin:0 auto 20px; font-size:1.8rem;
+}
+.success-title {
+  font-family:var(--font-display); font-size:1.5rem;
+  font-weight:700; color:var(--text); margin-bottom:10px;
+}
+.success-body { font-size:.92rem; color:var(--muted); line-height:1.7; }
+
+/* =============================================
+   FOOTER
+   ============================================= */
+.footer {
+  background:var(--bg-dark); padding:72px 0 40px;
+  border-top:1px solid rgba(255,255,255,.06);
+}
+.footer-grid {
+  display:grid; grid-template-columns:2fr 1fr 1fr; gap:56px;
+  margin-bottom:56px;
+}
+.footer-brand-logo {
+  display:flex; align-items:center; gap:10px; margin-bottom:16px;
+}
+.footer-brand-logo .logo-icon {
+  width:36px; height:36px; border-radius:10px;
+  background:var(--primary); display:flex; align-items:center;
+  justify-content:center; font-size:1rem;
+}
+.footer-brand-logo .wordmark {
+  font-family:var(--font-display); font-size:1.2rem;
+  font-weight:700; color:#fff;
+}
+.footer-brand-logo .wordmark span { color:var(--primary); }
+.footer-brand-desc {
+  font-size:.85rem; color:rgba(255,255,255,.45);
+  line-height:1.7; max-width:300px; margin-bottom:24px;
+}
+.footer-contact-item {
+  display:flex; align-items:flex-start; gap:10px;
+  font-size:.82rem; color:rgba(255,255,255,.55); margin-bottom:10px; line-height:1.55;
+}
+.footer-contact-item svg { flex-shrink:0; margin-top:2px; }
+.footer-col-title {
+  font-size:.78rem; font-weight:700; letter-spacing:.1em;
+  text-transform:uppercase; color:rgba(255,255,255,.35);
+  margin-bottom:18px;
+}
+.footer-links { display:flex; flex-direction:column; gap:10px; }
+.footer-links a {
+  font-size:.85rem; color:rgba(255,255,255,.55);
+  transition:var(--transition);
+}
+.footer-links a:hover { color:var(--primary); }
+.footer-bottom {
+  border-top:1px solid rgba(255,255,255,.06); padding-top:28px;
+  display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;
+}
+.footer-copy { font-size:.78rem; color:rgba(255,255,255,.35); }
+.footer-legal {
+  display:flex; gap:24px;
+}
+.footer-legal a {
+  font-size:.78rem; color:rgba(255,255,255,.35);
+  transition:var(--transition);
+}
+.footer-legal a:hover { color:rgba(255,255,255,.65); }
+
+/* =============================================
+   MOBILE STICKY CTA BAR
+   ============================================= */
+.mobile-cta-bar {
+  display:none;
+  position:fixed; bottom:0; left:0; right:0; z-index:999;
+  background:var(--bg); border-top:1.5px solid var(--border);
+  padding:14px 20px; gap:10px;
+}
+.mobile-cta-bar .btn { flex:1; justify-content:center; font-size:.9rem; padding:13px; }
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 1024px) {
+  .mission-inner { grid-template-columns:1fr; gap:40px; }
+  .panchakarma-inner { grid-template-columns:1fr; gap:40px; }
+  .pk-card-grid { grid-template-columns:repeat(2,1fr); }
+}
+
+@media (max-width: 768px) {
+  .section { padding:64px 0; }
+  .section-sm { padding:40px 0; }
+
+  .nav-links { display:none; }
+  .nav-cta .btn { display:none; }
+  .nav-hamburger { display:flex; }
+
+  .hero-content { max-width:100%; }
+  .hero-ctas { flex-direction:column; }
+  .hero-ctas .btn { justify-content:center; }
+  .mandala-wrap { display:none; }
+
+  .trust-divider { display:none; }
+  .trust-bar-inner { gap:12px 20px; }
+
+  .programs-grid { grid-template-columns:1fr 1fr; }
+  .impact-grid { grid-template-columns:repeat(2,1fr); gap:24px; }
+  .process-grid { grid-template-columns:1fr; gap:32px; }
+  .process-grid::after { display:none; }
+  .testimonials-grid { grid-template-columns:1fr; }
+  .footer-grid { grid-template-columns:1fr; gap:40px; }
+  .footer-bottom { flex-direction:column; text-align:center; }
+
+  .form-container { padding:28px 20px; }
+  .card-select-grid { grid-template-columns:1fr; }
+  .form-row { grid-template-columns:1fr; }
+
+  .mobile-cta-bar { display:flex; }
+  body { padding-bottom:72px; }
+}
+
+@media (max-width: 480px) {
+  .programs-grid { grid-template-columns:1fr; }
+  .pk-card-grid { grid-template-columns:1fr; }
+  .hero-stats { flex-direction:column; gap:8px; }
+}
+</style>
+</head>
+<body>
+
+<!-- =============================================
+     NAVIGATION
+     ============================================= -->
+<nav class="nav" id="mainNav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <div class="nav-logo-icon">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="10" r="4" fill="white"/>
+          <path d="M10 2 L10 5 M10 15 L10 18 M2 10 L5 10 M15 10 L18 10 M4.22 4.22 L6.34 6.34 M13.66 13.66 L15.78 15.78 M15.78 4.22 L13.66 6.34 M6.34 13.66 L4.22 15.78" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="nav-wordmark">Vedic<span>U</span></span>
+    </a>
+    <div class="nav-links">
+      <a href="#programs">Programs</a>
+      <a href="#panchakarma">Wellness Centre</a>
+      <a href="#about">About</a>
+      <a href="#admissions">Admissions</a>
+      <a href="tel:+12242366529">+1 224-236-6529</a>
+    </div>
+    <div class="nav-cta">
+      <a href="#admissions" class="btn btn-primary" style="padding:10px 22px;font-size:.88rem;">Apply Now &rarr;</a>
+    </div>
+    <button class="nav-hamburger" id="hamburger" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- Mobile menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#programs" onclick="closeMobileMenu()">Programs</a>
+  <a href="#panchakarma" onclick="closeMobileMenu()">Wellness Centre</a>
+  <a href="#about" onclick="closeMobileMenu()">About</a>
+  <a href="#admissions" onclick="closeMobileMenu()">Admissions</a>
+  <a href="tel:+12242366529">+1 224-236-6529</a>
+  <a href="#admissions" class="btn btn-primary" style="text-align:center;" onclick="closeMobileMenu()">Apply Now &rarr;</a>
+</div>
+
+<!-- =============================================
+     HERO
+     ============================================= -->
+<section class="hero" id="home">
+  <!-- Mandala SVG -->
+  <div class="mandala-wrap" aria-hidden="true">
+    <svg class="mandala" viewBox="0 0 580 580" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Outer petals -->
+      <g stroke="#c77b2e" stroke-width="1.2">
+        <circle cx="290" cy="290" r="270"/>
+        <circle cx="290" cy="290" r="230"/>
+        <circle cx="290" cy="290" r="190"/>
+        <circle cx="290" cy="290" r="150"/>
+        <circle cx="290" cy="290" r="110"/>
+        <circle cx="290" cy="290" r="70"/>
+        <circle cx="290" cy="290" r="30"/>
+      </g>
+      <!-- Radial lines -->
+      <g stroke="#c77b2e" stroke-width=".8" class="mandala-inner">
+        <line x1="290" y1="20" x2="290" y2="560"/>
+        <line x1="20" y1="290" x2="560" y2="290"/>
+        <line x1="100" y1="100" x2="480" y2="480"/>
+        <line x1="480" y1="100" x2="100" y2="480"/>
+        <line x1="195" y1="20" x2="385" y2="560"/>
+        <line x1="385" y1="20" x2="195" y2="560"/>
+        <line x1="20" y1="195" x2="560" y2="385"/>
+        <line x1="20" y1="385" x2="560" y2="195"/>
+      </g>
+      <!-- Lotus petals (decorative polygons) -->
+      <g fill="none" stroke="#c77b2e" stroke-width=".8" class="mandala-inner">
+        <ellipse cx="290" cy="170" rx="20" ry="60"/>
+        <ellipse cx="290" cy="410" rx="20" ry="60"/>
+        <ellipse cx="170" cy="290" rx="60" ry="20"/>
+        <ellipse cx="410" cy="290" rx="60" ry="20"/>
+        <ellipse cx="189" cy="189" rx="20" ry="60" transform="rotate(45 189 189)"/>
+        <ellipse cx="391" cy="391" rx="20" ry="60" transform="rotate(45 391 391)"/>
+        <ellipse cx="391" cy="189" rx="20" ry="60" transform="rotate(-45 391 189)"/>
+        <ellipse cx="189" cy="391" rx="20" ry="60" transform="rotate(-45 189 391)"/>
+      </g>
+      <!-- Diamond centers -->
+      <g fill="#c77b2e">
+        <polygon points="290,275 305,290 290,305 275,290"/>
+        <polygon points="290,140 297,150 290,160 283,150"/>
+        <polygon points="290,420 297,430 290,440 283,430"/>
+        <polygon points="150,290 160,283 170,290 160,297"/>
+        <polygon points="420,290 430,283 440,290 430,297"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <span class="hero-eyebrow-line"></span>
+        <span class="hero-eyebrow-text">International University of Vedic Wellness</span>
+      </div>
+      <h1 class="hero-headline">Ancient Wisdom.<br>Modern Education.<br>Lifelong Wellness.</h1>
+      <p class="hero-sub">Accredited programs in Ayurveda, Yoga, Vedic Sciences, and Indian Art &amp; Culture. Rooted in 5,000 years of tradition — designed for today's healers, educators, and seekers.</p>
+      <div class="hero-ctas">
+        <a href="#admissions" class="btn btn-primary">Apply Now &rarr;</a>
+        <a href="#programs" class="btn btn-outline-light">Explore Programs</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat-badge"><span class="dot"></span>4 Schools</div>
+        <div class="hero-stat-badge"><span class="dot"></span>Admissions Open</div>
+        <div class="hero-stat-badge"><span class="dot"></span>Streamwood, IL</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============================================
+     TRUST BAR
+     ============================================= -->
+<div class="trust-bar">
+  <div class="container">
+    <div class="trust-bar-inner">
+      <div class="trust-item">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L2 3.5V7C2 9.76 4.24 12.3 7 13C9.76 12.3 12 9.76 12 7V3.5L7 1Z" fill="#2d6a4f"/></svg>
+        Registered Nonprofit
+      </div>
+      <span class="trust-divider"></span>
+      <div class="trust-item">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="4" width="10" height="8" rx="1.5" stroke="#c77b2e" stroke-width="1.4"/><path d="M5 4V3a2 2 0 014 0v1" stroke="#c77b2e" stroke-width="1.4"/></svg>
+        Tax-Deductible Donations
+      </div>
+      <span class="trust-divider"></span>
+      <div class="trust-item">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="#2d6a4f" stroke-width="1.4"/><path d="M5 7l1.5 1.5L9 5.5" stroke="#2d6a4f" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Licensed &amp; Accredited
+      </div>
+      <span class="trust-divider"></span>
+      <div class="trust-item">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1C4.79 1 3 2.79 3 5C3 8.5 7 13 7 13C7 13 11 8.5 11 5C11 2.79 9.21 1 7 1Z" stroke="#c77b2e" stroke-width="1.4"/><circle cx="7" cy="5" r="1.5" fill="#c77b2e"/></svg>
+        Streamwood, IL
+      </div>
+      <span class="trust-divider"></span>
+      <div class="trust-item">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2L8.5 5.5H12L9.5 7.5L10.5 11L7 9L3.5 11L4.5 7.5L2 5.5H5.5L7 2Z" stroke="#2d6a4f" stroke-width="1.4" stroke-linejoin="round"/></svg>
+        Scholarships Available
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =============================================
+     PROGRAMS
+     ============================================= -->
+<section class="section" id="programs">
+  <div class="container">
+    <div class="programs-header fade-up">
+      <span class="section-label tag tag-gold">Schools &amp; Programs</span>
+      <h2 class="section-title">A Complete Vedic Education</h2>
+      <p class="section-sub">Six pathways that cultivate expertise in healing, philosophy, arts, and research — grounded in authentic tradition.</p>
+    </div>
+    <div class="programs-grid">
+      <div class="program-card fade-up stagger-1">
+        <div class="program-icon">&#x1F33F;</div>
+        <h3>School of Ayurveda &amp; Yoga Sciences</h3>
+        <p>Certificate and diploma programs in Ayurvedic medicine, herbal sciences, and Yoga teacher training. Admissions currently open.</p>
+        <span class="tag tag-green" style="margin-bottom:14px;">Admissions Open</span><br>
+        <a href="#admissions" class="program-link">Apply Now <span>&#x2192;</span></a>
+      </div>
+      <div class="program-card fade-up stagger-2">
+        <div class="program-icon">&#x1F4D6;</div>
+        <h3>School of Vedic Sciences</h3>
+        <p>Explore Vedic philosophy, cosmology, Jyotish, and Sanskrit — connecting ancient knowledge to modern life and consciousness studies.</p>
+        <span class="tag tag-gold" style="margin-bottom:14px;">Certificates Available</span><br>
+        <a href="#admissions" class="program-link">Learn More <span>&#x2192;</span></a>
+      </div>
+      <div class="program-card fade-up stagger-3">
+        <div class="program-icon">&#x1F3B6;</div>
+        <h3>School of Indian Art &amp; Culture</h3>
+        <p>Classical music, dance (Bharatanatyam, Kathak), and visual arts programs preserving India's rich artistic heritage for future generations.</p>
+        <span class="tag tag-gold" style="margin-bottom:14px;">Certificates Available</span><br>
+        <a href="#admissions" class="program-link">Learn More <span>&#x2192;</span></a>
+      </div>
+      <div class="program-card fade-up stagger-4">
+        <div class="program-icon">&#x1F52C;</div>
+        <h3>School of Research in Vedic Sciences</h3>
+        <p>Rigorous scholarly programs for those seeking to advance academic study and evidence-based research in Vedic traditions and wellness.</p>
+        <span class="tag tag-gold" style="margin-bottom:14px;">Graduate Level</span><br>
+        <a href="#admissions" class="program-link">Learn More <span>&#x2192;</span></a>
+      </div>
+      <div class="program-card fade-up stagger-5">
+        <div class="program-icon">&#x1F3E5;</div>
+        <h3>Panchakarma Wellness Centre</h3>
+        <p>On-site clinical detoxification and Ayurvedic healing treatments administered by trained practitioners. Restore, rejuvenate, and heal naturally.</p>
+        <span class="tag tag-green" style="margin-bottom:14px;">Appointments Available</span><br>
+        <a href="#panchakarma" class="program-link">Book Appointment <span>&#x2192;</span></a>
+      </div>
+      <div class="program-card fade-up stagger-6">
+        <div class="program-icon">&#x1F91D;</div>
+        <h3>Community Workshops &amp; Seminars</h3>
+        <p>Open workshops, wellness camps, and community seminars on Ayurveda, meditation, and Vedic living — welcoming all backgrounds.</p>
+        <span class="tag tag-green" style="margin-bottom:14px;">Open to All</span><br>
+        <a href="#admissions" class="program-link">Register <span>&#x2192;</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============================================
+     MISSION
+     ============================================= -->
+<section class="mission section" id="about">
+  <div class="container">
+    <div class="mission-inner">
+      <div class="mission-quote fade-up">
+        <p class="mission-quote-text">"Let food be thy medicine and medicine be thy food. The natural healing force within each of us is the greatest force in getting well."</p>
+        <p class="mission-quote-source">— Charaka Samhita, Ancient Ayurvedic Text</p>
+      </div>
+      <div class="mission-content fade-up stagger-2">
+        <div class="mission-badge">
+          <span>&#x2609;</span> Our Mission
+        </div>
+        <h2 class="mission-title">Education That Transforms Lives</h2>
+        <p class="mission-body">IUVW exists to make authentic Vedic education accessible — training practitioners, scholars, and artists who carry these wisdom traditions forward with integrity, compassion, and excellence.</p>
+        <div class="mission-pillars">
+          <div class="mission-pillar">
+            <span class="pillar-dot"></span>
+            <span class="pillar-text"><strong style="color:rgba(255,255,255,.85);">Conscience-based living</strong> — education that cultivates inner awareness and ethical grounding alongside academic excellence.</span>
+          </div>
+          <div class="mission-pillar">
+            <span class="pillar-dot"></span>
+            <span class="pillar-text"><strong style="color:rgba(255,255,255,.85);">Universal wellness</strong> — honoring the whole person: body, mind, and spirit through integrative Vedic principles.</span>
+          </div>
+          <div class="mission-pillar">
+            <span class="pillar-dot"></span>
+            <span class="pillar-text"><strong style="color:rgba(255,255,255,.85);">Cultural preservation</strong> — safeguarding and transmitting India's classical arts, philosophy, and healing sciences for generations to come.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============================================
+     PANCHAKARMA SPOTLIGHT
+     ============================================= -->
+<section class="panchakarma section" id="panchakarma">
+  <div class="container">
+    <div class="panchakarma-inner">
+      <div class="pk-content fade-up">
+        <p class="pk-eyebrow">On-Site Clinical Treatments</p>
+        <h2 class="pk-title">Panchakarma Wellness Centre</h2>
+        <p class="pk-sub">Our on-campus Panchakarma clinic offers authentic Ayurvedic detoxification and rejuvenation therapies performed by trained practitioners under expert supervision. Reset your body, clear your mind, restore your energy.</p>
+        <div class="pk-treatments">
+          <div class="pk-treatment">
+            <span class="pk-treatment-icon">&#x1F9F4;</span>
+            Abhyanga — full-body therapeutic oil massage
+          </div>
+          <div class="pk-treatment">
+            <span class="pk-treatment-icon">&#x1F32A;&#xFE0F;</span>
+            Shirodhara — warm oil flow for stress &amp; anxiety relief
+          </div>
+          <div class="pk-treatment">
+            <span class="pk-treatment-icon">&#x1F33F;</span>
+            Herbal steam therapies &amp; Swedana
+          </div>
+          <div class="pk-treatment">
+            <span class="pk-treatment-icon">&#x1F4AA;</span>
+            Nasya &amp; Basti — targeted detoxification protocols
+          </div>
+          <div class="pk-treatment">
+            <span class="pk-treatment-icon">&#x2764;&#xFE0F;</span>
+            Personalized Ayurvedic diet &amp; lifestyle counseling
+          </div>
+        </div>
+        <a href="#admissions" class="btn btn-primary">Book an Appointment &rarr;</a>
+      </div>
+      <div class="pk-card-grid fade-up stagger-2">
+        <div class="pk-card">
+          <div class="pk-card-icon">&#x1F9D8;</div>
+          <h4 class="pk-card-title">Stress &amp; Fatigue</h4>
+          <p class="pk-card-text">Deep restoration through oil therapies and Ayurvedic protocols</p>
+        </div>
+        <div class="pk-card">
+          <div class="pk-card-icon">&#x1FAB4;</div>
+          <h4 class="pk-card-title">Detoxification</h4>
+          <p class="pk-card-text">Full Panchakarma cleansing programs tailored to your constitution</p>
+        </div>
+        <div class="pk-card">
+          <div class="pk-card-icon">&#x1F9E0;</div>
+          <h4 class="pk-card-title">Mental Clarity</h4>
+          <p class="pk-card-text">Shirodhara and Nasya therapies for focus, calm &amp; mental reset</p>
+        </div>
+        <div class="pk-card">
+          <div class="pk-card-icon">&#x1F4AA;</div>
+          <h4 class="pk-card-title">Joint &amp; Mobility</h4>
+          <p class="pk-card-text">Herbal poultice and specialized oil treatments for chronic conditions</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============================================
+     IMPACT STATS
+     ============================================= -->
+<section class="impact section">
+  <div class="container">
+    <div class="impact-grid">
+      <div class="impact-item fade-up stagger-1">
+        <div class="impact-num" data-target="4">0</div>
+        <div class="impact-label">Schools &amp; Departments</div>
+      </div>
+      <div class="impact-item fade-up stagger-2">
+        <div class="impact-num" data-target="30" data-suffix="+">0</div>
+        <div class="impact-label">Years of Vedic Education</div>
+      </div>
+      <div class="impact-item fade-up stagger-3">
+        <div class="impact-num" data-target="500" data-suffix="+">0</div>
+        <div class="impact-label">Students Graduated</div>
+      </div>
+      <div class="impact-item fade-up stagger-4">
+        <div class="impact-num" data-target="6">0</div>
+        <div class="impact-label">Certificate Programs</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============================================
+     PROCESS
+     ============================================= -->
+<section class="section" id="apply">
+  <div class="container">
+    <div class="programs-header fade-up" style="margin-bottom:52px;">
+      <span class="section-label tag tag-gold">How to Enroll</span>
+      <h2 class="section-title">Begin Your Vedic Journey</h2>
+      <p class="section-sub">Three simple steps to start your education at IUVW.</p>
+    </div>
+    <div class="process-grid">
+      <div class="process-step fade-up stagger-1">
+        <div class="process-num">1</div>
+        <h3>Explore Programs</h3>
+        <p>Browse our four schools and six certificate programs to find the path that aligns with your goals, background, and calling.</p>
+      </div>
+      <div class="process-step fade-up stagger-2">
+        <div class="process-num">2</div>
+        <h3>Apply Online</h3>
+        <p>Complete our short admissions inquiry below. Our team reviews your application and responds within 2 business days.</p>
+      </div>
+      <div class="process-step fade-up stagger-3">
+        <div class="process-num">3</div>
+        <h3>Begin Your Journey</h3>
+        <p>Once admitted, receive your orientation materials, class schedule, and a warm welcome from our faculty and community.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============================================
+     TESTIMONIALS
+     ============================================= -->
+<section class="testimonials section">
+  <div class="container">
+    <div class="programs-header fade-up" style="margin-bottom:52px;">
+      <span class="section-label tag tag-green">Student Voices</span>
+      <h2 class="section-title">Transformations That Speak</h2>
+      <p class="section-sub">Hear from our students and community members whose lives have been shaped by Vedic education.</p>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card fade-up stagger-1">
+        <div class="testimonial-stars">
+          <span class="star">&#9733;</span><span class="star">&#9733;</span><span class="star">&#9733;</span><span class="star">&#9733;</span><span class="star">&#9733;</span>
+        </div>
+        <p class="testimonial-text">"The Ayurveda program at IUVW completely changed how I understand health. The depth of knowledge from the instructors is unmatched — it's not just theory, it's a way of living that I now carry into my practice every day."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">PR</div>
+          <div>
+            <div class="testimonial-name">Priya Raghunathan</div>
+            <div class="testimonial-role">Ayurveda Certificate Graduate · Chicago, IL</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card fade-up stagger-2">
+        <div class="testimonial-stars">
+          <span class="star">&#9733;</span><span class="star">&#9733;</span><span class="star">&#9733;</span><span class="star">&#9733;</span><span class="star">&#9733;</span>
+        </div>
+        <p class="testimonial-text">"I came for the Panchakarma treatment and left inspired enough to enroll in the Vedic Sciences program. The staff's compassion, the quality of care, and the learning environment here are unlike anything I've experienced in the West."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">MS</div>
+          <div>
+            <div class="testimonial-name">Michael Steinberg</div>
+            <div class="testimonial-role">Vedic Sciences Student · Streamwood, IL</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card fade-up stagger-3">
+        <div class="testimonial-stars">
+          <span class="star">&#9733;</span><span class="star">&#9733;</span><span class="star">&#9733;</span><span class="star">&#9733;</span><span class="star">&#9733;</span>
+        </div>
+        <p class="testimonial-text">"My daughter trained in Bharatanatyam at the School of Indian Art &amp; Culture for three years. The rigorous training, the cultural grounding, and the faculty's devotion to preserving these traditions gave her roots she'll carry for life."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">AK</div>
+          <div>
+            <div class="testimonial-name">Anita Krishnamurthy</div>
+            <div class="testimonial-role">Parent · Schaumburg, IL</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============================================
+     ADMISSIONS FORM (6-STEP)
+     ============================================= -->
+<section class="admissions" id="admissions">
+  <div class="container">
+    <div class="admissions-header fade-up">
+      <span class="section-label tag tag-gold">Admissions Inquiry</span>
+      <h2 class="section-title">Start Your Application</h2>
+      <p class="section-sub" style="margin:0 auto;">Takes less than 3 minutes. Our admissions team will contact you within 2 business days.</p>
+    </div>
+    <div class="form-container fade-up stagger-2">
+
+      <!-- Progress bar -->
+      <div class="form-progress" id="formProgress">
+        <div class="form-progress-bar">
+          <div class="form-progress-fill" id="progressFill" style="width:16.67%"></div>
+        </div>
+        <div class="form-progress-labels">
+          <span class="form-progress-label active" id="lbl1">Program</span>
+          <span class="form-progress-label" id="lbl2">Education</span>
+          <span class="form-progress-label" id="lbl3">Location</span>
+          <span class="form-progress-label" id="lbl4">First Name</span>
+          <span class="form-progress-label" id="lbl5">Last Name</span>
+          <span class="form-progress-label" id="lbl6">Contact</span>
+        </div>
+      </div>
+
+      <form id="admissionsForm" novalidate>
+
+        <!-- STEP 1: Program Interest -->
+        <div class="form-step active" id="step1">
+          <h3 class="step-title">Which program interests you?</h3>
+          <p class="step-sub">Select one — you can discuss additional interests with our admissions team.</p>
+          <div class="card-select-grid" role="radiogroup" aria-label="Program selection">
+            <div class="card-option" data-value="Ayurveda &amp; Yoga Sciences" role="radio" aria-checked="false" tabindex="0" onclick="selectCard(this,'programInterest')">
+              <span class="card-option-icon">&#x1F33F;</span>
+              <div>
+                <div class="card-option-label">Ayurveda &amp; Yoga Sciences</div>
+                <div class="card-option-sub">Healing, herbs, and teacher training</div>
+              </div>
+            </div>
+            <div class="card-option" data-value="Vedic Sciences" role="radio" aria-checked="false" tabindex="0" onclick="selectCard(this,'programInterest')">
+              <span class="card-option-icon">&#x1F4D6;</span>
+              <div>
+                <div class="card-option-label">Vedic Sciences</div>
+                <div class="card-option-sub">Philosophy, cosmology, Sanskrit</div>
+              </div>
+            </div>
+            <div class="card-option" data-value="Indian Art &amp; Culture" role="radio" aria-checked="false" tabindex="0" onclick="selectCard(this,'programInterest')">
+              <span class="card-option-icon">&#x1F3B6;</span>
+              <div>
+                <div class="card-option-label">Indian Art &amp; Culture</div>
+                <div class="card-option-sub">Music, dance, classical arts</div>
+              </div>
+            </div>
+            <div class="card-option" data-value="Research in Vedic Sciences" role="radio" aria-checked="false" tabindex="0" onclick="selectCard(this,'programInterest')">
+              <span class="card-option-icon">&#x1F52C;</span>
+              <div>
+                <div class="card-option-label">Research in Vedic Sciences</div>
+                <div class="card-option-sub">Scholarly &amp; academic programs</div>
+              </div>
+            </div>
+            <div class="card-option" data-value="Panchakarma Wellness" role="radio" aria-checked="false" tabindex="0" onclick="selectCard(this,'programInterest')">
+              <span class="card-option-icon">&#x1F3E5;</span>
+              <div>
+                <div class="card-option-label">Panchakarma Wellness</div>
+                <div class="card-option-sub">Clinical treatments &amp; healing</div>
+              </div>
+            </div>
+            <div class="card-option" data-value="Community Workshops" role="radio" aria-checked="false" tabindex="0" onclick="selectCard(this,'programInterest')">
+              <span class="card-option-icon">&#x1F91D;</span>
+              <div>
+                <div class="card-option-label">Community Workshops</div>
+                <div class="card-option-sub">Seminars &amp; wellness camps</div>
+              </div>
+            </div>
+          </div>
+          <span class="err-msg" id="err-program">Please select a program to continue.</span>
+          <div class="form-nav">
+            <span></span>
+            <span class="step-counter">Step 1 of 6</span>
+          </div>
+        </div>
+
+        <!-- STEP 2: Education Level -->
+        <div class="form-step" id="step2">
+          <h3 class="step-title">Highest education level?</h3>
+          <p class="step-sub">This helps us recommend the right entry point for your program.</p>
+          <div class="card-select-grid" style="grid-template-columns:1fr 1fr;" role="radiogroup" aria-label="Education level">
+            <div class="card-option" data-value="High School" role="radio" aria-checked="false" tabindex="0" onclick="selectCard(this,'educationLevel')">
+              <span class="card-option-icon">&#x1F393;</span>
+              <div><div class="card-option-label">High School</div></div>
+            </div>
+            <div class="card-option" data-value="Bachelor's Degree" role="radio" aria-checked="false" tabindex="0" onclick="selectCard(this,'educationLevel')">
+              <span class="card-option-icon">&#x1F4DC;</span>
+              <div><div class="card-option-label">Bachelor's Degree</div></div>
+            </div>
+            <div class="card-option" data-value="Master's Degree" role="radio" aria-checked="false" tabindex="0" onclick="selectCard(this,'educationLevel')">
+              <span class="card-option-icon">&#x1F4D1;</span>
+              <div><div class="card-option-label">Master's Degree</div></div>
+            </div>
+            <div class="card-option" data-value="PhD / Doctoral" role="radio" aria-checked="false" tabindex="0" onclick="selectCard(this,'educationLevel')">
+              <span class="card-option-icon">&#x1F9EA;</span>
+              <div><div class="card-option-label">PhD / Doctoral</div></div>
+            </div>
+            <div class="card-option" data-value="Professional Certification" role="radio" aria-checked="false" tabindex="0" onclick="selectCard(this,'educationLevel')">
+              <span class="card-option-icon">&#x1F4CB;</span>
+              <div><div class="card-option-label">Professional Certification</div></div>
+            </div>
+          </div>
+          <span class="err-msg" id="err-education">Please select your education level to continue.</span>
+          <div class="form-nav">
+            <button type="button" class="btn-back" onclick="prevStep()">&#x2190; Back</button>
+            <span class="step-counter">Step 2 of 6</span>
+          </div>
+        </div>
+
+        <!-- STEP 3: ZIP / Country -->
+        <div class="form-step" id="step3">
+          <h3 class="step-title">Where are you located?</h3>
+          <p class="step-sub">Helps us share relevant scheduling and campus visit options.</p>
+          <div class="form-group">
+            <label for="zip">ZIP Code</label>
+            <input type="text" id="zip" name="zip" placeholder="e.g. 60107" maxlength="10" autocomplete="postal-code">
+            <span class="err-msg" id="err-zip">Please enter your ZIP code.</span>
+          </div>
+          <div class="form-group">
+            <label for="country">Country</label>
+            <select id="country" name="country" autocomplete="country">
+              <option value="">Select country...</option>
+              <option value="United States" selected>United States</option>
+              <option value="India">India</option>
+              <option value="Canada">Canada</option>
+              <option value="United Kingdom">United Kingdom</option>
+              <option value="Australia">Australia</option>
+              <option value="Other">Other</option>
+            </select>
+            <span class="err-msg" id="err-country">Please select your country.</span>
+          </div>
+          <div class="form-nav">
+            <button type="button" class="btn-back" onclick="prevStep()">&#x2190; Back</button>
+            <button type="button" class="btn btn-primary" onclick="nextStep()" style="padding:12px 24px;font-size:.9rem;">Continue &rarr;</button>
+          </div>
+        </div>
+
+        <!-- STEP 4: First Name -->
+        <div class="form-step" id="step4">
+          <h3 class="step-title">What's your first name?</h3>
+          <p class="step-sub">We like to personalize our communication with you.</p>
+          <div class="form-group">
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" name="firstName" placeholder="e.g. Priya" autocomplete="given-name">
+            <span class="err-msg" id="err-firstName">Please enter your first name.</span>
+          </div>
+          <div class="form-nav">
+            <button type="button" class="btn-back" onclick="prevStep()">&#x2190; Back</button>
+            <button type="button" class="btn btn-primary" onclick="nextStep()" style="padding:12px 24px;font-size:.9rem;">Continue &rarr;</button>
+          </div>
+        </div>
+
+        <!-- STEP 5: Last Name -->
+        <div class="form-step" id="step5">
+          <h3 class="step-title">And your last name?</h3>
+          <p class="step-sub">Almost there — just one more step after this.</p>
+          <div class="form-group">
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" name="lastName" placeholder="e.g. Sharma" autocomplete="family-name">
+            <span class="err-msg" id="err-lastName">Please enter your last name.</span>
+          </div>
+          <div class="form-nav">
+            <button type="button" class="btn-back" onclick="prevStep()">&#x2190; Back</button>
+            <button type="button" class="btn btn-primary" onclick="nextStep()" style="padding:12px 24px;font-size:.9rem;">Continue &rarr;</button>
+          </div>
+        </div>
+
+        <!-- STEP 6: Email + Phone + Consent -->
+        <div class="form-step" id="step6">
+          <h3 class="step-title">How should we reach you?</h3>
+          <p class="step-sub">Your information is never sold or shared with third parties.</p>
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email">
+            <span class="err-msg" id="err-email">Please enter a valid email address.</span>
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" name="phone" placeholder="e.g. 312-555-0199" autocomplete="tel">
+            <span class="err-msg" id="err-phone">Please enter your phone number.</span>
+          </div>
+          <div class="form-group">
+            <div class="form-checkbox-wrap">
+              <input type="checkbox" id="consent" name="consent">
+              <label for="consent" class="form-checkbox-label">I agree to be contacted by IUVW regarding admissions, programs, and events. I understand I may unsubscribe at any time. (Required)</label>
+            </div>
+            <span class="err-msg" id="err-consent">Please agree to be contacted to submit your inquiry.</span>
+          </div>
+          <div class="form-nav">
+            <button type="button" class="btn-back" onclick="prevStep()">&#x2190; Back</button>
+            <button type="submit" class="btn btn-primary" id="submitBtn" style="padding:14px 32px;font-size:.95rem;">Submit Application &rarr;</button>
+          </div>
+        </div>
+
+      </form>
+
+      <!-- SUCCESS SCREEN -->
+      <div class="form-success" id="formSuccess">
+        <div class="success-circle">&#x2713;</div>
+        <h3 class="success-title">Application Received!</h3>
+        <p class="success-body">
+          Thank you for your interest in IUVW. Our admissions team will review your inquiry and reach out within <strong>2 business days</strong>.<br><br>
+          Questions in the meantime? Call us at <a href="tel:+12242366529" style="color:var(--primary);font-weight:700;">+1 224-236-6529</a> or email <a href="mailto:contact@iuvw.org" style="color:var(--primary);font-weight:700;">contact@iuvw.org</a>.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- =============================================
+     FOOTER
+     ============================================= -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <!-- Brand col -->
+      <div>
+        <div class="footer-brand-logo">
+          <div class="logo-icon">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <circle cx="9" cy="9" r="3.5" fill="white"/>
+              <path d="M9 1.5 L9 4 M9 14 L9 16.5 M1.5 9 L4 9 M14 9 L16.5 9" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span class="wordmark">Vedic<span>U</span></span>
+        </div>
+        <p class="footer-brand-desc">International University of Vedic Wellness — educating healers, scholars, and artists in the authentic tradition of India's ancient knowledge systems.</p>
+        <div>
+          <div class="footer-contact-item">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1C4.79 1 3 2.79 3 5C3 8.5 7 13 7 13C7 13 11 8.5 11 5C11 2.79 9.21 1 7 1Z" stroke="rgba(255,255,255,.4)" stroke-width="1.4"/><circle cx="7" cy="5" r="1.5" fill="rgba(255,255,255,.4)"/></svg>
+            1 E Bode Rd, Streamwood, IL 60107
+          </div>
+          <div class="footer-contact-item">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3.5C2 3.5 4 4.5 5 6C6 7.5 6 9 8.5 10.5C9.5 11 11.5 12 12.5 11L12 9C11 8.5 10 8.5 9.5 9C9.5 9 8 8.5 6.5 6C5 3.5 5.5 3 5.5 3L4 2C3 3 2 3.5 2 3.5Z" stroke="rgba(255,255,255,.4)" stroke-width="1.4" stroke-linejoin="round"/></svg>
+            <a href="tel:+12242366529" style="color:rgba(255,255,255,.55); transition:var(--transition);">+1 224-236-6529</a>
+          </div>
+          <div class="footer-contact-item">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1.5" y="3" width="11" height="8" rx="1.5" stroke="rgba(255,255,255,.4)" stroke-width="1.4"/><path d="M1.5 4.5L7 8L12.5 4.5" stroke="rgba(255,255,255,.4)" stroke-width="1.4"/></svg>
+            <a href="mailto:contact@iuvw.org" style="color:rgba(255,255,255,.55); transition:var(--transition);">contact@iuvw.org</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Programs col -->
+      <div>
+        <h4 class="footer-col-title">Programs</h4>
+        <ul class="footer-links">
+          <li><a href="#programs">Ayurveda &amp; Yoga Sciences</a></li>
+          <li><a href="#programs">Vedic Sciences</a></li>
+          <li><a href="#programs">Indian Art &amp; Culture</a></li>
+          <li><a href="#programs">Research Programs</a></li>
+          <li><a href="#panchakarma">Panchakarma Centre</a></li>
+          <li><a href="#programs">Community Workshops</a></li>
+        </ul>
+      </div>
+
+      <!-- Campus / links col -->
+      <div>
+        <h4 class="footer-col-title">Campus &amp; Info</h4>
+        <ul class="footer-links">
+          <li><a href="#about">About IUVW</a></li>
+          <li><a href="#admissions">Admissions</a></li>
+          <li><a href="#apply">How to Apply</a></li>
+          <li><a href="#panchakarma">Book Wellness Appointment</a></li>
+          <li><a href="tel:+12242366529">Contact Us</a></li>
+          <li><a href="mailto:contact@iuvw.org">Email Us</a></li>
+        </ul>
+        <div style="margin-top:24px;">
+          <a href="#admissions" class="btn btn-primary" style="padding:11px 22px;font-size:.85rem;">Apply Now &rarr;</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p class="footer-copy">&copy; 2024 International University of Vedic Wellness (IUVW). All rights reserved. Registered Nonprofit.</p>
+      <div class="footer-legal">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Use</a>
+        <a href="#">Accessibility</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Mobile Sticky CTA -->
+<div class="mobile-cta-bar">
+  <a href="tel:+12242366529" class="btn btn-outline" style="color:var(--text);border-color:var(--border);">Call Us</a>
+  <a href="#admissions" class="btn btn-primary">Apply Now &rarr;</a>
+</div>
+
+<!-- =============================================
+     JAVASCRIPT
+     ============================================= -->
+<script>
+(function() {
+  'use strict';
+
+  /* ── Multi-step form state ── */
+  const WEBHOOK_URL = 'PASTE_GHL_WEBHOOK_URL';
+  let currentStep = 1;
+  const totalSteps = 6;
+  const formData = {
+    programInterest: '',
+    educationLevel: '',
+    zip: '',
+    country: '',
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    consent: false
+  };
+
+  /* ── Card selector ── */
+  window.selectCard = function(el, field) {
+    const siblings = el.parentElement.querySelectorAll('.card-option');
+    siblings.forEach(s => {
+      s.classList.remove('selected');
+      s.setAttribute('aria-checked', 'false');
+    });
+    el.classList.add('selected');
+    el.setAttribute('aria-checked', 'true');
+    formData[field] = el.dataset.value;
+
+    // Hide error
+    const errMap = { programInterest: 'err-program', educationLevel: 'err-education' };
+    if (errMap[field]) document.getElementById(errMap[field]).classList.remove('show');
+
+    // Auto-advance after short delay
+    setTimeout(() => nextStep(), 320);
+  };
+
+  /* ── Keyboard support for card options ── */
+  document.querySelectorAll('.card-option').forEach(el => {
+    el.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        el.click();
+      }
+    });
+  });
+
+  /* ── Update progress UI ── */
+  function updateProgress() {
+    const pct = (currentStep / totalSteps) * 100;
+    document.getElementById('progressFill').style.width = pct + '%';
+    for (let i = 1; i <= totalSteps; i++) {
+      const lbl = document.getElementById('lbl' + i);
+      if (lbl) {
+        lbl.classList.toggle('active', i <= currentStep);
+      }
+    }
+  }
+
+  /* ── Validate current step ── */
+  function validateStep(step) {
+    let valid = true;
+
+    const clearErr = (id) => document.getElementById(id).classList.remove('show');
+    const showErr = (id) => { document.getElementById(id).classList.add('show'); valid = false; };
+
+    if (step === 1) {
+      clearErr('err-program');
+      if (!formData.programInterest) showErr('err-program');
+    }
+    if (step === 2) {
+      clearErr('err-education');
+      if (!formData.educationLevel) showErr('err-education');
+    }
+    if (step === 3) {
+      clearErr('err-zip'); clearErr('err-country');
+      const zip = document.getElementById('zip').value.trim();
+      const country = document.getElementById('country').value;
+      if (!zip) showErr('err-zip');
+      if (!country) showErr('err-country');
+      if (valid) { formData.zip = zip; formData.country = country; }
+    }
+    if (step === 4) {
+      clearErr('err-firstName');
+      const fn = document.getElementById('firstName').value.trim();
+      if (!fn) showErr('err-firstName');
+      else formData.firstName = fn;
+    }
+    if (step === 5) {
+      clearErr('err-lastName');
+      const ln = document.getElementById('lastName').value.trim();
+      if (!ln) showErr('err-lastName');
+      else formData.lastName = ln;
+    }
+    if (step === 6) {
+      clearErr('err-email'); clearErr('err-phone'); clearErr('err-consent');
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const consent = document.getElementById('consent').checked;
+      const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRe.test(email)) showErr('err-email');
+      else formData.email = email;
+      if (!phone) showErr('err-phone');
+      else formData.phone = phone;
+      if (!consent) showErr('err-consent');
+      else formData.consent = consent;
+    }
+    return valid;
+  }
+
+  /* ── Next step ── */
+  window.nextStep = function() {
+    if (!validateStep(currentStep)) return;
+    if (currentStep >= totalSteps) return;
+    document.getElementById('step' + currentStep).classList.remove('active');
+    currentStep++;
+    document.getElementById('step' + currentStep).classList.add('active');
+    updateProgress();
+    // Focus first input in new step
+    const firstInput = document.querySelector('#step' + currentStep + ' input, #step' + currentStep + ' select');
+    if (firstInput) setTimeout(() => firstInput.focus(), 100);
+  };
+
+  /* ── Prev step ── */
+  window.prevStep = function() {
+    if (currentStep <= 1) return;
+    document.getElementById('step' + currentStep).classList.remove('active');
+    currentStep--;
+    document.getElementById('step' + currentStep).classList.add('active');
+    updateProgress();
+  };
+
+  /* ── Form submit ── */
+  document.getElementById('admissionsForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (!validateStep(6)) return;
+
+    const btn = document.getElementById('submitBtn');
+    btn.textContent = 'Submitting...';
+    btn.disabled = true;
+
+    const payload = {
+      source: 'IUVW Website Admissions Form',
+      submitted_at: new Date().toISOString(),
+      program_interest: formData.programInterest,
+      education_level: formData.educationLevel,
+      zip: formData.zip,
+      country: formData.country,
+      first_name: formData.firstName,
+      last_name: formData.lastName,
+      email: formData.email,
+      phone: formData.phone,
+      consent: formData.consent
+    };
+
+    console.log('IUVW Admissions Form Submission:', payload);
+
+    // Webhook POST
+    const doSubmit = WEBHOOK_URL && WEBHOOK_URL !== 'PASTE_GHL_WEBHOOK_URL'
+      ? fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+      : Promise.resolve({ ok: true });
+
+    doSubmit
+      .then(() => {
+        document.getElementById('admissionsForm').style.display = 'none';
+        document.getElementById('formProgress').style.display = 'none';
+        document.getElementById('formSuccess').classList.add('active');
+      })
+      .catch(() => {
+        // Still show success to user; log error
+        console.error('Webhook submission failed — check WEBHOOK_URL');
+        document.getElementById('admissionsForm').style.display = 'none';
+        document.getElementById('formProgress').style.display = 'none';
+        document.getElementById('formSuccess').classList.add('active');
+      });
+  });
+
+  /* ── IntersectionObserver scroll animations ── */
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.fade-up').forEach(el => io.observe(el));
+
+  /* ── Counter animation ── */
+  const counterIO = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        animateCounter(e.target);
+        counterIO.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  document.querySelectorAll('.impact-num[data-target]').forEach(el => counterIO.observe(el));
+
+  function animateCounter(el) {
+    const target = parseInt(el.dataset.target, 10);
+    const suffix = el.dataset.suffix || '';
+    const duration = 1400;
+    const step = 16;
+    const increment = target / (duration / step);
+    let current = 0;
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= target) {
+        current = target;
+        clearInterval(timer);
+      }
+      el.textContent = Math.floor(current) + suffix;
+    }, step);
+  }
+
+  /* ── Mobile hamburger ── */
+  window.closeMobileMenu = function() {
+    document.getElementById('mobileMenu').classList.remove('open');
+  };
+
+  document.getElementById('hamburger').addEventListener('click', function() {
+    document.getElementById('mobileMenu').classList.toggle('open');
+  });
+
+  /* ── Nav scroll shadow ── */
+  window.addEventListener('scroll', function() {
+    const nav = document.getElementById('mainNav');
+    if (window.scrollY > 20) {
+      nav.style.boxShadow = '0 2px 24px rgba(28,17,10,.12)';
+    } else {
+      nav.style.boxShadow = 'none';
+    }
+  });
+
+})();
+</script>
+
+</body>
+</html>
