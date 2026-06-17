@@ -1,0 +1,334 @@
+<!--
+  MAFS Interactive Step Form — GoHighLevel Ready
+  Paste into: Sites > Funnels/Websites > page > Custom HTML element
+  Webhook: replace PASTE_GHL_WEBHOOK_URL
+  Colors: MAFS brand — #2c97f3 blue / #d1dfef light blue / #0a1628 dark navy
+-->
+<style>
+:root{
+  --primary:#2c97f3;
+  --primary-dark:#1a7ed4;
+  --primary-light:rgba(44,151,243,.12);
+  --bg:#f0f6ff;
+  --surface:#ffffff;
+  --navy:#0a1628;
+  --text:#0a1628;
+  --muted:#6b7a94;
+  --border:#d1dfef;
+  --radius:20px;
+  --shadow:0 20px 60px rgba(44,151,243,.2);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+#mafs-form-wrap{
+  font-family:'Segoe UI',system-ui,sans-serif;
+  max-width:680px;margin:0 auto;
+}
+.mf-card{
+  background:var(--surface);
+  border-radius:28px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+  position:relative;
+}
+.mf-header{
+  background:linear-gradient(135deg,#0a1628 0%,#162444 100%);
+  padding:24px 32px 20px;
+  display:flex;align-items:center;gap:16px;
+}
+.mf-logo{height:44px;width:auto;}
+.mf-header-text h2{color:#fff;font-size:18px;font-weight:700;line-height:1.2;}
+.mf-header-text p{color:rgba(255,255,255,.65);font-size:13px;margin-top:3px;}
+.mf-progress-area{
+  background:#fff;border-bottom:1px solid var(--border);
+  padding:16px 32px;
+}
+.mf-progress-meta{
+  display:flex;justify-content:space-between;
+  font-size:13px;font-weight:600;color:var(--muted);
+  margin-bottom:8px;
+}
+.mf-progress-meta .mf-step-text{color:var(--primary);font-weight:700;}
+.mf-track{height:6px;background:#e8f0f9;border-radius:999px;overflow:hidden;}
+.mf-fill{
+  height:100%;width:0;
+  background:linear-gradient(90deg,var(--primary),#6cb8f8);
+  border-radius:999px;
+  transition:width .4s cubic-bezier(.4,0,.2,1);
+}
+.mf-body{padding:32px;}
+.mf-step{display:none;}
+.mf-step.active{display:block;animation:mfSlideIn .35s cubic-bezier(.4,0,.2,1) both;}
+@keyframes mfSlideIn{from{opacity:0;transform:translateX(32px)}to{opacity:1;transform:translateX(0)}}
+.mf-question{font-size:26px;font-weight:800;color:var(--navy);line-height:1.25;margin-bottom:8px;}
+.mf-subtext{font-size:14px;color:var(--muted);margin-bottom:24px;}
+.mf-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px;}
+.mf-cards.single-col{grid-template-columns:1fr;}
+.mf-opt{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 18px;border-radius:14px;
+  border:2px solid var(--border);
+  cursor:pointer;background:#fff;
+  font-size:15px;font-weight:600;color:var(--navy);
+  transition:all .18s ease;user-select:none;
+}
+.mf-opt:hover{border-color:var(--primary);background:var(--primary-light);}
+.mf-opt.selected{border-color:var(--primary);background:var(--primary-light);color:var(--primary-dark);}
+.mf-opt .mf-icon{font-size:22px;min-width:28px;text-align:center;}
+.mf-input{
+  width:100%;border:2px solid var(--border);border-radius:14px;
+  padding:16px 20px;font-size:18px;color:var(--navy);
+  outline:none;background:#fff;font-family:inherit;
+  transition:border-color .2s,box-shadow .2s,transform .15s;
+}
+.mf-input:focus{
+  border-color:var(--primary);
+  box-shadow:0 0 0 4px rgba(44,151,243,.15);
+  transform:translateY(-1px);
+}
+.mf-textarea{resize:vertical;min-height:100px;}
+.mf-actions{display:flex;gap:12px;margin-top:28px;}
+.mf-back{
+  padding:14px 22px;border-radius:13px;border:2px solid var(--border);
+  background:#fff;color:var(--muted);font-size:16px;font-weight:700;
+  cursor:pointer;display:none;transition:all .18s;font-family:inherit;
+}
+.mf-back:hover{border-color:var(--primary);color:var(--primary);}
+.mf-next,.mf-submit{
+  flex:1;padding:16px 28px;border-radius:13px;border:none;
+  background:linear-gradient(135deg,var(--primary),#6cb8f8);
+  color:#fff;font-size:17px;font-weight:800;
+  cursor:pointer;letter-spacing:.3px;font-family:inherit;
+  transition:transform .18s,box-shadow .18s;
+  box-shadow:0 4px 20px rgba(44,151,243,.35);
+}
+.mf-next:hover,.mf-submit:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(44,151,243,.45);}
+.mf-submit{display:none;}
+.mf-consent{font-size:12px;color:var(--muted);margin-top:16px;line-height:1.5;}
+.mf-status{margin-top:16px;font-weight:700;font-size:15px;color:var(--primary);}
+.mf-success{text-align:center;padding:48px 32px;animation:mfSlideIn .4s ease both;display:none;}
+.mf-success-icon{font-size:64px;margin-bottom:16px;}
+.mf-success h3{font-size:26px;font-weight:800;color:var(--navy);margin-bottom:8px;}
+.mf-success p{color:var(--muted);font-size:16px;line-height:1.6;}
+@keyframes mfShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.mf-shake{animation:mfShake .28s ease;}
+@media(max-width:580px){
+  .mf-header{padding:18px 20px;}
+  .mf-progress-area{padding:14px 20px;}
+  .mf-body{padding:22px 20px;}
+  .mf-question{font-size:22px;}
+  .mf-cards{grid-template-columns:1fr;}
+  .mf-actions{flex-direction:column;}
+}
+</style>
+
+<div id="mafs-form-wrap">
+  <div class="mf-card" id="mafs-step-form" data-webhook-url="PASTE_GHL_WEBHOOK_URL" data-brand="MAFS">
+
+    <div class="mf-header">
+      <img class="mf-logo" src="https://mafsinc.com/wp-content/uploads/mafs-logo-white.png" alt="MAFS" onerror="this.style.display='none'">
+      <div class="mf-header-text">
+        <h2>MAFS — Family Services</h2>
+        <p>Helping families thrive · Chicagoland</p>
+      </div>
+    </div>
+
+    <div class="mf-progress-area">
+      <div class="mf-progress-meta">
+        <span class="mf-step-text" id="mf-step-label">Step 1 of 7</span>
+        <span id="mf-pct">14%</span>
+      </div>
+      <div class="mf-track"><div class="mf-fill" id="mf-fill"></div></div>
+    </div>
+
+    <div class="mf-body">
+      <div class="mf-step active" data-field="who_seeking" data-event="form_step_who">
+        <div class="mf-question">Who is seeking services?</div>
+        <div class="mf-subtext">Help us connect you to the right team.</div>
+        <div class="mf-cards">
+          <div class="mf-opt" data-value="Myself"><span class="mf-icon">🙋</span>Myself</div>
+          <div class="mf-opt" data-value="My child"><span class="mf-icon">👧</span>My Child</div>
+          <div class="mf-opt" data-value="My family"><span class="mf-icon">👨‍👩‍👧</span>My Family</div>
+          <div class="mf-opt" data-value="Someone I care for"><span class="mf-icon">🤝</span>Someone I care for</div>
+        </div>
+        <input type="hidden" name="who_seeking">
+      </div>
+
+      <div class="mf-step" data-field="service_interest" data-event="form_step_service">
+        <div class="mf-question">What are you looking for?</div>
+        <div class="mf-subtext">Select the service that best fits your needs.</div>
+        <div class="mf-cards single-col">
+          <div class="mf-opt" data-value="Family Counseling"><span class="mf-icon">💬</span>Family Counseling</div>
+          <div class="mf-opt" data-value="Youth Programs"><span class="mf-icon">🌟</span>Youth Programs</div>
+          <div class="mf-opt" data-value="Housing Assistance"><span class="mf-icon">🏠</span>Housing Assistance</div>
+          <div class="mf-opt" data-value="Benefits Navigation"><span class="mf-icon">📋</span>Benefits Navigation</div>
+          <div class="mf-opt" data-value="Immigration Services"><span class="mf-icon">🌐</span>Immigration Services</div>
+          <div class="mf-opt" data-value="Crisis Support"><span class="mf-icon">🆘</span>Crisis Support</div>
+          <div class="mf-opt" data-value="Volunteer / Donate"><span class="mf-icon">❤️</span>Volunteer / Donate</div>
+        </div>
+        <input type="hidden" name="service_interest">
+      </div>
+
+      <div class="mf-step" data-field="postal_code" data-event="form_step_zip">
+        <div class="mf-question">What's your ZIP code?</div>
+        <div class="mf-subtext">We serve the Chicagoland area.</div>
+        <input class="mf-input" name="postal_code" type="text" inputmode="numeric" placeholder="ZIP Code" maxlength="10">
+      </div>
+
+      <div class="mf-step" data-field="first_name" data-event="form_step_name">
+        <div class="mf-question">What's your first name?</div>
+        <div class="mf-subtext"></div>
+        <input class="mf-input" name="first_name" type="text" autocomplete="given-name" placeholder="First Name">
+      </div>
+
+      <div class="mf-step" data-field="last_name" data-event="form_step_lastname">
+        <div class="mf-question">And your last name?</div>
+        <div class="mf-subtext"></div>
+        <input class="mf-input" name="last_name" type="text" autocomplete="family-name" placeholder="Last Name">
+      </div>
+
+      <div class="mf-step" data-field="phone" data-event="form_step_phone">
+        <div class="mf-question">Best number to reach you?</div>
+        <div class="mf-subtext">We'll call or text — your preference.</div>
+        <input class="mf-input" name="phone" type="tel" autocomplete="tel" placeholder="Phone Number">
+      </div>
+
+      <div class="mf-step" data-field="email" data-event="form_step_email">
+        <div class="mf-question">What's your email?</div>
+        <div class="mf-subtext">We'll send a confirmation right away.</div>
+        <input class="mf-input" name="email" type="email" autocomplete="email" placeholder="Email Address">
+        <div class="mf-consent">By submitting, you allow MAFS to contact you by phone, text, and email. Your information is kept private.</div>
+      </div>
+
+      <input type="hidden" name="source_site" value="mafsinc.com">
+      <input type="hidden" name="utm_source">
+      <input type="hidden" name="utm_medium">
+      <input type="hidden" name="utm_campaign">
+      <input type="hidden" name="landing_page">
+
+      <div class="mf-actions">
+        <button class="mf-back" id="mf-back">← Back</button>
+        <button class="mf-next" id="mf-next">Continue →</button>
+        <button class="mf-submit" id="mf-submit">Submit →</button>
+      </div>
+      <div class="mf-status" id="mf-status" role="status" aria-live="polite"></div>
+    </div>
+
+    <div class="mf-success" id="mf-success">
+      <div class="mf-success-icon">✅</div>
+      <h3>Thank you — we'll be in touch!</h3>
+      <p>A member of our team will contact you shortly to help.<br>Questions? Reach us at <strong>mafsinc.com</strong>.</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  const root=document.getElementById('mafs-step-form');
+  if(!root)return;
+  const steps=[...root.querySelectorAll('.mf-step')];
+  const nextBtn=document.getElementById('mf-next');
+  const backBtn=document.getElementById('mf-back');
+  const submitBtn=document.getElementById('mf-submit');
+  const fill=document.getElementById('mf-fill');
+  const stepLabel=document.getElementById('mf-step-label');
+  const pctEl=document.getElementById('mf-pct');
+  const statusEl=document.getElementById('mf-status');
+  const successEl=document.getElementById('mf-success');
+  const bodyEl=root.querySelector('.mf-body');
+  let cur=0,started=false;
+  const total=steps.length;
+  const qs=new URLSearchParams(location.search);
+  ['utm_source','utm_medium','utm_campaign'].forEach(k=>{
+    const el=root.querySelector('[name="'+k+'"]');
+    if(el) el.value=qs.get(k)||'';
+  });
+  const lpEl=root.querySelector('[name="landing_page"]');
+  if(lpEl) lpEl.value=location.href;
+  function track(name,extra={}){
+    const data={...extra,form_brand:'MAFS',step_index:cur+1,total_steps:total,page:location.href};
+    window.dataLayer=window.dataLayer||[];
+    window.dataLayer.push({event:name,...data});
+    if(window.gtag) window.gtag('event',name,data);
+    if(window.fbq) window.fbq('trackCustom',name,data);
+  }
+  function update(){
+    steps.forEach(s=>s.classList.remove('active'));
+    steps[cur].classList.add('active');
+    const p=Math.round(((cur+1)/total)*100);
+    fill.style.width=p+'%';
+    stepLabel.textContent='Step '+(cur+1)+' of '+total;
+    pctEl.textContent=p+'%';
+    backBtn.style.display=cur>0?'inline-block':'none';
+    nextBtn.style.display=cur<total-1?'inline-block':'none';
+    submitBtn.style.display=cur===total-1?'inline-block':'none';
+    track(steps[cur].dataset.event||'form_step_view',{field:steps[cur].dataset.field});
+  }
+  function validate(){
+    const step=steps[cur];
+    const hidden=step.querySelector('input[type="hidden"]');
+    const input=step.querySelector('.mf-input');
+    if(hidden&&hidden.name&&!hidden.value){
+      step.classList.add('mf-shake');setTimeout(()=>step.classList.remove('mf-shake'),320);
+      statusEl.textContent='Please make a selection.';setTimeout(()=>statusEl.textContent='',2000);
+      track('form_validation_error',{field:step.dataset.field});return false;
+    }
+    if(input&&!input.value.trim()&&step.dataset.field!=='comment'){
+      input.focus();step.classList.add('mf-shake');setTimeout(()=>step.classList.remove('mf-shake'),320);
+      statusEl.textContent='Please fill this in.';setTimeout(()=>statusEl.textContent='',2000);
+      track('form_validation_error',{field:step.dataset.field});return false;
+    }
+    if(input&&input.type==='email'&&input.value&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value)){
+      input.focus();step.classList.add('mf-shake');setTimeout(()=>step.classList.remove('mf-shake'),320);
+      statusEl.textContent='Please enter a valid email.';setTimeout(()=>statusEl.textContent='',2000);
+      track('form_validation_error',{field:'email'});return false;
+    }
+    statusEl.textContent='';return true;
+  }
+  root.querySelectorAll('.mf-opt').forEach(opt=>{
+    opt.addEventListener('click',()=>{
+      const step=opt.closest('.mf-step');
+      step.querySelectorAll('.mf-opt').forEach(o=>o.classList.remove('selected'));
+      opt.classList.add('selected');
+      const hidden=step.querySelector('input[type="hidden"]');
+      if(hidden) hidden.value=opt.dataset.value;
+      if(!started){started=true;track('form_start');}
+      setTimeout(()=>{
+        if(validate()){
+          track('form_step_complete',{field:step.dataset.field,value:opt.dataset.value});
+          cur=Math.min(cur+1,total-1);update();
+        }
+      },220);
+    });
+  });
+  root.querySelectorAll('.mf-input').forEach(inp=>{
+    inp.addEventListener('input',()=>{if(!started){started=true;track('form_start');}});
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&inp.tagName!=='TEXTAREA'){e.preventDefault();nextBtn.click();}});
+  });
+  nextBtn.addEventListener('click',()=>{
+    if(!validate())return;
+    const field=steps[cur].dataset.field;
+    const input=steps[cur].querySelector('.mf-input');
+    track('form_step_complete',{field,value:input?input.value:''});
+    cur=Math.min(cur+1,total-1);update();
+  });
+  backBtn.addEventListener('click',()=>{cur=Math.max(0,cur-1);track('form_back_click',{from_step:cur+2});update();});
+  submitBtn.addEventListener('click',async()=>{
+    if(!validate())return;
+    const data={};
+    root.querySelectorAll('[name]').forEach(el=>{if(el.name&&el.value) data[el.name]=el.value;});
+    track('form_submit_attempt',{service_interest:data.service_interest});
+    statusEl.textContent='Sending...';submitBtn.disabled=true;
+    try{
+      const url=root.dataset.webhookUrl;
+      if(url&&!url.includes('PASTE_')){await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});}
+      track('form_submit_success',{service_interest:data.service_interest,first_name:data.first_name});
+      bodyEl.style.display='none';successEl.style.display='block';
+    }catch(err){
+      track('form_submit_error',{message:String(err)});
+      statusEl.textContent='Something went wrong. Please try again.';submitBtn.disabled=false;
+    }
+  });
+  update();
+})();
+</script>
