@@ -87,6 +87,16 @@ canvas{display:block;}
 }
 #brain-close:hover{background:rgba(255,23,68,0.22);}
 #brain-iframe{flex:1;width:100%;border:none;}
+.brain-tab{
+  padding:5px 16px;border-radius:6px;cursor:pointer;
+  background:transparent;border:1px solid var(--border);
+  color:var(--muted);font-size:12px;font-family:'Courier New',Courier,monospace;
+  letter-spacing:1px;transition:all .2s;
+}
+.brain-tab:hover{border-color:rgba(0,229,255,.4);color:var(--text);}
+.brain-tab.tab-active{background:rgba(0,229,255,.1);border-color:var(--primary);color:var(--primary);}
+.brain-tab.tab-active-green{background:rgba(0,230,118,.1);border-color:#00e676;color:#00e676;}
+#brain-tabs{display:flex;gap:8px;}
 
 /* PIXEL TRACKER OVERLAY */
 #pixel-overlay{
@@ -291,7 +301,10 @@ canvas{display:block;}
 <!-- BRAIN GRAPH OVERLAY -->
 <div id="brain-overlay">
   <div id="brain-header">
-    <div id="brain-title">&#x2B21; BRAIN GRAPH — 1,660 nodes · 3,749 edges</div>
+    <div id="brain-tabs">
+      <button class="brain-tab tab-active" id="tab-graph" onclick="brainSwitchTab('graph')">&#x2B21; BRAIN GRAPH</button>
+      <button class="brain-tab" id="tab-viz" onclick="brainSwitchTab('viz')">&#x25A6; PIPELINE VIZ</button>
+    </div>
     <button id="brain-close" onclick="closeBrainGraph()">&#x2715; CLOSE</button>
   </div>
   <iframe id="brain-iframe" src="" title="Brain Graph"></iframe>
@@ -885,15 +898,28 @@ setInterval(pollAll, POLL_MS);
 })();
 
 /* ── BRAIN GRAPH OVERLAY ── */
+var BRAIN_URLS={
+  graph:'https://dare-devil-11.github.io/umas-hologram/brain-graph.html',
+  viz:'https://dare-devil-11.github.io/umas-hologram/autonomous-claude-viz.html'
+};
 function openBrainGraph(){
   var overlay=document.getElementById('brain-overlay');
   var iframe=document.getElementById('brain-iframe');
   if(!iframe.src||iframe.src==='about:blank'||iframe.src===''){
-    iframe.src='https://dare-devil-11.github.io/umas-hologram/brain-graph.html';
+    iframe.src=BRAIN_URLS.graph;
   }
+  brainSwitchTab('graph');
   overlay.style.display='flex';
   requestAnimationFrame(function(){overlay.style.opacity='1';});
   document.body.style.overflow='hidden';
+}
+function brainSwitchTab(tab){
+  var iframe=document.getElementById('brain-iframe');
+  iframe.src=BRAIN_URLS[tab];
+  var tGraph=document.getElementById('tab-graph');
+  var tViz=document.getElementById('tab-viz');
+  tGraph.className='brain-tab'+(tab==='graph'?' tab-active':'');
+  tViz.className='brain-tab'+(tab==='viz'?' tab-active-green':'');
 }
 function closeBrainGraph(){
   var overlay=document.getElementById('brain-overlay');
