@@ -130,6 +130,38 @@ canvas{position:absolute;top:0;left:0;}
 @media(prefers-reduced-motion:reduce){
   *{transition:none!important;animation:none!important;}
 }
+/* ── PAGE TABS ── */
+.bg-tabs{display:flex;gap:6px;padding:12px 16px;border-bottom:1px solid var(--border);}
+.bg-tab{
+  font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:1.2px;
+  padding:5px 12px;border-radius:5px;border:1px solid var(--border);
+  background:transparent;color:var(--text-3);cursor:pointer;
+  transition:all .2s ease;text-transform:uppercase;white-space:nowrap;
+}
+.bg-tab:hover{border-color:rgba(244,162,97,.4);color:var(--text-2);}
+.bg-tab.bgt-active{background:rgba(244,162,97,.12);border-color:var(--accent);color:var(--accent);}
+.bg-tab.bgt-cyan{background:rgba(0,229,255,.1);border-color:#00e5ff;color:#00e5ff;}
+.bg-tab.bgt-gold{background:rgba(255,214,0,.1);border-color:#ffd600;color:#ffd600;}
+.bg-tab-dot{width:5px;height:5px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:middle;}
+/* ── TOOL OVERLAY ── */
+#bg-tool-overlay{
+  position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;
+  background:rgba(0,0,0,.97);display:none;opacity:0;
+  flex-direction:column;transition:opacity .3s ease;
+}
+#bg-overlay-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 20px;background:rgba(0,10,25,.95);
+  border-bottom:1px solid rgba(244,162,97,.2);flex-shrink:0;
+}
+#bg-overlay-title{font-family:var(--mono);font-size:13px;letter-spacing:2px;color:var(--accent);}
+#bg-overlay-close{
+  padding:5px 16px;border-radius:6px;cursor:pointer;
+  background:rgba(255,23,68,.1);border:1px solid rgba(255,23,68,.35);
+  color:#ff1744;font-size:11px;font-family:var(--mono);letter-spacing:1px;transition:all .2s;
+}
+#bg-overlay-close:hover{background:rgba(255,23,68,.22);}
+#bg-tool-overlay iframe{flex:1;width:100%;border:none;}
 </style>
 </head>
 <body>
@@ -138,6 +170,17 @@ canvas{position:absolute;top:0;left:0;}
     <div id="sidebar-header">
       <div id="sidebar-logo">Brain Graph</div>
       <div id="sidebar-sub">GOAT AIOS — Obsidian Map</div>
+    </div>
+    <div class="bg-tabs">
+      <button class="bg-tab bgt-active" onclick="bgTabClick('brain')">
+        <span class="bg-tab-dot" style="background:var(--accent);box-shadow:0 0 4px var(--accent);"></span>Brain Graph
+      </button>
+      <button class="bg-tab" onclick="bgTabClick('viz')">
+        <span class="bg-tab-dot" style="background:#00e5ff;"></span>Pipeline Viz
+      </button>
+      <button class="bg-tab" onclick="bgTabClick('dashboard')">
+        <span class="bg-tab-dot" style="background:#ffd600;"></span>Dashboard
+      </button>
     </div>
     <div id="search-wrap">
       <input id="search" type="text" placeholder="Search nodes…" autocomplete="off" spellcheck="false">
@@ -518,6 +561,61 @@ anime({targets:'#sidebar',opacity:[0,1],translateX:[-20,0],duration:600,easing:'
 anime({targets:'#controls',opacity:[0,1],translateY:[12,0],duration:500,easing:'easeOutQuart',delay:500});
 anime({targets:'#legend',opacity:[0,1],translateY:[-8,0],duration:500,easing:'easeOutQuart',delay:650});
 anime({targets:'.stat-val',innerHTML:[0,null],round:1,duration:1200,easing:'easeOutExpo',delay:anime.stagger(100,{start:400})});
+
+// ── Page tab navigation ──────────────────────────────────────────────
+var BG_URLS = {
+  viz:       'https://dare-devil-11.github.io/umas-hologram/autonomous-claude-viz.html',
+  dashboard: 'https://dare-devil-11.github.io/umas-hologram/goat-aios-dashboard.html'
+};
+var BG_TITLES = {
+  viz:       '▦ PIPELINE VIZ — Autonomous Claude',
+  dashboard: '■ GOAT AIOS DASHBOARD'
+};
+
+function bgTabClick(tab) {
+  if (tab === 'brain') return;
+  var overlay  = document.getElementById('bg-tool-overlay');
+  var iframe   = overlay.querySelector('iframe');
+  var titleEl  = document.getElementById('bg-overlay-title');
+  iframe.src   = BG_URLS[tab];
+  titleEl.textContent = BG_TITLES[tab];
+  overlay.style.display = 'flex';
+  requestAnimationFrame(function(){ overlay.style.opacity = '1'; });
+  document.body.style.overflow = 'hidden';
+  document.querySelectorAll('.bg-tab').forEach(function(btn){ btn.className = 'bg-tab'; });
+  document.querySelectorAll('.bg-tab').forEach(function(btn){
+    if (btn.getAttribute('onclick') === "bgTabClick('" + tab + "')") {
+      btn.classList.add(tab === 'viz' ? 'bgt-cyan' : 'bgt-gold');
+    }
+  });
+}
+
+function closeBgOverlay() {
+  var overlay = document.getElementById('bg-tool-overlay');
+  overlay.style.opacity = '0';
+  setTimeout(function(){
+    overlay.style.display = 'none';
+    overlay.querySelector('iframe').src = '';
+  }, 300);
+  document.body.style.overflow = '';
+  document.querySelectorAll('.bg-tab').forEach(function(btn){ btn.className = 'bg-tab'; });
+  document.querySelectorAll('.bg-tab').forEach(function(btn){
+    if (btn.getAttribute('onclick') === "bgTabClick('brain')") btn.classList.add('bgt-active');
+  });
+}
+
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape') closeBgOverlay();
+});
 </script>
+
+<div id="bg-tool-overlay">
+  <div id="bg-overlay-header">
+    <div id="bg-overlay-title"></div>
+    <button id="bg-overlay-close" onclick="closeBgOverlay()">&#x2715; CLOSE</button>
+  </div>
+  <iframe src="" title="Tool"></iframe>
+</div>
+
 </body>
 </html>
