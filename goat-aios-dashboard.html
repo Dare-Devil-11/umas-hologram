@@ -53,6 +53,17 @@ canvas{display:block;}
 #brain-btn:hover{background:rgba(0,229,255,0.18);box-shadow:0 0 14px rgba(0,229,255,0.2);}
 #brain-btn-dot{width:7px;height:7px;border-radius:50%;background:var(--primary);box-shadow:0 0 6px var(--primary);animation:pulse-red 1.8s ease-in-out infinite;}
 
+/* VIZ BUTTON */
+#viz-btn{
+  display:flex;align-items:center;gap:7px;
+  padding:6px 14px;border-radius:6px;cursor:pointer;
+  background:rgba(224,64,251,0.08);border:1px solid rgba(224,64,251,0.35);
+  color:var(--magenta);font-size:12px;font-family:'Courier New',Courier,monospace;
+  letter-spacing:1px;transition:all .2s;
+}
+#viz-btn:hover{background:rgba(224,64,251,0.18);box-shadow:0 0 14px rgba(224,64,251,0.2);}
+#viz-btn-dot{width:7px;height:7px;border-radius:50%;background:var(--magenta);box-shadow:0 0 6px var(--magenta);animation:pulse-red 2s ease-in-out infinite;}
+
 /* PIXEL TRACKER BUTTON */
 #pixel-btn{
   display:flex;align-items:center;gap:7px;
@@ -214,6 +225,10 @@ canvas{display:block;}
         <div id="brain-btn-dot"></div>
         BRAIN GRAPH
       </div>
+      <div id="viz-btn" onclick="openViz()">
+        <div id="viz-btn-dot"></div>
+        PIPELINE VIZ
+      </div>
       <div id="pixel-btn" onclick="openPixelTracker()">
         <div id="pixel-btn-dot"></div>
         PIXEL TRACKER
@@ -316,6 +331,14 @@ canvas{display:block;}
     <button id="pixel-close" onclick="closePixelTracker()">&#x2715; CLOSE</button>
   </div>
   <iframe id="pixel-iframe" src="" title="Pixel Tracker"></iframe>
+</div>
+
+<div id="viz-overlay" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:999;background:rgba(0,0,8,.96);display:none;opacity:0;flex-direction:column;transition:opacity .3s ease;">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:rgba(0,10,25,.95);border-bottom:1px solid rgba(224,64,251,.2);flex-shrink:0;">
+    <div style="color:var(--magenta);font-size:14px;letter-spacing:2px;font-family:'Courier New',Courier,monospace;">&#x25A6; PIPELINE VIZ — Autonomous Claude</div>
+    <button onclick="closeViz()" style="padding:5px 16px;border-radius:6px;cursor:pointer;background:rgba(255,23,68,.1);border:1px solid rgba(255,23,68,.35);color:#ff1744;font-size:12px;font-family:'Courier New',Courier,monospace;letter-spacing:1px;transition:all .2s;">&#x2715; CLOSE</button>
+  </div>
+  <iframe id="viz-iframe" src="" title="Pipeline Viz" style="flex:1;width:100%;border:none;"></iframe>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -943,8 +966,24 @@ function closePixelTracker(){
   setTimeout(function(){overlay.style.display='none';},300);
   document.body.style.overflow='';
 }
+function openViz(){
+  var overlay=document.getElementById('viz-overlay');
+  var iframe=document.getElementById('viz-iframe');
+  if(!iframe.src||iframe.src==='about:blank'||iframe.src===''){
+    iframe.src='https://dare-devil-11.github.io/umas-hologram/autonomous-claude-viz.html';
+  }
+  overlay.style.display='flex';
+  requestAnimationFrame(function(){overlay.style.opacity='1';});
+  document.body.style.overflow='hidden';
+}
+function closeViz(){
+  var overlay=document.getElementById('viz-overlay');
+  overlay.style.opacity='0';
+  setTimeout(function(){overlay.style.display='none';},300);
+  document.body.style.overflow='';
+}
 document.addEventListener('keydown',function(e){
-  if(e.key==='Escape'){ closeBrainGraph(); closePixelTracker(); }
+  if(e.key==='Escape'){ closeBrainGraph(); closePixelTracker(); closeViz(); }
 });
 </script>
 </body>
