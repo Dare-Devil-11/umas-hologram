@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Autonomous Claude — Pipeline Viz</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --primary:#00e5ff;--gold:#ffd600;--magenta:#e040fb;--green:#00e676;
+  --red:#ff1744;--orange:#ff6d00;--bg:#000008;
+  --surface:rgba(0,20,40,0.82);--surface2:rgba(0,10,28,0.94);
+  --border:rgba(0,229,255,0.15);--border2:rgba(0,229,255,0.06);
+  --text:#e2e8f0;--muted:rgba(255,255,255,0.4);--radius:10px;
+  --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;
+}
+html,body{width:100%;min-height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);overflow-x:hidden;}
+
+/* grid bg */
+body::before{content:'';position:fixed;inset:0;z-index:0;
+  background-image:linear-gradient(rgba(0,229,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.03) 1px,transparent 1px);
+  background-size:52px 52px;pointer-events:none;}
+body::after{content:'';position:fixed;inset:0;z-index:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,229,255,.008) 2px,rgba(0,229,255,.008) 4px);
+  pointer-events:none;}
+
+.page{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:32px 24px 80px;}
+
+/* ── HEADER ── */
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:48px;opacity:0;}
+.logo{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--primary);letter-spacing:3px;text-shadow:0 0 16px var(--primary);}
+.logo span{color:var(--gold);}
+.header-badge{font-family:var(--mono);font-size:11px;padding:4px 12px;border-radius:4px;border:1px solid var(--border);color:var(--muted);letter-spacing:1px;}
+
+/* ── SECTION LABEL ── */
+.section-label{font-size:9px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:16px;font-family:var(--mono);}
+
+/* ── THESIS CARD ── */
+.thesis{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:24px 28px;margin-bottom:48px;opacity:0;position:relative;overflow:hidden;}
+.thesis::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--primary),var(--magenta));}
+.thesis-text{font-size:15px;line-height:1.7;color:rgba(255,255,255,0.82);max-width:760px;}
+.thesis-text strong{color:var(--primary);}
+.thesis-compare{display:flex;gap:20px;margin-top:20px;}
+.compare-block{flex:1;padding:14px 16px;border-radius:8px;border:1px solid;}
+.compare-block.bad{background:rgba(255,23,68,0.06);border-color:rgba(255,23,68,0.2);}
+.compare-block.good{background:rgba(0,230,118,0.06);border-color:rgba(0,230,118,0.2);}
+.compare-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;font-family:var(--mono);}
+.compare-block.bad .compare-label{color:var(--red);}
+.compare-block.good .compare-label{color:var(--green);}
+.compare-text{font-size:12px;color:var(--muted);line-height:1.6;font-family:var(--mono);}
+
+/* ── PIPELINE ── */
+.pipeline-wrap{margin-bottom:52px;}
+.pipeline{display:flex;align-items:center;gap:0;overflow-x:auto;padding-bottom:8px;}
+.pipeline::-webkit-scrollbar{height:3px;}
+.pipeline::-webkit-scrollbar-thumb{background:var(--border);}
+.pipe-step{display:flex;flex-direction:column;align-items:center;opacity:0;flex-shrink:0;}
+.pipe-node{
+  width:110px;padding:14px 10px;border-radius:var(--radius);
+  background:var(--surface2);border:1px solid var(--border);
+  text-align:center;cursor:default;transition:border-color .2s,box-shadow .2s;
+  position:relative;
+}
+.pipe-node:hover{border-color:rgba(0,229,255,.45);box-shadow:0 0 24px rgba(0,229,255,.12);}
+.pipe-icon{font-size:22px;margin-bottom:6px;}
+.pipe-cmd{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--primary);margin-bottom:3px;}
+.pipe-desc{font-size:10px;color:var(--muted);line-height:1.4;}
+.pipe-badge{position:absolute;top:-8px;right:-8px;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:bold;}
+.pipe-badge.exists{background:var(--green);color:#000;}
+.pipe-badge.new{background:var(--gold);color:#000;}
+.pipe-arrow{display:flex;align-items:center;padding:0 4px;color:var(--primary);font-size:18px;opacity:0.5;flex-shrink:0;}
+.pipe-arrow.active{opacity:1;animation:arrow-pulse 1.5s ease-in-out infinite;}
+@keyframes arrow-pulse{0%,100%{opacity:0.4;}50%{opacity:1;text-shadow:0 0 8px var(--primary);}}
+
+/* ── LAYERS GRID ── */
+.layers{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:52px;}
+.layer-card{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);padding:20px;opacity:0;}
+.layer-card:hover{border-color:var(--border);}
+.layer-title{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.layer-title .dot{width:8px;height:8px;border-radius:50%;}
+.item-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border2);font-size:12px;}
+.item-row:last-child{border-bottom:none;}
+.item-icon{font-size:14px;flex-shrink:0;width:20px;text-align:center;}
+.item-name{font-family:var(--mono);color:var(--text);flex:1;}
+.item-status{font-size:10px;padding:2px 8px;border-radius:3px;font-family:var(--mono);flex-shrink:0;}
+.status-live{background:rgba(0,230,118,.12);color:var(--green);border:1px solid rgba(0,230,118,.25);}
+.status-new{background:rgba(255,214,0,.1);color:var(--gold);border:1px solid rgba(255,214,0,.25);}
+.status-pending{background:rgba(255,109,0,.1);color:var(--orange);border:1px solid rgba(255,109,0,.25);}
+
+/* ── FLOW DIAGRAM ── */
+.flow-wrap{margin-bottom:52px;}
+.flow{display:flex;flex-direction:column;gap:0;}
+.flow-row{display:flex;align-items:stretch;gap:0;opacity:0;}
+.flow-node{
+  flex:1;padding:12px 16px;border-radius:var(--radius);
+  background:var(--surface2);border:1px solid var(--border2);
+  font-size:12px;font-family:var(--mono);
+}
+.flow-node .fn-title{font-weight:700;margin-bottom:2px;}
+.flow-node .fn-sub{color:var(--muted);font-size:10px;}
+.flow-connector{display:flex;align-items:center;justify-content:center;width:40px;flex-shrink:0;font-size:18px;color:var(--primary);opacity:0.5;}
+.flow-down{display:flex;justify-content:center;padding:4px 0;font-size:16px;color:var(--primary);opacity:0.4;}
+
+/* ── INSTALL STEPS ── */
+.install-wrap{margin-bottom:52px;}
+.install-step{display:flex;gap:16px;padding:16px 0;border-bottom:1px solid var(--border2);opacity:0;align-items:flex-start;}
+.install-step:last-child{border-bottom:none;}
+.step-num{width:28px;height:28px;border-radius:50%;border:1px solid var(--primary);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;color:var(--primary);flex-shrink:0;margin-top:2px;}
+.step-num.done{background:rgba(0,230,118,.15);border-color:var(--green);color:var(--green);}
+.step-num.pending{border-color:var(--orange);color:var(--orange);}
+.step-body{flex:1;}
+.step-title{font-size:13px;font-weight:600;margin-bottom:6px;}
+.step-cmd{background:rgba(0,0,0,.6);border:1px solid var(--border2);border-radius:6px;padding:10px 14px;font-family:var(--mono);font-size:11px;color:var(--primary);line-height:1.8;margin-top:6px;cursor:pointer;transition:border-color .2s;}
+.step-cmd:hover{border-color:rgba(0,229,255,.35);}
+.step-note{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5;}
+
+/* ── IMPACT TABLE ── */
+.impact-wrap{margin-bottom:52px;}
+.impact-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.impact-card{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);padding:18px;opacity:0;text-align:center;}
+.impact-phase{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-family:var(--mono);margin-bottom:8px;}
+.impact-title{font-size:14px;font-weight:600;margin-bottom:8px;}
+.impact-desc{font-size:11px;color:var(--muted);line-height:1.6;}
+.impact-bar{height:3px;border-radius:2px;margin-top:14px;}
+
+/* ── CUSTOMER SELECTOR ─────────────────────────────────── */
+.customer-bar{
+  background:rgba(0,0,0,.55);border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px 20px;margin-bottom:40px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+}
+.cust-bar-label{font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;flex-shrink:0;}
+.cust-btns{display:flex;gap:8px;flex-wrap:wrap;flex:1;}
+.cust-btn{
+  font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:1.5px;
+  padding:7px 16px;border-radius:6px;border:1px solid var(--border);
+  background:transparent;color:var(--muted);cursor:pointer;
+  transition:all .2s ease;text-transform:uppercase;
+}
+.cust-btn:hover{border-color:rgba(0,229,255,.4);color:var(--text);}
+.cust-btn.active{background:rgba(0,229,255,.1);border-color:var(--primary);color:var(--primary);box-shadow:0 0 16px rgba(0,229,255,.15);}
+.cust-btn.active-gold{background:rgba(255,214,0,.1);border-color:var(--gold);color:var(--gold);box-shadow:0 0 16px rgba(255,214,0,.1);}
+.cust-btn.active-magenta{background:rgba(224,64,251,.1);border-color:var(--magenta);color:var(--magenta);}
+.cust-btn.active-green{background:rgba(0,230,118,.1);border-color:var(--green);color:var(--green);}
+.cust-btn.active-orange{background:rgba(255,109,0,.1);border-color:var(--orange);color:var(--orange);}
+
+/* slide nav */
+.slide-nav{display:none;align-items:center;gap:10px;margin-left:auto;flex-shrink:0;}
+.slide-nav-btn{
+  font-family:var(--mono);font-size:11px;padding:6px 14px;border-radius:5px;
+  border:1px solid var(--border);background:transparent;color:var(--primary);
+  cursor:pointer;transition:all .2s;
+}
+.slide-nav-btn:hover{background:rgba(0,229,255,.1);border-color:var(--primary);}
+.slide-nav-btn:disabled{opacity:.25;cursor:not-allowed;}
+.slide-indicator{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap;}
+.exit-btn{font-family:var(--mono);font-size:11px;padding:6px 14px;border-radius:5px;
+  border:1px solid rgba(255,23,68,.3);color:rgba(255,23,68,.7);background:transparent;cursor:pointer;transition:all .2s;}
+.exit-btn:hover{background:rgba(255,23,68,.1);color:var(--red);border-color:var(--red);}
+
+/* customer context card injected above each slide */
+.cust-context{
+  border-radius:8px;border:1px solid;padding:12px 16px;margin-bottom:12px;
+  font-size:12px;line-height:1.6;font-family:var(--mono);display:none;
+}
+.cust-context.show{display:block;animation:slideIn .3s ease;}
+@keyframes slideIn{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+
+/* slide transitions */
+.slide-section{transition:opacity .25s ease;}
+.slide-section.slide-hidden{display:none;}
+.slide-section.slide-active{border-left:2px solid var(--primary);padding-left:16px;margin-left:-18px;}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="logo">GOAT<span>.</span>AIOS <span style="color:var(--muted);font-size:13px;letter-spacing:1px;font-weight:400">// AUTONOMOUS CLAUDE</span></div>
+    <div class="header-badge">PIPELINE ARCHITECTURE</div>
+  </header>
+
+  <!-- ── CUSTOMER SELECTOR BAR ── -->
+  <div class="customer-bar" id="customerBar">
+    <div class="cust-bar-label">Show for:</div>
+    <div class="cust-btns">
+      <button class="cust-btn" data-customer="all"        data-color=""        onclick="selectCustomer('all')">All Slides</button>
+      <button class="cust-btn" data-customer="umas"       data-color="active"       onclick="selectCustomer('umas')">UMAS</button>
+      <button class="cust-btn" data-customer="santoshland" data-color="active-gold"  onclick="selectCustomer('santoshland')">Santoshland</button>
+      <button class="cust-btn" data-customer="agency"     data-color="active-magenta" onclick="selectCustomer('agency')">Agency</button>
+      <button class="cust-btn" data-customer="ecomm"      data-color="active-green"  onclick="selectCustomer('ecomm')">E-Commerce</button>
+      <button class="cust-btn" data-customer="saas"       data-color="active-orange" onclick="selectCustomer('saas')">SaaS</button>
+    </div>
+    <div class="slide-nav" id="slideNav">
+      <button class="slide-nav-btn" id="prevBtn" onclick="slideStep(-1)" disabled>← Prev</button>
+      <span class="slide-indicator" id="slideIndicator">Slide 1 of 1</span>
+      <button class="slide-nav-btn" id="nextBtn" onclick="slideStep(1)">Next →</button>
+      <button class="exit-btn" onclick="exitMode()">✕ Exit</button>
+    </div>
+  </div>
+
+  <!-- THESIS -->
+  <div class="slide-section" data-slide="concept">
+  <div class="section-label">Core Concept</div>
+  <div class="cust-context" id="ctx-concept"></div>
+  <div class="thesis">
+    <div class="thesis-text">
+      <strong>95% of developers treat AI as a one-off chat tool.</strong> Power users treat it as an operating platform — System → Automation → Memory → Scale. By layering persistent config (CLAUDE.md), automated shell hooks, and an external memory ledger (Google Sheets), Claude becomes a continuous feedback loop that gets smarter every session.
+    </div>
+    <div class="thesis-compare">
+      <div class="compare-block bad">
+        <div class="compare-label">❌ Amateur Mode</div>
+        <div class="compare-text">Prompt → Answer → Done<br>No memory. No pipeline.<br>Same context loss every session.</div>
+      </div>
+      <div class="compare-block good">
+        <div class="compare-label">✅ GOAT Mode</div>
+        <div class="compare-text">System → Automation → Memory → Scale<br>Hooks log everything. Skills chain execution.<br>Google Sheet persists context across sessions.</div>
+      </div>
+    </div>
+  </div>
+  </div><!-- /slide concept -->
+
+  <!-- PIPELINE -->
+  <div class="slide-section" data-slide="pipeline">
+  <div class="section-label">Execution Pipeline</div>
+  <div class="cust-context" id="ctx-pipeline"></div>
+  <div class="pipeline-wrap">
+    <div class="pipeline" id="pipeline">
+      <div class="pipe-step">
+        <div class="pipe-node" style="border-color:rgba(0,229,255,.35);">
+          <div class="pipe-badge new">N</div>
+          <div class="pipe-icon">🚀</div>
+          <div class="pipe-cmd">/start-work</div>
+          <div class="pipe-desc">Session kickoff. Loads last summary + proposes next action</div>
+        </div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <div class="pipe-node" style="border-color:rgba(255,214,0,.25);">
+          <div class="pipe-badge new">N</div>
+          <div class="pipe-icon">🔍</div>
+          <div class="pipe-cmd">/analyze</div>
+          <div class="pipe-desc">Map files, deps, risk. No code written yet</div>
+        </div>
+      </div>
+      <div class="pipe-arrow active">→</div>
+      <div class="pipe-step">
+        <div class="pipe-node" style="border-color:rgba(255,109,0,.25);">
+          <div class="pipe-badge new">N</div>
+          <div class="pipe-icon">🏗️</div>
+          <div class="pipe-cmd">/build</div>
+          <div class="pipe-desc">Implement from approved plan. One file at a time</div>
+        </div>
+      </div>
+      <div class="pipe-arrow active">→</div>
+      <div class="pipe-step">
+        <div class="pipe-node" style="border-color:rgba(0,230,118,.25);">
+          <div class="pipe-badge exists">✓</div>
+          <div class="pipe-icon">🧪</div>
+          <div class="pipe-cmd">/test</div>
+          <div class="pipe-desc">Run + verify. Blocks /ship if failing</div>
+        </div>
+      </div>
+      <div class="pipe-arrow active">→</div>
+      <div class="pipe-step">
+        <div class="pipe-node" style="border-color:rgba(224,64,251,.25);">
+          <div class="pipe-badge exists">✓</div>
+          <div class="pipe-icon">👁️</div>
+          <div class="pipe-cmd">/review</div>
+          <div class="pipe-desc">Quality + security check. HIGH findings block ship</div>
+        </div>
+      </div>
+      <div class="pipe-arrow active">→</div>
+      <div class="pipe-step">
+        <div class="pipe-node" style="border-color:rgba(0,229,255,.35);">
+          <div class="pipe-badge new">N</div>
+          <div class="pipe-icon">🚢</div>
+          <div class="pipe-cmd">/ship</div>
+          <div class="pipe-desc">Pre-deploy checklist → commit → push to feature branch</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:20px;margin-top:10px;font-size:10px;font-family:var(--mono);">
+      <span style="color:var(--green);">■ ✓ Already existed</span>
+      <span style="color:var(--gold);">■ N Built this session</span>
+    </div>
+  </div>
+  </div><!-- /slide pipeline -->
+
+  <!-- LAYERS GRID -->
+  <div class="slide-section" data-slide="layers">
+  <div class="section-label">System Layers</div>
+  <div class="cust-context" id="ctx-layers"></div>
+  <div class="layers">
+
+    <!-- SKILLS -->
+    <div class="layer-card">
+      <div class="layer-title"><div class="dot" style="background:var(--primary)"></div>Skills — Slash Commands</div>
+      <div class="item-row"><div class="item-icon">🚀</div><div class="item-name">/start-work</div><div class="item-status status-new">NEW</div></div>
+      <div class="item-row"><div class="item-icon">🔍</div><div class="item-name">/analyze</div><div class="item-status status-new">NEW</div></div>
+      <div class="item-row"><div class="item-icon">📋</div><div class="item-name">/plan</div><div class="item-status status-live">LIVE</div></div>
+      <div class="item-row"><div class="item-icon">🏗️</div><div class="item-name">/build</div><div class="item-status status-new">NEW</div></div>
+      <div class="item-row"><div class="item-icon">⚡</div><div class="item-name">/execute</div><div class="item-status status-live">LIVE</div></div>
+      <div class="item-row"><div class="item-icon">🧪</div><div class="item-name">/test</div><div class="item-status status-live">LIVE</div></div>
+      <div class="item-row"><div class="item-icon">👁️</div><div class="item-name">/review</div><div class="item-status status-live">LIVE</div></div>
+      <div class="item-row"><div class="item-icon">🔧</div><div class="item-name">/refactor</div><div class="item-status status-live">LIVE</div></div>
+      <div class="item-row"><div class="item-icon">🚢</div><div class="item-name">/ship</div><div class="item-status status-new">NEW</div></div>
+    </div>
+
+    <!-- HOOKS -->
+    <div class="layer-card">
+      <div class="layer-title"><div class="dot" style="background:var(--magenta)"></div>Hooks — Automation Engine</div>
+      <div class="item-row"><div class="item-icon">▶️</div><div class="item-name">SessionStart.sh</div><div class="item-status status-live">LIVE</div></div>
+      <div class="item-row"><div class="item-icon">🔒</div><div class="item-name">PreToolUse.sh</div><div class="item-status status-live">LIVE</div></div>
+      <div class="item-row"><div class="item-icon">📝</div><div class="item-name">PostToolUse.sh</div><div class="item-status status-new">UPDATED</div></div>
+      <div class="item-row"><div class="item-icon">📤</div><div class="item-name">send-to-google.sh</div><div class="item-status status-new">UPDATED</div></div>
+      <div class="item-row"><div class="item-icon">⏹️</div><div class="item-name">Stop hook</div><div class="item-status status-live">LIVE</div></div>
+      <div style="height:12px;"></div>
+      <div class="layer-title"><div class="dot" style="background:var(--gold)"></div>Memory — Persistence</div>
+      <div class="item-row"><div class="item-icon">🧠</div><div class="item-name">~/.claude/CLAUDE.md</div><div class="item-status status-live">LIVE</div></div>
+      <div class="item-row"><div class="item-icon">📄</div><div class="item-name">LAST_SESSION_SUMMARY</div><div class="item-status status-live">LIVE</div></div>
+      <div class="item-row"><div class="item-icon">📊</div><div class="item-name">Google Sheet Logger</div><div class="item-status status-pending">PENDING URL</div></div>
+    </div>
+
+  </div>
+  </div><!-- /slide layers -->
+
+  <!-- HOOK FLOW -->
+  <div class="slide-section" data-slide="flow">
+  <div class="section-label">Hook Data Flow</div>
+  <div class="cust-context" id="ctx-flow"></div>
+  <div class="flow-wrap">
+    <div class="flow">
+      <div class="flow-row">
+        <div class="flow-node" style="border-color:rgba(0,229,255,.3);background:rgba(0,229,255,.05);">
+          <div class="fn-title" style="color:var(--primary)">Claude makes a tool call</div>
+          <div class="fn-sub">Read / Write / Edit / Bash / etc.</div>
+        </div>
+        <div class="flow-connector">→</div>
+        <div class="flow-node" style="border-color:rgba(224,64,251,.3);background:rgba(224,64,251,.05);">
+          <div class="fn-title" style="color:var(--magenta)">PostToolUse.sh fires</div>
+          <div class="fn-sub">Logs tool name + timestamp to hook-log.md</div>
+        </div>
+        <div class="flow-connector">→</div>
+        <div class="flow-node" style="border-color:rgba(255,214,0,.3);background:rgba(255,214,0,.05);">
+          <div class="fn-title" style="color:var(--gold)">send-to-google.sh</div>
+          <div class="fn-sub">Extracts event, tool, file path → curl POST</div>
+        </div>
+        <div class="flow-connector">→</div>
+        <div class="flow-node" style="border-color:rgba(0,230,118,.3);background:rgba(0,230,118,.05);">
+          <div class="fn-title" style="color:var(--green)">Google Apps Script</div>
+          <div class="fn-sub">Appends row: timestamp · event · tool · file · summary</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /slide flow -->
+
+  <!-- INSTALL STEPS -->
+  <div class="slide-section" data-slide="install">
+  <div class="section-label">Install Checklist</div>
+  <div class="cust-context" id="ctx-install"></div>
+  <div class="install-wrap">
+
+    <div class="install-step">
+      <div class="step-num done">✓</div>
+      <div class="step-body">
+        <div class="step-title">Skills installed — /start-work, /analyze, /build, /ship</div>
+        <div class="step-note">Written to ~/.claude/skills/. Invoke with / prefix in any Claude Code session.</div>
+      </div>
+    </div>
+
+    <div class="install-step">
+      <div class="step-num pending">2</div>
+      <div class="step-body">
+        <div class="step-title">Copy updated hooks to ~/.claude/hooks/</div>
+        <div class="step-cmd">cp ~/AI-OS/outputs/autonomous-claude/PostToolUse.sh ~/.claude/hooks/PostToolUse.sh<br>cp ~/AI-OS/outputs/autonomous-claude/send-to-google.sh ~/.claude/hooks/send-to-google.sh<br>chmod +x ~/.claude/hooks/PostToolUse.sh ~/.claude/hooks/send-to-google.sh</div>
+      </div>
+    </div>
+
+    <div class="install-step">
+      <div class="step-num pending">3</div>
+      <div class="step-body">
+        <div class="step-title">Deploy Google Apps Script</div>
+        <div class="step-note">sheets.google.com → new sheet "GOAT AIOS Log" → Extensions → Apps Script → paste ~/AI-OS/outputs/autonomous-claude/google-apps-script.js → Deploy → Web App → Access: Anyone → copy URL</div>
+      </div>
+    </div>
+
+    <div class="install-step">
+      <div class="step-num pending">4</div>
+      <div class="step-body">
+        <div class="step-title">Wire the URL to your shell</div>
+        <div class="step-cmd">echo 'export CLAUDE_SHEET_URL="YOUR_WEB_APP_URL"' >> ~/.zshrc && source ~/.zshrc</div>
+        <div class="step-note">Once set, every Claude tool call automatically logs a row to your Google Sheet.</div>
+      </div>
+    </div>
+
+    <div class="install-step">
+      <div class="step-num pending">5</div>
+      <div class="step-body">
+        <div class="step-title">Add Higgsfield MCP connector</div>
+        <div class="step-cmd">claude mcp add higgsfield --transport http https://mcp.higgsfield.ai/mcp</div>
+      </div>
+    </div>
+
+  </div>
+  </div><!-- /slide install -->
+
+  <!-- BUSINESS IMPACT -->
+  <div class="slide-section" data-slide="impact">
+  <div class="section-label">Business Impact — 3 Phases</div>
+  <div class="cust-context" id="ctx-impact"></div>
+  <div class="impact-wrap">
+    <div class="impact-grid">
+      <div class="impact-card">
+        <div class="impact-phase">Phase A</div>
+        <div class="impact-title">Engineering Consistency</div>
+        <div class="impact-desc">CLAUDE.md enforces corporate linting rules, architecture constraints, and security standards on every AI output — no manual policing.</div>
+        <div class="impact-bar" style="background:linear-gradient(90deg,var(--primary),transparent);"></div>
+      </div>
+      <div class="impact-card">
+        <div class="impact-phase">Phase B</div>
+        <div class="impact-title">Automated Audit Logs</div>
+        <div class="impact-desc">PostToolUse → Google Sheet creates a real-time ledger of every file changed, why, and by which tool. Zero manual stand-up summaries.</div>
+        <div class="impact-bar" style="background:linear-gradient(90deg,var(--gold),transparent);"></div>
+      </div>
+      <div class="impact-card">
+        <div class="impact-phase">Phase C</div>
+        <div class="impact-title">Pipeline Execution Scale</div>
+        <div class="impact-desc">Chain /analyze → /build → /test → /review → /ship. Treat Claude as PM + Architect + Dev + QA. Feature cycles: days → minutes.</div>
+        <div class="impact-bar" style="background:linear-gradient(90deg,var(--green),transparent);"></div>
+      </div>
+    </div>
+  </div>
+  </div><!-- /slide impact -->
+
+</div><!-- /page -->
+
+<script>
+// ── Entrance animations ──────────────────────────────────────────────
+anime({targets:'header',opacity:[0,1],translateY:[-16,0],duration:600,easing:'easeOutQuart'});
+
+anime({targets:'.thesis',opacity:[0,1],translateY:[20,0],duration:700,easing:'easeOutQuart',delay:200});
+
+anime({targets:'.pipe-step',opacity:[0,1],translateY:[24,0],duration:500,easing:'easeOutBack',delay:anime.stagger(80,{start:400})});
+
+anime({targets:'.layer-card',opacity:[0,1],translateY:[20,0],duration:600,easing:'easeOutQuart',delay:anime.stagger(100,{start:800})});
+
+anime({targets:'.flow-row',opacity:[0,1],translateX:[-20,0],duration:600,easing:'easeOutQuart',delay:1100});
+
+anime({targets:'.install-step',opacity:[0,1],translateX:[-16,0],duration:500,easing:'easeOutQuart',delay:anime.stagger(80,{start:1300})});
+
+anime({targets:'.impact-card',opacity:[0,1],translateY:[20,0],duration:500,easing:'easeOutQuart',delay:anime.stagger(80,{start:1600})});
+
+// ── Copy-to-clipboard on cmd blocks ──────────────────────────────────
+document.querySelectorAll('.step-cmd').forEach(function(el){
+  el.title='Click to copy';
+  el.addEventListener('click',function(){
+    navigator.clipboard.writeText(el.innerText).then(function(){
+      var orig=el.style.borderColor;
+      el.style.borderColor='rgba(0,230,118,.6)';
+      setTimeout(function(){el.style.borderColor=orig;},1000);
+    });
+  });
+});
+
+// ── Animated counter in pipeline badge areas ──────────────────────────
+var skillCounts={live:5,new:4};
+
+/* ═══════════════════════════════════════════════════════════
+   CUSTOMER ROUTING ENGINE — if/then conditional slide logic
+   ═══════════════════════════════════════════════════════════ */
+
+// ── Customer → slide map ─────────────────────────────────────────────
+var CUSTOMER_ROUTES = {
+  'all':        ['concept','pipeline','layers','flow','install','impact'],
+  'umas':       ['concept','layers','install','impact'],
+  'santoshland':['concept','pipeline','install','impact'],
+  'agency':     ['concept','pipeline','layers','flow','install','impact'],
+  'ecomm':      ['concept','flow','impact'],
+  'saas':       ['concept','pipeline','layers','impact']
+};
+
+// ── Customer context per slide — structured (no HTML strings) ────────
+var CUSTOMER_CONTEXT = {
+  'umas': {
+    'concept':  {bg:'rgba(0,229,255,.12)',border:'rgba(0,229,255,.3)',labelColor:'#00e5ff',label:'UMAS Use Case: ',text:'Elder care nonprofit, Chicagoland IL. Claude is configured with UMAS brand rules — warm tone, no clinical jargon, 847-306-7606 in every CTA. Autonomous pipeline manages SEO content, GHL publishing, and session memory.'},
+    'layers':   {bg:'rgba(0,229,255,.08)',border:'rgba(0,229,255,.2)',labelColor:'#00e5ff',label:'For UMAS: ',text:'The Skills layer manages 5 service pages + 10 blog posts via /build and /ship. The Memory layer keeps UMAS context (schema, service area, brand voice) persistent across every Claude session.'},
+    'install':  {bg:'rgba(0,229,255,.08)',border:'rgba(0,229,255,.2)',labelColor:'#00e5ff',label:'UMAS Deployment: ',text:'GHL Location ID 5opdoL1faiu1kTiGZ1Vx. PostToolUse.sh logs every content change. Google Sheet is the audit trail for board-level reporting on AI activity.'},
+    'impact':   {bg:'rgba(0,229,255,.08)',border:'rgba(0,229,255,.2)',labelColor:'#00e5ff',label:'UMAS Impact: ',text:'Phase A = brand enforcement on all AI outputs. Phase B = automated content audit log. Phase C = care team onboarding, FAQs, and blog posts shipped in minutes.'}
+  },
+  'santoshland': {
+    'concept':  {bg:'rgba(255,214,0,.12)',border:'rgba(255,214,0,.3)',labelColor:'#ffd600',label:'Santoshland Use Case: ',text:'Ayurvedic wellness startup. Claude maintains the "5,000 years of wisdom, personalized for you" voice across all content. Root cause + dosha framing enforced by CLAUDE.md rules on every output.'},
+    'pipeline': {bg:'rgba(255,214,0,.08)',border:'rgba(255,214,0,.2)',labelColor:'#ffd600',label:'For Santoshland: ',text:'/analyze maps the current site state, /build generates landing pages and email sequences in brand voice, /ship commits directly to the feature branch. Full website build cycle: 45 minutes.'},
+    'install':  {bg:'rgba(255,214,0,.08)',border:'rgba(255,214,0,.2)',labelColor:'#ffd600',label:'Santoshland Setup: ',text:'CLAUDE.md pre-loaded with dosha messaging rules. PostToolUse.sh logs all content output. Recommended: deploy Google Apps Script to track content velocity per session.'},
+    'impact':   {bg:'rgba(255,214,0,.08)',border:'rgba(255,214,0,.2)',labelColor:'#ffd600',label:'Santoshland Impact: ',text:'Phase A = consistent Ayurvedic brand voice with zero drift. Phase B = automated content ledger for founder review. Phase C = product pages, practitioner bios, and consultation funnels shipped in one session.'}
+  },
+  'agency': {
+    'concept':  {bg:'rgba(224,64,251,.12)',border:'rgba(224,64,251,.3)',labelColor:'#e040fb',label:'Agency Use Case: ',text:'Full pipeline deployment for client projects. Each client gets their own CLAUDE.md ruleset. GOAT AIOS operates as a background senior dev + QA + content team across all accounts simultaneously.'},
+    'pipeline': {bg:'rgba(224,64,251,.08)',border:'rgba(224,64,251,.2)',labelColor:'#e040fb',label:'Agency Pipeline: ',text:'/start-work loads client context, /analyze scopes the sprint, /build executes, /review blocks any non-compliant output, /ship commits to the client feature branch. Standardized delivery across every account.'},
+    'layers':   {bg:'rgba(224,64,251,.08)',border:'rgba(224,64,251,.2)',labelColor:'#e040fb',label:'Agency Skills: ',text:'662 skills pre-loaded. Key: ai-seo, copywriting, page-cro, email-sequence, schema-markup. Each client inherits the full library. No ramp-up time per account.'},
+    'flow':     {bg:'rgba(224,64,251,.08)',border:'rgba(224,64,251,.2)',labelColor:'#e040fb',label:'Agency Logging: ',text:'Every file change auto-logged to Google Sheet. Client-facing reports generated from the ledger — no manual time-tracking or stand-up notes. Proof-of-work built into the infrastructure.'},
+    'install':  {bg:'rgba(224,64,251,.08)',border:'rgba(224,64,251,.2)',labelColor:'#e040fb',label:'Agency Deployment: ',text:'One install per account. client-CLAUDE.md + PostToolUse.sh + Google Sheet per client. Hooks are universal — same infra handles 10 clients simultaneously.'},
+    'impact':   {bg:'rgba(224,64,251,.08)',border:'rgba(224,64,251,.2)',labelColor:'#e040fb',label:'Agency ROI: ',text:'Phase A = no off-brand output ever reaches a client. Phase B = automated delivery reports. Phase C = 5-hour retainer delivers what used to take a 40-hour sprint.'}
+  },
+  'ecomm': {
+    'concept':  {bg:'rgba(0,230,118,.12)',border:'rgba(0,230,118,.3)',labelColor:'#00e676',label:'E-Commerce Use Case: ',text:'Product page copy, email sequences, ad creative, and CRO — all on autopilot. Claude maintains brand voice, tracks pixel events, and ships to Shopify/GHL in one command.'},
+    'flow':     {bg:'rgba(0,230,118,.08)',border:'rgba(0,230,118,.2)',labelColor:'#00e676',label:'Pixel Tracking: ',text:'The hook data flow is the backbone of the pixel tracker system — PostToolUse fires for every CTA click, form submit, and purchase event. All 24 data fields (UTM, device, scroll depth, session ID) land in Google Sheet automatically.'},
+    'impact':   {bg:'rgba(0,230,118,.08)',border:'rgba(0,230,118,.2)',labelColor:'#00e676',label:'E-Commerce Impact: ',text:'Phase A = brand-consistent product copy across all SKUs. Phase B = real-time event ledger replacing expensive analytics tools. Phase C = automated A/B test generation, winner detection, and variant shipping.'}
+  },
+  'saas': {
+    'concept':  {bg:'rgba(255,109,0,.12)',border:'rgba(255,109,0,.3)',labelColor:'#ff6d00',label:'SaaS Use Case: ',text:'Feature development, QA automation, documentation, and changelog generation. Claude acts as a 24/7 senior engineer — every PR runs through /analyze → /build → /test → /review before any human sees it.'},
+    'pipeline': {bg:'rgba(255,109,0,.08)',border:'rgba(255,109,0,.2)',labelColor:'#ff6d00',label:'SaaS Pipeline: ',text:'/analyze maps risk (HIGH/MED/LOW) before a single line is written. /build implements one file at a time. /test blocks merge on failure. /ship generates the conventional commit and PR summary automatically.'},
+    'layers':   {bg:'rgba(255,109,0,.08)',border:'rgba(255,109,0,.2)',labelColor:'#ff6d00',label:'SaaS Skills Layer: ',text:'Key skills active: systematic-debugging, code-reviewer, security-reviewer, test-engineer. All fire automatically based on task type. Zero manual configuration per sprint.'},
+    'impact':   {bg:'rgba(255,109,0,.08)',border:'rgba(255,109,0,.2)',labelColor:'#ff6d00',label:'SaaS Impact: ',text:'Phase A = architecture constraints enforced on every AI output. Phase B = automated PR summaries and changelog entries. Phase C = feature cycle time: 2 weeks to 2 hours. QA coverage: 0% to 85% automated.'}
+  }
+};
+
+var activeCustomer = null;
+var activeSlides   = [];
+var currentIdx     = 0;
+
+// Build a context card using DOM methods (no innerHTML)
+function buildContextCard(el, ctx) {
+  while (el.firstChild) el.removeChild(el.firstChild);
+  el.style.background    = ctx.bg;
+  el.style.borderColor   = ctx.border;
+  el.style.display       = 'block';
+  el.classList.add('show');
+  var strong = document.createElement('strong');
+  strong.style.color = ctx.labelColor;
+  strong.textContent = ctx.label;
+  var span = document.createElement('span');
+  span.textContent = ctx.text;
+  el.appendChild(strong);
+  el.appendChild(span);
+}
+
+function clearContextCards() {
+  document.querySelectorAll('.cust-context').forEach(function(el) {
+    el.style.display = 'none';
+    el.className = 'cust-context';
+    while (el.firstChild) el.removeChild(el.firstChild);
+  });
+}
+
+function injectContextCards(customer) {
+  clearContextCards();
+  var ctxMap = CUSTOMER_CONTEXT[customer];
+  if (!ctxMap) return;
+  Object.keys(ctxMap).forEach(function(slideId) {
+    var el = document.getElementById('ctx-' + slideId);
+    if (el) buildContextCard(el, ctxMap[slideId]);
+  });
+}
+
+function selectCustomer(customer) {
+  // if/then: same customer clicked again → exit mode
+  if (customer === activeCustomer && customer !== 'all') { exitMode(); return; }
+
+  activeCustomer = customer;
+  activeSlides   = CUSTOMER_ROUTES[customer] || CUSTOMER_ROUTES['all'];
+  currentIdx     = 0;
+
+  // Update button active states
+  document.querySelectorAll('.cust-btn').forEach(function(btn) {
+    btn.className = 'cust-btn';
+    if (btn.dataset.customer === customer) {
+      var cls = btn.dataset.color;
+      if (cls) btn.classList.add(cls);
+      else     btn.classList.add('active');
+    }
+  });
+
+  // Show/hide slides
+  document.querySelectorAll('.slide-section').forEach(function(el) {
+    if (activeSlides.indexOf(el.dataset.slide) !== -1) {
+      el.classList.remove('slide-hidden');
+    } else {
+      el.classList.add('slide-hidden');
+    }
+    el.classList.remove('slide-active');
+  });
+
+  injectContextCards(customer);
+
+  // if all slides → no nav
+  if (customer === 'all') {
+    document.getElementById('slideNav').style.display = 'none';
+    return;
+  }
+
+  document.getElementById('slideNav').style.display = 'flex';
+  highlightSlide(0);
+}
+
+function highlightSlide(idx) {
+  idx = Math.max(0, Math.min(idx, activeSlides.length - 1));
+  currentIdx = idx;
+
+  document.querySelectorAll('.slide-section').forEach(function(el) {
+    el.classList.remove('slide-active');
+  });
+
+  var target = document.querySelector('[data-slide="' + activeSlides[idx] + '"]');
+  if (target) {
+    target.classList.add('slide-active');
+    target.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  document.getElementById('slideIndicator').textContent =
+    'Slide ' + (idx + 1) + ' of ' + activeSlides.length;
+  document.getElementById('prevBtn').disabled = (idx === 0);
+  document.getElementById('nextBtn').disabled = (idx === activeSlides.length - 1);
+}
+
+function slideStep(delta) { highlightSlide(currentIdx + delta); }
+
+function exitMode() {
+  activeCustomer = null; activeSlides = []; currentIdx = 0;
+  document.querySelectorAll('.slide-section').forEach(function(el) {
+    el.classList.remove('slide-hidden','slide-active');
+  });
+  clearContextCards();
+  document.getElementById('slideNav').style.display = 'none';
+  document.querySelectorAll('.cust-btn').forEach(function(btn) { btn.className = 'cust-btn'; });
+}
+
+// Keyboard nav: arrows when in customer mode
+document.addEventListener('keydown', function(e) {
+  if (!activeCustomer || activeCustomer === 'all') return;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); slideStep(1); }
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   { e.preventDefault(); slideStep(-1); }
+  if (e.key === 'Escape') exitMode();
+});
+</script>
+</body>
+</html>
