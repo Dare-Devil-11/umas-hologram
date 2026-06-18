@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>UMAS Facebook Ad Mockup</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #f0f2f5;
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 48px;
+  }
+
+  h2.section-header {
+    width: 100%;
+    max-width: 500px;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #888;
+    text-align: center;
+    margin-bottom: -32px;
+  }
+
+  /* PHONE CHROME */
+  .phone {
+    width: 375px;
+    background: #f0f2f5;
+    border-radius: 40px;
+    box-shadow: 0 20px 80px rgba(0,0,0,.25), 0 0 0 10px #1a1a1a, 0 0 0 12px #333;
+    overflow: hidden;
+    position: relative;
+  }
+  .phone-notch {
+    background: #1a1a1a;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .notch-pill {
+    width: 100px;
+    height: 14px;
+    background: #000;
+    border-radius: 20px;
+  }
+
+  /* FB APP CHROME */
+  .fb-nav {
+    background: #fff;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #e4e6eb;
+  }
+  .fb-logo { font-size: 24px; font-weight: 900; color: #1877f2; }
+  .fb-nav-icons { display: flex; gap: 8px; }
+  .nav-icon {
+    width: 36px; height: 36px; background: #e4e6eb;
+    border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; font-size: 16px;
+  }
+
+  /* FEED */
+  .feed { background: #f0f2f5; }
+
+  /* STORY BAR */
+  .stories {
+    background: #fff;
+    padding: 10px 0 10px 12px;
+    display: flex;
+    gap: 10px;
+    overflow: hidden;
+    border-bottom: 8px solid #f0f2f5;
+  }
+  .story-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .story-ring {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+    padding: 2px;
+  }
+  .story-inner {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    background: #c8d6e5;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .story-name { font-size: 10px; color: #444; }
+
+  /* GENERIC POST */
+  .generic-post {
+    background: #fff;
+    margin-bottom: 8px;
+    padding: 12px 16px 10px;
+  }
+  .post-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .post-avatar {
+    width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 700; color: #fff;
+  }
+  .post-meta { flex: 1; }
+  .post-name { font-size: 14px; font-weight: 700; color: #1a1a1a; }
+  .post-time { font-size: 12px; color: #888; }
+  .post-text { font-size: 14px; color: #1c1e21; line-height: 1.5; margin-bottom: 10px; }
+  .post-image { width: 100%; height: 160px; border-radius: 8px; background: #e4e6eb; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; }
+  .post-reactions { display: flex; justify-content: space-between; padding: 8px 0; border-top: 1px solid #e4e6eb; border-bottom: 1px solid #e4e6eb; margin-bottom: 4px; }
+  .react-count { font-size: 13px; color: #888; }
+  .post-actions { display: flex; justify-content: space-around; padding: 2px 0; }
+  .post-action-btn { font-size: 13px; color: #65676b; font-weight: 600; padding: 6px 12px; border-radius: 6px; }
+
+  /* ===== THE AD ===== */
+  .ad-post {
+    background: #fff;
+    margin-bottom: 8px;
+    padding: 12px 16px 0;
+    border: 2px solid #2c6e49;
+    position: relative;
+  }
+  .ad-ribbon {
+    position: absolute;
+    top: -1px;
+    right: 16px;
+    background: #2c6e49;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 0 0 8px 8px;
+  }
+  .ad-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .ad-avatar {
+    width: 38px; height: 38px; background: #2c6e49;
+    border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 800; color: #fff;
+  }
+  .ad-meta { flex: 1; }
+  .ad-name { font-size: 14px; font-weight: 700; color: #1a1a1a; }
+  .ad-sponsored { font-size: 12px; color: #888; display: flex; align-items: center; gap: 4px; }
+  .ad-sponsored span { color: #2c6e49; }
+  .ad-more { font-size: 18px; color: #888; }
+  .ad-copy { font-size: 14px; color: #1c1e21; line-height: 1.55; margin-bottom: 12px; }
+  .see-more { color: #1877f2; font-size: 14px; }
+
+  /* AD IMAGE */
+  .ad-creative {
+    margin: 0 -16px;
+    background: linear-gradient(160deg, #2c6e49 0%, #1a4530 60%, #0d2318 100%);
+    height: 190px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .ad-creative::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 70% 30%, rgba(255,255,255,.08) 0%, transparent 60%);
+  }
+  .creative-eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.6);
+    margin-bottom: 8px;
+  }
+  .creative-headline {
+    font-size: 22px;
+    font-weight: 900;
+    color: #fff;
+    text-align: center;
+    line-height: 1.2;
+    padding: 0 24px;
+    margin-bottom: 10px;
+  }
+  .creative-accent {
+    display: inline-block;
+    background: rgba(255,255,255,.15);
+    border: 1px solid rgba(255,255,255,.3);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+  }
+  .creative-logos {
+    display: flex;
+    gap: 6px;
+    position: absolute;
+    bottom: 10px;
+    left: 16px;
+    font-size: 10px;
+    color: rgba(255,255,255,.5);
+    align-items: center;
+  }
+  .creative-tag {
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.15);
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 9px;
+    color: rgba(255,255,255,.6);
+    letter-spacing: 0.5px;
+  }
+
+  /* AD FOOTER BAR */
+  .ad-footer-bar {
+    background: #f2f3f5;
+    margin: 0 -16px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .ad-footer-text { flex: 1; }
+  .ad-footer-url { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+  .ad-footer-headline { font-size: 14px; font-weight: 700; color: #1c1e21; line-height: 1.3; }
+  .ad-footer-desc { font-size: 12px; color: #888; margin-top: 1px; }
+  .ad-cta-btn {
+    background: #2c6e49;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: 8px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* AD REACTIONS */
+  .ad-reactions {
+    padding: 8px 0;
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid #e4e6eb;
+    margin-top: 2px;
+  }
+  .react-icons { font-size: 12px; color: #888; }
+  .ad-action-row {
+    display: flex;
+    justify-content: space-around;
+    padding: 2px 0 10px;
+    border-top: 1px solid #e4e6eb;
+  }
+  .ad-action { font-size: 13px; color: #65676b; font-weight: 600; display: flex; align-items: center; gap: 4px; padding: 6px; }
+
+  /* LEAD FORM OVERLAY */
+  .lead-form-overlay {
+    background: #fff;
+    border-radius: 16px;
+    margin: 0 8px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,.15);
+  }
+  .lf-header {
+    background: linear-gradient(135deg, #2c6e49, #1a4530);
+    padding: 20px;
+    text-align: center;
+  }
+  .lf-logo { font-size: 14px; font-weight: 800; color: rgba(255,255,255,.7); margin-bottom: 6px; }
+  .lf-headline { font-size: 17px; font-weight: 800; color: #fff; line-height: 1.3; }
+  .lf-body { padding: 16px; }
+  .lf-q { margin-bottom: 12px; }
+  .lf-label { font-size: 11px; font-weight: 700; color: #888; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .lf-input {
+    border: 1.5px solid #e4e6eb;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+    color: #1a1a1a;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .lf-input-placeholder { color: #aaa; }
+  .lf-radio-group { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .lf-radio { border: 1.5px solid #e4e6eb; border-radius: 20px; padding: 5px 12px; font-size: 12px; color: #444; }
+  .lf-radio.selected { border-color: #2c6e49; background: #e8f5ee; color: #2c6e49; font-weight: 700; }
+  .lf-submit {
+    background: #2c6e49; color: #fff; font-size: 15px; font-weight: 800;
+    padding: 14px; border-radius: 10px; text-align: center; margin-top: 4px;
+  }
+  .lf-privacy { font-size: 11px; color: #aaa; text-align: center; margin-top: 8px; line-height: 1.5; }
+
+  /* PHONE BOTTOM */
+  .phone-home {
+    background: #f0f2f5;
+    padding: 14px 0 10px;
+    display: flex;
+    justify-content: center;
+  }
+  .home-bar {
+    width: 100px; height: 4px;
+    background: #888;
+    border-radius: 4px;
+  }
+
+  /* CAPTION */
+  .caption {
+    width: 375px;
+    text-align: center;
+    font-size: 12px;
+    color: #888;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-top: -32px;
+  }
+</style>
+</head>
+<body>
+
+<h2 class="section-header">Ad in Feed</h2>
+
+<!-- PHONE 1 — FEED VIEW -->
+<div class="phone">
+  <div class="phone-notch"><div class="notch-pill"></div></div>
+
+  <!-- FB NAV -->
+  <div class="fb-nav">
+    <div class="fb-logo">f</div>
+    <div class="fb-nav-icons">
+      <div class="nav-icon">🔍</div>
+      <div class="nav-icon">🔔</div>
+      <div class="nav-icon">💬</div>
+    </div>
+  </div>
+
+  <div class="feed">
+    <!-- STORIES -->
+    <div class="stories">
+      <div class="story-item">
+        <div class="story-ring"><div class="story-inner">👤</div></div>
+        <div class="story-name">Your Story</div>
+      </div>
+      <div class="story-item">
+        <div class="story-ring" style="background:#1877f2;"><div class="story-inner">🌸</div></div>
+        <div class="story-name">Priya</div>
+      </div>
+      <div class="story-item">
+        <div class="story-ring" style="background:#e1306c;"><div class="story-inner">🏠</div></div>
+        <div class="story-name">Raj K.</div>
+      </div>
+    </div>
+
+    <!-- GENERIC POST (above ad) -->
+    <div class="generic-post">
+      <div class="post-header">
+        <div class="post-avatar" style="background:#1877f2;">A</div>
+        <div class="post-meta">
+          <div class="post-name">Anita Sharma</div>
+          <div class="post-time">2h ago · 🌐</div>
+        </div>
+      </div>
+      <div class="post-text">My mom turned 78 this week. Time flies so fast. 🙏❤️</div>
+      <div class="post-reactions">
+        <div class="react-count">❤️ 👍 😊 &nbsp;47</div>
+        <div class="react-count">8 comments</div>
+      </div>
+      <div class="post-actions">
+        <div class="post-action-btn">👍 Like</div>
+        <div class="post-action-btn">💬 Comment</div>
+        <div class="post-action-btn">↗ Share</div>
+      </div>
+    </div>
+
+    <!-- THE AD -->
+    <div class="ad-post">
+      <div class="ad-ribbon">Sponsored</div>
+      <div class="ad-header">
+        <div class="ad-avatar">U</div>
+        <div class="ad-meta">
+          <div class="ad-name">UMAS Senior Services</div>
+          <div class="ad-sponsored">Sponsored · <span>✓ Serving Chicagoland</span></div>
+        </div>
+        <div class="ad-more">···</div>
+      </div>
+
+      <div class="ad-copy">
+        Most families don't know this exists.<br><br>
+        Illinois pays for in-home care for seniors 60+ — personal care, housekeeping, meals, and companionship. <strong>Most families pay $0.</strong><br><br>
+        UMAS helps Chicagoland families apply and get approved, at no cost to you. <span class="see-more">See more</span>
+      </div>
+
+      <!-- CREATIVE IMAGE -->
+      <div class="ad-creative">
+        <div class="creative-eyebrow">Illinois Community Care Program</div>
+        <div class="creative-headline">Your parent may qualify<br>for free home care.</div>
+        <div class="creative-accent">Most families pay $0</div>
+        <div class="creative-logos">
+          <span class="creative-tag">Cook County</span>
+          <span class="creative-tag">DuPage</span>
+          <span class="creative-tag">Kane</span>
+          <span class="creative-tag">Will</span>
+        </div>
+      </div>
+
+      <!-- AD FOOTER BAR -->
+      <div class="ad-footer-bar">
+        <div class="ad-footer-text">
+          <div class="ad-footer-url">umasinc.com</div>
+          <div class="ad-footer-headline">Free Home Care in Illinois</div>
+          <div class="ad-footer-desc">Free assessment · Call 847-306-7606</div>
+        </div>
+        <div class="ad-cta-btn">Learn More</div>
+      </div>
+
+      <div class="ad-reactions">
+        <div class="react-icons">❤️ 👍 😲 &nbsp;<span style="color:#888; font-size:12px;">124 reactions</span></div>
+        <div style="font-size:12px; color:#888;">18 comments · 7 shares</div>
+      </div>
+      <div class="ad-action-row">
+        <div class="ad-action">👍 Like</div>
+        <div class="ad-action">💬 Comment</div>
+        <div class="ad-action">↗ Share</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="phone-home"><div class="home-bar"></div></div>
+</div>
+<div class="caption">Ad in Feed — Angle 1</div>
+
+
+<h2 class="section-header" style="margin-top:8px;">Lead Form (after click)</h2>
+
+<!-- PHONE 2 — LEAD FORM -->
+<div class="phone">
+  <div class="phone-notch"><div class="notch-pill"></div></div>
+
+  <div class="fb-nav" style="justify-content:flex-start; gap:12px;">
+    <div style="font-size:14px; color:#888;">✕</div>
+    <div style="font-size:13px; font-weight:600; color:#1a1a1a;">UMAS Senior Services</div>
+  </div>
+
+  <div style="background:#f0f2f5; padding: 12px 8px; min-height: 580px;">
+
+    <div class="lead-form-overlay">
+      <div class="lf-header">
+        <div class="lf-logo">UMAS SENIOR SERVICES</div>
+        <div class="lf-headline">Find out if your loved one qualifies for free home care in Illinois</div>
+      </div>
+
+      <div class="lf-body">
+        <div class="lf-q">
+          <div class="lf-label">Full Name</div>
+          <div class="lf-input"><span>Priya Patel</span></div>
+        </div>
+        <div class="lf-q">
+          <div class="lf-label">Phone Number</div>
+          <div class="lf-input"><span>(630) 555-0192</span></div>
+        </div>
+        <div class="lf-q">
+          <div class="lf-label">Who needs care?</div>
+          <div class="lf-radio-group">
+            <div class="lf-radio">Myself</div>
+            <div class="lf-radio selected">My Parent</div>
+            <div class="lf-radio">Spouse</div>
+            <div class="lf-radio">Other</div>
+          </div>
+        </div>
+        <div class="lf-q">
+          <div class="lf-label">How soon do you need help?</div>
+          <div class="lf-radio-group">
+            <div class="lf-radio selected">ASAP</div>
+            <div class="lf-radio">Within 1 month</div>
+            <div class="lf-radio">Just researching</div>
+          </div>
+        </div>
+
+        <div class="lf-submit">Submit — Free Assessment</div>
+        <div class="lf-privacy">By submitting you agree to be contacted by UMAS. Your information will not be shared. Privacy Policy.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="phone-home"><div class="home-bar"></div></div>
+</div>
+<div class="caption">Lead Form — After Click</div>
+
+</body>
+</html>
