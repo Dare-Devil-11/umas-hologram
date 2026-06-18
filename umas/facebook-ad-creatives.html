@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>UMAS Facebook Ad Creatives — 1080×1080</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: #111;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    padding: 60px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 80px;
+  }
+  .page-label {
+    color: rgba(255,255,255,.4);
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: -60px;
+  }
+  .ad-label {
+    color: rgba(255,255,255,.35);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: -64px;
+  }
+
+  /* ALL ADS ARE 1080×1080 — scale down for screen */
+  .ad {
+    width: 1080px;
+    height: 1080px;
+    position: relative;
+    overflow: hidden;
+    transform-origin: top center;
+    transform: scale(0.5);
+    margin-bottom: -540px;
+    flex-shrink: 0;
+    border-radius: 4px;
+  }
+
+  /* ===================== AD 1 — FREE CARE HOOK ===================== */
+  #ad1 {
+    background: #0d1f14;
+  }
+  #ad1 .bg-shape {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 900px 700px at 110% 110%, #2c6e49 0%, transparent 60%),
+      radial-gradient(ellipse 600px 500px at -10% -10%, rgba(44,110,73,.4) 0%, transparent 60%);
+  }
+  #ad1 .grid-lines {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+    background-size: 108px 108px;
+  }
+  #ad1 .content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 80px;
+  }
+  #ad1 .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  #ad1 .logo {
+    font-size: 28px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 4px;
+  }
+  #ad1 .top-badge {
+    background: rgba(44,110,73,.5);
+    border: 1px solid rgba(44,110,73,.8);
+    color: #7ecba1;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 10px 24px;
+    border-radius: 40px;
+  }
+  #ad1 .center-block { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  #ad1 .eyebrow {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #7ecba1;
+    margin-bottom: 32px;
+  }
+  #ad1 h1 {
+    font-size: 108px;
+    font-weight: 900;
+    color: #fff;
+    line-height: .92;
+    letter-spacing: -3px;
+    margin-bottom: 40px;
+  }
+  #ad1 h1 em {
+    font-style: normal;
+    color: #7ecba1;
+  }
+  #ad1 .subtext {
+    font-size: 30px;
+    color: rgba(255,255,255,.65);
+    line-height: 1.5;
+    max-width: 800px;
+    font-weight: 400;
+  }
+  #ad1 .bottom-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  #ad1 .stat-group { display: flex; gap: 56px; }
+  #ad1 .stat { }
+  #ad1 .stat-num { font-size: 52px; font-weight: 900; color: #fff; line-height: 1; }
+  #ad1 .stat-label { font-size: 18px; color: rgba(255,255,255,.5); margin-top: 6px; }
+  #ad1 .cta-pill {
+    background: #2c6e49;
+    color: #fff;
+    font-size: 26px;
+    font-weight: 800;
+    padding: 22px 48px;
+    border-radius: 60px;
+    letter-spacing: 1px;
+  }
+
+  /* ===================== AD 2 — CAREGIVER BURNOUT ===================== */
+  #ad2 {
+    background: #f9f5f0;
+  }
+  #ad2 .left-accent {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 12px;
+    background: #2c6e49;
+  }
+  #ad2 .content {
+    position: absolute;
+    inset: 0;
+    padding: 80px 80px 80px 92px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  #ad2 .logo-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  #ad2 .logo { font-size: 28px; font-weight: 900; color: #2c6e49; letter-spacing: 3px; }
+  #ad2 .logo-sep { width: 2px; height: 32px; background: #2c6e49; opacity: .3; }
+  #ad2 .logo-sub { font-size: 18px; color: #666; letter-spacing: 1px; }
+  #ad2 .center { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  #ad2 .quote-mark { font-size: 200px; color: #2c6e49; opacity: .12; line-height: .7; margin-bottom: -20px; font-family: Georgia, serif; }
+  #ad2 .quote-text {
+    font-size: 72px;
+    font-weight: 900;
+    color: #1a1a1a;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    margin-bottom: 40px;
+  }
+  #ad2 .quote-text span { color: #2c6e49; }
+  #ad2 .body-text {
+    font-size: 28px;
+    color: #555;
+    line-height: 1.6;
+    max-width: 860px;
+  }
+  #ad2 .bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  #ad2 .tags { display: flex; gap: 16px; }
+  #ad2 .tag {
+    border: 2px solid #2c6e49;
+    color: #2c6e49;
+    font-size: 20px;
+    font-weight: 700;
+    padding: 10px 24px;
+    border-radius: 40px;
+  }
+  #ad2 .cta {
+    background: #2c6e49;
+    color: #fff;
+    font-size: 28px;
+    font-weight: 800;
+    padding: 22px 52px;
+    border-radius: 60px;
+  }
+
+  /* ===================== AD 3 — SOUTH ASIAN ===================== */
+  #ad3 {
+    background: #1a0a00;
+  }
+  #ad3 .bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 800px 600px at 100% 0%, rgba(180,90,20,.5) 0%, transparent 55%),
+      radial-gradient(ellipse 600px 500px at 0% 100%, rgba(44,110,73,.35) 0%, transparent 55%);
+  }
+  #ad3 .pattern {
+    position: absolute;
+    inset: 0;
+    opacity: .06;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='2' fill='%23fff'/%3E%3C/svg%3E");
+    background-size: 60px 60px;
+  }
+  #ad3 .content {
+    position: absolute;
+    inset: 0;
+    padding: 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  #ad3 .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  #ad3 .logo { font-size: 28px; font-weight: 900; color: #fff; letter-spacing: 4px; }
+  #ad3 .lang-badges { display: flex; gap: 12px; flex-wrap: wrap; justify-content: flex-end; max-width: 400px; }
+  #ad3 .lang {
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.2);
+    color: rgba(255,255,255,.85);
+    font-size: 18px;
+    font-weight: 600;
+    padding: 8px 20px;
+    border-radius: 30px;
+  }
+  #ad3 .center { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  #ad3 .eyebrow {
+    font-size: 22px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: #d4956a;
+    margin-bottom: 28px;
+    font-weight: 700;
+  }
+  #ad3 h1 {
+    font-size: 88px;
+    font-weight: 900;
+    color: #fff;
+    line-height: .95;
+    letter-spacing: -2px;
+    margin-bottom: 36px;
+  }
+  #ad3 h1 span { color: #d4956a; }
+  #ad3 .body {
+    font-size: 28px;
+    color: rgba(255,255,255,.65);
+    line-height: 1.6;
+    max-width: 840px;
+  }
+  #ad3 .bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  #ad3 .free-badge {
+    background: rgba(44,110,73,.4);
+    border: 1.5px solid rgba(44,110,73,.8);
+    color: #7ecba1;
+    font-size: 24px;
+    font-weight: 800;
+    padding: 14px 32px;
+    border-radius: 40px;
+  }
+  #ad3 .phone-badge {
+    background: #d4956a;
+    color: #fff;
+    font-size: 26px;
+    font-weight: 800;
+    padding: 22px 48px;
+    border-radius: 60px;
+    letter-spacing: 1px;
+  }
+
+  /* ===================== AD 4 — URGENCY / CRISIS ===================== */
+  #ad4 {
+    background: #fff;
+  }
+  #ad4 .top-half {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 560px;
+    background: #1a1a1a;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 80px;
+    overflow: hidden;
+  }
+  #ad4 .top-half::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0; right: 0;
+    height: 80px;
+    background: #fff;
+    clip-path: ellipse(60% 100% at 50% 100%);
+  }
+  #ad4 .top-accent {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 560px;
+    background: radial-gradient(ellipse at 0% 50%, rgba(44,110,73,.3) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  #ad4 .logo { font-size: 26px; font-weight: 900; color: rgba(255,255,255,.5); letter-spacing: 4px; margin-bottom: 48px; }
+  #ad4 h1 {
+    font-size: 100px;
+    font-weight: 900;
+    color: #fff;
+    line-height: .9;
+    letter-spacing: -3px;
+    position: relative;
+    z-index: 1;
+  }
+  #ad4 h1 em { font-style: normal; color: #7ecba1; display: block; }
+  #ad4 .bottom-half {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 520px;
+    padding: 60px 80px 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  #ad4 .point-list { display: flex; flex-direction: column; gap: 24px; }
+  #ad4 .point {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  #ad4 .point-dot {
+    width: 20px; height: 20px;
+    background: #2c6e49;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  #ad4 .point-text { font-size: 30px; color: #333; font-weight: 500; line-height: 1.3; }
+  #ad4 .point-text strong { color: #1a1a1a; font-weight: 800; }
+  #ad4 .bottom-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  #ad4 .url { font-size: 22px; color: #999; letter-spacing: 1px; }
+  #ad4 .cta {
+    background: #2c6e49;
+    color: #fff;
+    font-size: 26px;
+    font-weight: 800;
+    padding: 22px 52px;
+    border-radius: 60px;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="page-label">UMAS — Facebook Ad Creatives · 1080 × 1080 · Screenshot to use</div>
+
+<!-- ========== AD 1 ========== -->
+<div class="ad-label">Angle 1 — Free Care Hook · Dark</div>
+<div class="ad" id="ad1">
+  <div class="bg-shape"></div>
+  <div class="grid-lines"></div>
+  <div class="content">
+    <div class="top-bar">
+      <div class="logo">UMAS</div>
+      <div class="top-badge">Illinois CCP</div>
+    </div>
+    <div class="center-block">
+      <div class="eyebrow">Most families don't know this exists</div>
+      <h1>Free home<br>care for your<br><em>parent.</em></h1>
+      <div class="subtext">If they're 60+ and need help at home,<br>Illinois may cover the cost. Most families pay $0.</div>
+    </div>
+    <div class="bottom-bar">
+      <div class="stat-group">
+        <div class="stat">
+          <div class="stat-num">60+</div>
+          <div class="stat-label">Age to qualify</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">$0</div>
+          <div class="stat-label">Most families pay</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">4</div>
+          <div class="stat-label">Counties served</div>
+        </div>
+      </div>
+      <div class="cta-pill">Get Free Assessment</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== AD 2 ========== -->
+<div class="ad-label">Angle 2 — Caregiver Burnout · Light</div>
+<div class="ad" id="ad2">
+  <div class="left-accent"></div>
+  <div class="content">
+    <div class="logo-row">
+      <div class="logo">UMAS</div>
+      <div class="logo-sep"></div>
+      <div class="logo-sub">Senior Services</div>
+    </div>
+    <div class="center">
+      <div class="quote-mark">"</div>
+      <div class="quote-text">You're doing<br>everything.<br><span>You don't have<br>to do it alone.</span></div>
+      <div class="body-text">State-funded home care is available for seniors 60+ in Illinois. UMAS helps your family apply — free of charge.</div>
+    </div>
+    <div class="bottom">
+      <div class="tags">
+        <div class="tag">Bilingual Staff</div>
+        <div class="tag">Free Assessment</div>
+        <div class="tag">Cook · DuPage · Kane · Will</div>
+      </div>
+      <div class="cta">847-306-7606</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== AD 3 ========== -->
+<div class="ad-label">Angle 3 — South Asian Community · Warm Dark</div>
+<div class="ad" id="ad3">
+  <div class="bg"></div>
+  <div class="pattern"></div>
+  <div class="content">
+    <div class="top">
+      <div class="logo">UMAS</div>
+      <div class="lang-badges">
+        <div class="lang">हिन्दी</div>
+        <div class="lang">اردو</div>
+        <div class="lang">ગુજરાતી</div>
+        <div class="lang">English</div>
+      </div>
+    </div>
+    <div class="center">
+      <div class="eyebrow">For South Asian families</div>
+      <h1>Care that<br>speaks your<br><span>language.</span></h1>
+      <div class="body">In-home care for seniors 60+ across Chicagoland. Bilingual staff. Culturally sensitive. State-funded through Illinois CCP.</div>
+    </div>
+    <div class="bottom">
+      <div class="free-badge">Most families pay $0</div>
+      <div class="phone-badge">847-306-7606</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== AD 4 ========== -->
+<div class="ad-label">Angle 4 — Urgency · Black & White Split</div>
+<div class="ad" id="ad4">
+  <div class="top-half">
+    <div class="top-accent"></div>
+    <div class="logo">UMAS</div>
+    <h1>Don't wait<br><em>until it's<br>a crisis.</em></h1>
+  </div>
+  <div class="bottom-half">
+    <div class="point-list">
+      <div class="point"><div class="point-dot"></div><div class="point-text"><strong>Age 60+</strong> and needs help at home</div></div>
+      <div class="point"><div class="point-dot"></div><div class="point-text"><strong>Illinois resident</strong> in Cook, DuPage, Kane, or Will County</div></div>
+      <div class="point"><div class="point-dot"></div><div class="point-text">Could qualify for <strong>free in-home care</strong> through Illinois CCP</div></div>
+    </div>
+    <div class="bottom-row">
+      <div class="url">umasinc.com</div>
+      <div class="cta">Free Assessment →</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
