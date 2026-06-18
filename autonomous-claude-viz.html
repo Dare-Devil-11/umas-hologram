@@ -228,6 +228,9 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
     <button class="page-tab" onclick="vizTabClick('brain')">
       <span class="page-tab-dot" style="background:var(--primary);"></span>Brain Graph
     </button>
+    <button class="page-tab" onclick="vizTabClick('pixel')">
+      <span class="page-tab-dot" style="background:#00e676;"></span>Pixel Tracker
+    </button>
     <button class="page-tab" onclick="vizTabClick('dashboard')">
       <span class="page-tab-dot" style="background:var(--gold);"></span>Dashboard
     </button>
@@ -818,10 +821,12 @@ document.addEventListener('keydown', function(e) {
 /* ── PAGE TAB NAVIGATION ── */
 var VIZ_URLS = {
   brain:     'https://dare-devil-11.github.io/umas-hologram/brain-graph.html',
+  pixel:     'https://dare-devil-11.github.io/umas-hologram/pixel-tracker.html',
   dashboard: 'https://dare-devil-11.github.io/umas-hologram/goat-aios-dashboard.html'
 };
 var VIZ_TITLES = {
   brain:     '⬡ BRAIN GRAPH — 1,660 nodes · 3,749 edges',
+  pixel:     '◆ PIXEL TRACKER — Business Data Intelligence',
   dashboard: '■ GOAT AIOS DASHBOARD'
 };
 
