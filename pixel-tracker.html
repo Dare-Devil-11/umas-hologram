@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixel Tracker — GOAT AIOS</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --primary:#00e5ff;--gold:#ffd600;--magenta:#e040fb;--green:#00e676;
+  --red:#ff1744;--orange:#ff6d00;--bg:#000008;
+  --surface:rgba(0,20,40,0.82);--surface2:rgba(0,10,28,0.94);
+  --border:rgba(0,229,255,0.15);--border2:rgba(0,229,255,0.06);
+  --text:#e2e8f0;--muted:rgba(255,255,255,0.4);--radius:10px;
+  --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;
+}
+html,body{width:100%;min-height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;z-index:0;
+  background-image:linear-gradient(rgba(0,229,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.03) 1px,transparent 1px);
+  background-size:52px 52px;pointer-events:none;}
+body::after{content:'';position:fixed;inset:0;z-index:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,229,255,.008) 2px,rgba(0,229,255,.008) 4px);
+  pointer-events:none;}
+.page{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:32px 24px 80px;}
+
+/* ── HEADER ── */
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;opacity:0;}
+.logo{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--green);letter-spacing:3px;text-shadow:0 0 16px var(--green);}
+.logo span{color:var(--gold);}
+.header-badge{font-family:var(--mono);font-size:11px;padding:4px 12px;border-radius:4px;border:1px solid rgba(0,230,118,.3);color:var(--green);letter-spacing:1px;}
+
+/* ── PAGE TABS ── */
+.page-tabs{display:flex;gap:8px;margin-bottom:40px;border-bottom:1px solid var(--border2);padding-bottom:14px;opacity:0;}
+.page-tab{
+  font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:1.5px;
+  padding:7px 16px;border-radius:6px;border:1px solid var(--border);
+  background:transparent;color:var(--muted);cursor:pointer;transition:all .2s ease;text-transform:uppercase;
+}
+.page-tab:hover{border-color:rgba(0,230,118,.4);color:var(--text);}
+.page-tab.pt-active{background:rgba(0,230,118,.1);border-color:var(--green);color:var(--green);}
+.page-tab.pt-cyan{background:rgba(0,229,255,.1);border-color:var(--primary);color:var(--primary);}
+.page-tab.pt-gold{background:rgba(255,214,0,.1);border-color:var(--gold);color:var(--gold);}
+.page-tab.pt-magenta{background:rgba(224,64,251,.1);border-color:var(--magenta);color:var(--magenta);}
+.page-tab-dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:middle;}
+
+/* ── SECTION LABEL ── */
+.section-label{font-size:9px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:16px;font-family:var(--mono);}
+
+/* ── HERO THESIS ── */
+.thesis{background:var(--surface2);border:1px solid rgba(0,230,118,.2);border-radius:var(--radius);padding:24px 28px;margin-bottom:48px;opacity:0;position:relative;overflow:hidden;}
+.thesis::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--green),var(--primary));}
+.thesis-text{font-size:15px;line-height:1.7;color:rgba(255,255,255,.82);max-width:760px;}
+.thesis-text strong{color:var(--green);}
+
+/* ── CARDS GRID ── */
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:48px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:48px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:48px;}
+.card{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);padding:18px 20px;opacity:0;}
+.card:hover{border-color:var(--border);}
+.card-title{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.card-body{font-size:11px;color:var(--muted);line-height:1.8;}
+.card-body span{display:block;}
+.card-source{font-size:9px;margin-top:8px;letter-spacing:1px;opacity:.7;}
+
+/* ── EVENT BADGES ── */
+.event-wrap{margin-bottom:48px;opacity:0;}
+.badges{display:flex;flex-wrap:wrap;gap:8px;}
+.badge{font-family:var(--mono);font-size:10px;padding:5px 12px;border-radius:5px;}
+.badge-auto{background:rgba(0,230,118,.1);color:var(--green);border:1px solid rgba(0,230,118,.25);}
+.badge-manual{background:rgba(255,214,0,.1);color:var(--gold);border:1px solid rgba(255,214,0,.25);}
+.badge-note{font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:10px;padding:10px 14px;border:1px solid var(--border2);border-radius:6px;line-height:1.6;}
+
+/* ── FIELDS TABLE ── */
+.fields-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;}
+.field-cell{padding:8px 12px;border-bottom:1px solid var(--border2);border-right:1px solid var(--border2);font-family:var(--mono);font-size:10px;color:var(--text);}
+.field-cell:nth-child(4n){border-right:none;}
+.field-cell:nth-last-child(-n+4){border-bottom:none;}
+.field-cell.field-header{background:rgba(0,230,118,.08);color:var(--green);font-weight:700;letter-spacing:1px;}
+
+/* ── SYSTEM FILES ── */
+.file-row{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid var(--border2);}
+.file-row:last-child{border-bottom:none;}
+.file-icon{font-size:18px;flex-shrink:0;margin-top:2px;}
+.file-name{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--green);margin-bottom:3px;}
+.file-desc{font-size:11px;color:var(--muted);line-height:1.5;}
+.file-badge{font-family:var(--mono);font-size:9px;padding:2px 8px;border-radius:3px;background:rgba(255,214,0,.1);color:var(--gold);border:1px solid rgba(255,214,0,.25);margin-left:8px;vertical-align:middle;}
+
+/* ── FLOW DIAGRAM ── */
+.flow-row{display:flex;align-items:stretch;gap:0;opacity:0;}
+.flow-node{flex:1;padding:14px 16px;border-radius:var(--radius);background:var(--surface2);border:1px solid var(--border2);font-size:12px;font-family:var(--mono);}
+.fn-title{font-weight:700;margin-bottom:4px;}
+.fn-sub{color:var(--muted);font-size:10px;line-height:1.5;}
+.flow-connector{display:flex;align-items:center;justify-content:center;width:36px;flex-shrink:0;font-size:18px;color:var(--green);opacity:.6;}
+
+/* ── EMBED BLOCK ── */
+.embed-block{background:rgba(0,0,0,.6);border:1px solid var(--border2);border-radius:8px;padding:16px 18px;font-family:var(--mono);font-size:11px;color:var(--primary);line-height:1.9;cursor:pointer;transition:border-color .2s;margin-bottom:8px;}
+.embed-block:hover{border-color:rgba(0,229,255,.35);}
+.embed-hint{font-size:10px;color:var(--muted);font-family:var(--mono);}
+
+/* ── TOOL OVERLAY ── */
+.tool-overlay{position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;background:rgba(0,0,8,.97);display:none;opacity:0;flex-direction:column;transition:opacity .3s ease;}
+.tool-overlay-header{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:rgba(0,10,25,.95);border-bottom:1px solid var(--border);flex-shrink:0;}
+.tool-overlay-title{font-family:var(--mono);font-size:14px;letter-spacing:2px;color:var(--green);}
+.tool-overlay-close{padding:5px 16px;border-radius:6px;cursor:pointer;background:rgba(255,23,68,.1);border:1px solid rgba(255,23,68,.35);color:#ff1744;font-size:12px;font-family:var(--mono);letter-spacing:1px;transition:all .2s;}
+.tool-overlay-close:hover{background:rgba(255,23,68,.22);}
+.tool-overlay iframe{flex:1;width:100%;border:none;}
+
+@keyframes pulse-green{0%,100%{opacity:.6;}50%{opacity:1;}}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="logo">GOAT<span>.</span>AIOS <span style="color:var(--muted);font-size:13px;letter-spacing:1px;font-weight:400">// PIXEL TRACKER</span></div>
+    <div class="header-badge">BUSINESS DATA INTELLIGENCE</div>
+  </header>
+
+  <!-- PAGE TABS -->
+  <div class="page-tabs">
+    <button class="page-tab pt-active" onclick="ptTabClick('pixel')">
+      <span class="page-tab-dot" style="background:var(--green);box-shadow:0 0 5px var(--green);animation:pulse-green 2s ease-in-out infinite;"></span>Pixel Tracker
+    </button>
+    <button class="page-tab" onclick="ptTabClick('viz')">
+      <span class="page-tab-dot" style="background:var(--primary);"></span>Pipeline Viz
+    </button>
+    <button class="page-tab" onclick="ptTabClick('brain')">
+      <span class="page-tab-dot" style="background:var(--primary);"></span>Brain Graph
+    </button>
+    <button class="page-tab" onclick="ptTabClick('dashboard')">
+      <span class="page-tab-dot" style="background:var(--gold);"></span>Dashboard
+    </button>
+  </div>
+
+  <!-- THESIS -->
+  <div class="section-label">What Businesses Actually Buy</div>
+  <div class="thesis">
+    <div class="thesis-text">
+      <strong>Data is the highest-margin product in the world.</strong> Businesses spend billions annually on intent signals, firmographic profiles, behavioral sequences, and contact intel — because knowing WHO is ready to buy, WHAT they're researching, and HOW they behave is worth more than any ad spend. This system captures the same signals on your own properties, routes them to Google Sheets, and exports as CSV for any downstream use.
+    </div>
+  </div>
+
+  <!-- 8 DATA CATEGORIES -->
+  <div class="section-label">8 Data Categories Businesses Buy</div>
+  <div class="grid-4" id="cat-grid">
+    <div class="card">
+      <div class="card-title"><div class="dot" style="background:var(--primary);box-shadow:0 0 6px var(--primary);"></div>Intent Data</div>
+      <div class="card-body">
+        <span>In-market signals</span><span>Topic surge scores</span><span>Vendor research activity</span><span>Content consumption patterns</span>
+        <div class="card-source" style="color:rgba(0,229,255,.6);">Bombora · 6sense · G2</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="dot" style="background:var(--gold);box-shadow:0 0 6px var(--gold);"></div>Firmographic</div>
+      <div class="card-body">
+        <span>Company size + revenue</span><span>Industry vertical</span><span>Headcount + growth rate</span><span>HQ location + funding</span>
+        <div class="card-source" style="color:rgba(255,214,0,.6);">ZoomInfo · Apollo · Clearbit</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="dot" style="background:var(--magenta);box-shadow:0 0 6px var(--magenta);"></div>Technographic</div>
+      <div class="card-body">
+        <span>Tech stack in use</span><span>Software vendors</span><span>Infrastructure signals</span><span>Platform adoption timing</span>
+        <div class="card-source" style="color:rgba(224,64,251,.6);">BuiltWith · HG Insights</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="dot" style="background:var(--green);box-shadow:0 0 6px var(--green);"></div>Behavioral</div>
+      <div class="card-body">
+        <span>Page visits + scroll depth</span><span>CTA clicks + time on page</span><span>Video completions</span><span>Form interactions</span>
+        <div class="card-source" style="color:rgba(0,230,118,.6);">LiveRamp · Adobe</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="dot" style="background:var(--orange);box-shadow:0 0 6px var(--orange);"></div>Contact Data</div>
+      <div class="card-body">
+        <span>Direct email + phone</span><span>LinkedIn profiles</span><span>Decision maker mapping</span><span>Verified deliverability</span>
+        <div class="card-source" style="color:rgba(255,109,0,.6);">ZoomInfo · Apollo · Hunter</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="dot" style="background:#ff6090;box-shadow:0 0 6px #ff6090;"></div>Transactional</div>
+      <div class="card-body">
+        <span>Purchase history</span><span>Average order value</span><span>Cart abandonment signals</span><span>LTV segments</span>
+        <div class="card-source" style="color:rgba(255,96,144,.6);">Acxiom · Nielsen</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="dot" style="background:#40c4ff;box-shadow:0 0 6px #40c4ff;"></div>Location</div>
+      <div class="card-body">
+        <span>Foot traffic patterns</span><span>Geo + proximity data</span><span>Visit frequency</span><span>Cross-location behavior</span>
+        <div class="card-source" style="color:rgba(64,196,255,.6);">SafeGraph · Foursquare</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="dot" style="background:#b388ff;box-shadow:0 0 6px #b388ff;"></div>Psychographic</div>
+      <div class="card-body">
+        <span>Values + beliefs</span><span>Lifestyle segments</span><span>Purchase motivations</span><span>Brand affinity scores</span>
+        <div class="card-source" style="color:rgba(179,136,255,.6);">Experian Mosaic · Resonate</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUTO-TRACKED EVENTS -->
+  <div class="section-label">Auto-Tracked Events</div>
+  <div class="event-wrap">
+    <div class="badges">
+      <span class="badge badge-auto">PageView</span>
+      <span class="badge badge-auto">ScrollDepth 25%</span>
+      <span class="badge badge-auto">ScrollDepth 50%</span>
+      <span class="badge badge-auto">ScrollDepth 75%</span>
+      <span class="badge badge-auto">ScrollDepth 100%</span>
+      <span class="badge badge-auto">TimeOnPage 30s</span>
+      <span class="badge badge-auto">TimeOnPage 60s</span>
+      <span class="badge badge-auto">TimeOnPage 120s</span>
+      <span class="badge badge-auto">TimeOnPage 300s</span>
+      <span class="badge badge-auto">CTAClick</span>
+      <span class="badge badge-auto">OutboundClick</span>
+      <span class="badge badge-auto">FormSubmit</span>
+      <span class="badge badge-auto">PhoneClick</span>
+      <span class="badge badge-auto">VideoPlay</span>
+      <span class="badge badge-auto">VideoComplete</span>
+      <span class="badge badge-manual">+ goatPixel.fire("Purchase", {event_value: 297})</span>
+      <span class="badge badge-manual">+ goatPixel.fire("TrialStart", {plan: "pro"})</span>
+      <span class="badge badge-manual">+ goatPixel.fire("QuoteRequest", {})</span>
+    </div>
+    <div class="badge-note">Green = auto-fires on every page with zero config. Gold = manual events you fire anywhere with one line of JS. Also fires to Facebook Pixel, GA4, and LinkedIn if IDs are configured.</div>
+  </div>
+
+  <!-- 24 FIELDS -->
+  <div class="section-label">24 Fields Captured Per Event</div>
+  <div style="margin-bottom:48px;opacity:0;" id="fields-wrap">
+    <div class="fields-grid">
+      <div class="field-cell field-header">Identity</div>
+      <div class="field-cell field-header">Page Context</div>
+      <div class="field-cell field-header">UTM / Traffic</div>
+      <div class="field-cell field-header">Device</div>
+      <div class="field-cell">session_id</div>
+      <div class="field-cell">page_url</div>
+      <div class="field-cell">utm_source</div>
+      <div class="field-cell">device_type</div>
+      <div class="field-cell">cookie_id</div>
+      <div class="field-cell">referrer_url</div>
+      <div class="field-cell">utm_medium</div>
+      <div class="field-cell">browser</div>
+      <div class="field-cell">timestamp_utc</div>
+      <div class="field-cell">scroll_depth_pct</div>
+      <div class="field-cell">utm_campaign</div>
+      <div class="field-cell">os</div>
+      <div class="field-cell">event_name</div>
+      <div class="field-cell">time_on_page_sec</div>
+      <div class="field-cell">utm_content</div>
+      <div class="field-cell">screen_resolution</div>
+      <div class="field-cell">event_value</div>
+      <div class="field-cell">cta_label</div>
+      <div class="field-cell">utm_term</div>
+      <div class="field-cell">user_agent</div>
+      <div class="field-cell"></div>
+      <div class="field-cell">form_field_names</div>
+      <div class="field-cell"></div>
+      <div class="field-cell"></div>
+      <div class="field-cell"></div>
+      <div class="field-cell">element_id</div>
+      <div class="field-cell"></div>
+      <div class="field-cell"></div>
+    </div>
+  </div>
+
+  <!-- SYSTEM FILES -->
+  <div class="section-label">System Files</div>
+  <div class="card" style="margin-bottom:48px;padding:20px 24px;">
+    <div class="file-row">
+      <div class="file-icon">📡</div>
+      <div>
+        <div class="file-name">pixel-tracker.js <span class="file-badge">NEW</span></div>
+        <div class="file-desc">Drop before &lt;/body&gt; on any page. Auto-fires 15 event types. Fires simultaneously to your Apps Script endpoint, Facebook Pixel, GA4, and LinkedIn if configured. One config object at the top — no code changes needed per site.</div>
+      </div>
+    </div>
+    <div class="file-row">
+      <div class="file-icon">📊</div>
+      <div>
+        <div class="file-name">apps-script-receiver.js <span class="file-badge">NEW</span></div>
+        <div class="file-desc">Google Apps Script Web App. Receives POST events, writes all 24 columns to "Pixel Events" sheet, maintains a "Meta" summary tab with event counts and last-seen timestamps. Supports ?action=csv for direct CSV export and ?action=meta for event summary JSON. Auto-trims to 50,000 rows.</div>
+      </div>
+    </div>
+    <div class="file-row">
+      <div class="file-icon">⬇️</div>
+      <div>
+        <div class="file-name">download-and-sync.sh <span class="file-badge">NEW</span></div>
+        <div class="file-desc">Fetches CSV from Apps Script → saves events-latest.csv locally → archives a timestamped copy → uploads to gdrive:AI-OS/pixel-tracker/ replacing the previous version. Run manually or add to cron for scheduled exports.</div>
+      </div>
+    </div>
+    <div class="file-row">
+      <div class="file-icon">📋</div>
+      <div>
+        <div class="file-name">embed-snippet.html <span class="file-badge">NEW</span></div>
+        <div class="file-desc">Copy-paste ready block with GOAT_PIXEL_CONFIG. Set your Apps Script URL, optional FB/GA4/LinkedIn IDs, and drop it before &lt;/body&gt;. Includes example manual event calls for Purchase, TrialStart, and QuoteRequest.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETUP FLOW -->
+  <div class="section-label">4-Step Setup</div>
+  <div style="margin-bottom:48px;">
+    <div class="flow-row">
+      <div class="flow-node" style="border-color:rgba(0,230,118,.3);background:rgba(0,230,118,.05);">
+        <div class="fn-title" style="color:var(--green);">1. Deploy Apps Script</div>
+        <div class="fn-sub">sheets.google.com → New Sheet → Extensions → Apps Script → paste apps-script-receiver.js → Deploy → Web App → Access: Anyone → copy URL</div>
+      </div>
+      <div class="flow-connector">→</div>
+      <div class="flow-node" style="border-color:rgba(0,229,255,.3);background:rgba(0,229,255,.05);">
+        <div class="fn-title" style="color:var(--primary);">2. Configure &amp; Embed</div>
+        <div class="fn-sub">Set GOAT_PIXEL_CONFIG.endpoint = your URL. Optionally add fb_pixel_id, ga4_id. Drop embed-snippet.html before &lt;/body&gt; on target pages.</div>
+      </div>
+      <div class="flow-connector">→</div>
+      <div class="flow-node" style="border-color:rgba(255,214,0,.3);background:rgba(255,214,0,.05);">
+        <div class="fn-title" style="color:var(--gold);">3. Events Flow In</div>
+        <div class="fn-sub">Every click, scroll, form submit, phone call → POST to Apps Script → row appended to "Pixel Events" sheet in real time. 24 columns, auto-trimmed to 50k rows.</div>
+      </div>
+      <div class="flow-connector">→</div>
+      <div class="flow-node" style="border-color:rgba(224,64,251,.3);background:rgba(224,64,251,.05);">
+        <div class="fn-title" style="color:var(--magenta);">4. Export &amp; Sync</div>
+        <div class="fn-sub">bash download-and-sync.sh → events-latest.csv saved locally + uploaded to Google Drive. Or hit ?action=csv directly from any browser to download on demand.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EMBED CODE -->
+  <div class="section-label">Embed Code — Click to Copy</div>
+  <div style="margin-bottom:48px;opacity:0;" id="embed-wrap">
+    <div class="embed-block" id="embed-code" onclick="copyEmbed()">
+&lt;script&gt;<br>
+window.GOAT_PIXEL_CONFIG = {<br>
+&nbsp;&nbsp;endpoint:    'YOUR_WEB_APP_URL',<br>
+&nbsp;&nbsp;fb_pixel_id: '',<br>
+&nbsp;&nbsp;ga4_id:      '',<br>
+&nbsp;&nbsp;debug:       false<br>
+};<br>
+&lt;/script&gt;<br>
+&lt;script src="pixel-tracker.js"&gt;&lt;/script&gt;
+    </div>
+    <div class="embed-hint" id="embed-hint">Click block to copy · Replace YOUR_WEB_APP_URL with your deployed Apps Script URL</div>
+  </div>
+
+</div><!-- /page -->
+
+<!-- TOOL OVERLAY -->
+<div class="tool-overlay" id="pt-tool-overlay">
+  <div class="tool-overlay-header">
+    <div class="tool-overlay-title" id="pt-overlay-title"></div>
+    <button class="tool-overlay-close" onclick="closePtOverlay()">&#x2715; CLOSE</button>
+  </div>
+  <iframe id="pt-tool-iframe" src="" title="Tool"></iframe>
+</div>
+
+<script>
+// ── Entrance animations ──────────────────────────────────────────────
+anime({targets:'header',         opacity:[0,1],translateY:[-16,0],duration:600,easing:'easeOutQuart'});
+anime({targets:'.page-tabs',     opacity:[0,1],translateY:[-8,0], duration:500,easing:'easeOutQuart',delay:150});
+anime({targets:'.thesis',        opacity:[0,1],translateY:[20,0], duration:700,easing:'easeOutQuart',delay:250});
+anime({targets:'#cat-grid .card',opacity:[0,1],translateY:[20,0], duration:500,easing:'easeOutBack', delay:anime.stagger(60,{start:500})});
+anime({targets:'.event-wrap',    opacity:[0,1],translateY:[16,0], duration:500,easing:'easeOutQuart',delay:1000});
+anime({targets:'#fields-wrap',   opacity:[0,1],translateY:[16,0], duration:500,easing:'easeOutQuart',delay:1200});
+anime({targets:'.flow-row',      opacity:[0,1],translateX:[-20,0],duration:600,easing:'easeOutQuart',delay:1400});
+anime({targets:'#embed-wrap',    opacity:[0,1],translateY:[16,0], duration:500,easing:'easeOutQuart',delay:1600});
+
+// ── Copy embed block ─────────────────────────────────────────────────
+function copyEmbed() {
+  var text = [
+    '<script>',
+    'window.GOAT_PIXEL_CONFIG = {',
+    "  endpoint:    'YOUR_WEB_APP_URL',",
+    "  fb_pixel_id: '',",
+    "  ga4_id:      '',",
+    '  debug:       false',
+    '};',
+    '<\/script>',
+    '<script src="pixel-tracker.js"><\/script>'
+  ].join('\n');
+  navigator.clipboard.writeText(text).then(function() {
+    var el = document.getElementById('embed-code');
+    var hint = document.getElementById('embed-hint');
+    el.style.borderColor = 'rgba(0,230,118,.6)';
+    hint.textContent = '✓ Copied to clipboard';
+    setTimeout(function() {
+      el.style.borderColor = '';
+      hint.textContent = 'Click block to copy · Replace YOUR_WEB_APP_URL with your deployed Apps Script URL';
+    }, 1800);
+  });
+}
+
+// ── Page tab navigation ──────────────────────────────────────────────
+var PT_URLS = {
+  viz:       'https://dare-devil-11.github.io/umas-hologram/autonomous-claude-viz.html',
+  brain:     'https://dare-devil-11.github.io/umas-hologram/brain-graph.html',
+  dashboard: 'https://dare-devil-11.github.io/umas-hologram/goat-aios-dashboard.html'
+};
+var PT_TITLES = {
+  viz:       '▦ PIPELINE VIZ — Autonomous Claude',
+  brain:     '⬡ BRAIN GRAPH — 1,660 nodes · 3,749 edges',
+  dashboard: '■ GOAT AIOS DASHBOARD'
+};
+var PT_COLORS = { viz: 'pt-cyan', brain: 'pt-cyan', dashboard: 'pt-gold' };
+
+function ptTabClick(tab) {
+  if (tab === 'pixel') return;
+  var overlay = document.getElementById('pt-tool-overlay');
+  var iframe  = document.getElementById('pt-tool-iframe');
+  var titleEl = document.getElementById('pt-overlay-title');
+  iframe.src  = PT_URLS[tab];
+  titleEl.textContent = PT_TITLES[tab];
+  overlay.style.display = 'flex';
+  requestAnimationFrame(function(){ overlay.style.opacity = '1'; });
+  document.body.style.overflow = 'hidden';
+  document.querySelectorAll('.page-tab').forEach(function(btn){ btn.className = 'page-tab'; });
+  document.querySelectorAll('.page-tab').forEach(function(btn){
+    if (btn.getAttribute('onclick') === "ptTabClick('" + tab + "')") {
+      btn.classList.add(PT_COLORS[tab] || 'pt-cyan');
+    }
+  });
+}
+
+function closePtOverlay() {
+  var overlay = document.getElementById('pt-tool-overlay');
+  overlay.style.opacity = '0';
+  setTimeout(function(){
+    overlay.style.display = 'none';
+    document.getElementById('pt-tool-iframe').src = '';
+  }, 300);
+  document.body.style.overflow = '';
+  document.querySelectorAll('.page-tab').forEach(function(btn){ btn.className = 'page-tab'; });
+  document.querySelectorAll('.page-tab').forEach(function(btn){
+    if (btn.getAttribute('onclick') === "ptTabClick('pixel')") btn.classList.add('pt-active');
+  });
+}
+
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape') closePtOverlay();
+});
+</script>
+</body>
+</html>

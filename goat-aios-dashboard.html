@@ -312,7 +312,7 @@ canvas{display:block;}
 
 <div id="pixel-overlay">
   <div id="pixel-header">
-    <div id="pixel-title">&#x25C6; PIXEL TRACKER — Business Data Intelligence</div>
+    <div id="pixel-title">&#x25C6; PIXEL TRACKER — Business Data Intelligence ◆</div>
     <button id="pixel-close" onclick="closePixelTracker()">&#x2715; CLOSE</button>
   </div>
   <iframe id="pixel-iframe" src="" title="Pixel Tracker"></iframe>
@@ -931,7 +931,7 @@ function openPixelTracker(){
   var overlay=document.getElementById('pixel-overlay');
   var iframe=document.getElementById('pixel-iframe');
   if(!iframe.src||iframe.src==='about:blank'||iframe.src===''){
-    iframe.src='https://dare-devil-11.github.io/umas-hologram/autonomous-claude-viz.html';
+    iframe.src='https://dare-devil-11.github.io/umas-hologram/pixel-tracker.html';
   }
   overlay.style.display='flex';
   requestAnimationFrame(function(){overlay.style.opacity='1';});
