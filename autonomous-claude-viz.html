@@ -171,6 +171,45 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
 .slide-section{transition:opacity .25s ease;}
 .slide-section.slide-hidden{display:none;}
 .slide-section.slide-active{border-left:2px solid var(--primary);padding-left:16px;margin-left:-18px;}
+
+/* ── PAGE TAB NAV ── */
+.page-tabs{
+  display:flex;align-items:center;gap:8px;margin-bottom:28px;
+  border-bottom:1px solid var(--border2);padding-bottom:14px;
+}
+.page-tab{
+  font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:1.5px;
+  padding:7px 16px;border-radius:6px;border:1px solid var(--border);
+  background:transparent;color:var(--muted);cursor:pointer;
+  transition:all .2s ease;text-transform:uppercase;
+}
+.page-tab:hover{border-color:rgba(0,229,255,.4);color:var(--text);}
+.page-tab.pt-active{background:rgba(0,229,255,.1);border-color:var(--primary);color:var(--primary);}
+.page-tab.pt-cyan{background:rgba(0,229,255,.1);border-color:var(--primary);color:var(--primary);}
+.page-tab.pt-green{background:rgba(0,230,118,.1);border-color:#00e676;color:#00e676;}
+.page-tab.pt-gold{background:rgba(255,214,0,.1);border-color:var(--gold);color:var(--gold);}
+.page-tab-dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:middle;}
+
+/* ── TOOL OVERLAY (brain graph, dashboard) ── */
+.tool-overlay{
+  position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;
+  background:rgba(0,0,8,0.97);display:none;opacity:0;
+  flex-direction:column;transition:opacity .3s ease;
+}
+.tool-overlay-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 20px;background:rgba(0,10,25,0.95);
+  border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.tool-overlay-title{font-family:var(--mono);font-size:14px;letter-spacing:2px;color:var(--primary);}
+.tool-overlay-close{
+  padding:5px 16px;border-radius:6px;cursor:pointer;
+  background:rgba(255,23,68,.1);border:1px solid rgba(255,23,68,.35);
+  color:#ff1744;font-size:12px;font-family:var(--mono);
+  letter-spacing:1px;transition:all .2s;
+}
+.tool-overlay-close:hover{background:rgba(255,23,68,.22);}
+.tool-overlay iframe{flex:1;width:100%;border:none;}
 </style>
 </head>
 <body>
@@ -180,6 +219,19 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
     <div class="logo">GOAT<span>.</span>AIOS <span style="color:var(--muted);font-size:13px;letter-spacing:1px;font-weight:400">// AUTONOMOUS CLAUDE</span></div>
     <div class="header-badge">PIPELINE ARCHITECTURE</div>
   </header>
+
+  <!-- ── PAGE TABS ── -->
+  <div class="page-tabs">
+    <button class="page-tab pt-active" onclick="vizTabClick('viz')">
+      <span class="page-tab-dot" style="background:var(--primary);box-shadow:0 0 5px var(--primary);"></span>Pipeline Viz
+    </button>
+    <button class="page-tab" onclick="vizTabClick('brain')">
+      <span class="page-tab-dot" style="background:var(--primary);"></span>Brain Graph
+    </button>
+    <button class="page-tab" onclick="vizTabClick('dashboard')">
+      <span class="page-tab-dot" style="background:var(--gold);"></span>Dashboard
+    </button>
+  </div>
 
   <!-- ── CUSTOMER SELECTOR BAR ── -->
   <div class="customer-bar" id="customerBar">
@@ -553,6 +605,15 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
 
 </div><!-- /page -->
 
+<!-- ── TOOL OVERLAY ── -->
+<div class="tool-overlay" id="viz-tool-overlay">
+  <div class="tool-overlay-header">
+    <div class="tool-overlay-title" id="viz-overlay-title">&#x2B21; BRAIN GRAPH — 1,660 nodes · 3,749 edges</div>
+    <button class="tool-overlay-close" onclick="closeVizOverlay()">&#x2715; CLOSE</button>
+  </div>
+  <iframe id="viz-tool-iframe" src="" title="Tool"></iframe>
+</div>
+
 <script>
 // ── Entrance animations ──────────────────────────────────────────────
 anime({targets:'header',opacity:[0,1],translateY:[-16,0],duration:600,easing:'easeOutQuart'});
@@ -751,8 +812,55 @@ document.addEventListener('keydown', function(e) {
   if (!activeCustomer || activeCustomer === 'all') return;
   if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); slideStep(1); }
   if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   { e.preventDefault(); slideStep(-1); }
-  if (e.key === 'Escape') exitMode();
+  if (e.key === 'Escape') { exitMode(); closeVizOverlay(); }
 });
+
+/* ── PAGE TAB NAVIGATION ── */
+var VIZ_URLS = {
+  brain:     'https://dare-devil-11.github.io/umas-hologram/brain-graph.html',
+  dashboard: 'https://dare-devil-11.github.io/umas-hologram/goat-aios-dashboard.html'
+};
+var VIZ_TITLES = {
+  brain:     '⬡ BRAIN GRAPH — 1,660 nodes · 3,749 edges',
+  dashboard: '■ GOAT AIOS DASHBOARD'
+};
+
+function vizTabClick(tab) {
+  if (tab === 'viz') return; // already here
+  var overlay   = document.getElementById('viz-tool-overlay');
+  var iframe    = document.getElementById('viz-tool-iframe');
+  var titleEl   = document.getElementById('viz-overlay-title');
+  iframe.src    = VIZ_URLS[tab];
+  titleEl.textContent = VIZ_TITLES[tab];
+  overlay.style.display = 'flex';
+  requestAnimationFrame(function(){ overlay.style.opacity = '1'; });
+  document.body.style.overflow = 'hidden';
+  // mark tab active
+  document.querySelectorAll('.page-tab').forEach(function(btn) {
+    btn.className = 'page-tab';
+  });
+  // find the clicked tab by its onclick and mark it
+  document.querySelectorAll('.page-tab').forEach(function(btn) {
+    if (btn.getAttribute('onclick') === "vizTabClick('" + tab + "')") {
+      btn.classList.add(tab === 'brain' ? 'pt-cyan' : 'pt-gold');
+    }
+  });
+}
+
+function closeVizOverlay() {
+  var overlay = document.getElementById('viz-tool-overlay');
+  overlay.style.opacity = '0';
+  setTimeout(function() {
+    overlay.style.display = 'none';
+    document.getElementById('viz-tool-iframe').src = '';
+  }, 300);
+  document.body.style.overflow = '';
+  // restore Pipeline Viz tab as active
+  document.querySelectorAll('.page-tab').forEach(function(btn) {
+    btn.className = 'page-tab';
+    if (btn.getAttribute('onclick') === "vizTabClick('viz')") btn.classList.add('pt-active');
+  });
+}
 </script>
 </body>
 </html>
