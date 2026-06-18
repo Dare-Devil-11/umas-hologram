@@ -436,6 +436,121 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
   </div>
   </div><!-- /slide impact -->
 
+  <!-- PIXEL TRACKER -->
+  <div class="slide-section" data-slide="pixel">
+  <div class="section-label">Pixel Tracker System</div>
+  <div class="cust-context" id="ctx-pixel"></div>
+
+  <!-- data categories grid -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px;">
+    <div class="layer-card" style="padding:14px 16px;">
+      <div class="layer-title" style="margin-bottom:8px;font-size:10px;"><div class="dot" style="background:#00e5ff"></div>Intent Data</div>
+      <div style="font-size:10px;color:var(--muted);line-height:1.6;">In-market signals<br>Topic surge scores<br>Vendor research<br><span style="color:rgba(0,229,255,.6)">Bombora · 6sense · G2</span></div>
+    </div>
+    <div class="layer-card" style="padding:14px 16px;">
+      <div class="layer-title" style="margin-bottom:8px;font-size:10px;"><div class="dot" style="background:#ffd600"></div>Firmographic</div>
+      <div style="font-size:10px;color:var(--muted);line-height:1.6;">Company size · revenue<br>Industry · headcount<br>Tech stack in use<br><span style="color:rgba(255,214,0,.6)">ZoomInfo · Apollo</span></div>
+    </div>
+    <div class="layer-card" style="padding:14px 16px;">
+      <div class="layer-title" style="margin-bottom:8px;font-size:10px;"><div class="dot" style="background:#e040fb"></div>Behavioral</div>
+      <div style="font-size:10px;color:var(--muted);line-height:1.6;">Page visits · scroll depth<br>CTA clicks · time on page<br>Video completions<br><span style="color:rgba(224,64,251,.6)">LiveRamp · Adobe</span></div>
+    </div>
+    <div class="layer-card" style="padding:14px 16px;">
+      <div class="layer-title" style="margin-bottom:8px;font-size:10px;"><div class="dot" style="background:#00e676"></div>Transactional</div>
+      <div style="font-size:10px;color:var(--muted);line-height:1.6;">Purchase history<br>Cart value · frequency<br>LTV segments<br><span style="color:rgba(0,230,118,.6)">Acxiom · Nielsen</span></div>
+    </div>
+  </div>
+
+  <!-- event types -->
+  <div style="margin-bottom:24px;">
+    <div class="section-label" style="margin-bottom:10px;">Auto-Tracked Events</div>
+    <div style="display:flex;flex-wrap:wrap;gap:7px;">
+      <span class="item-status status-live" style="padding:4px 10px;font-size:10px;">PageView</span>
+      <span class="item-status status-live" style="padding:4px 10px;font-size:10px;">ScrollDepth 25/50/75/100%</span>
+      <span class="item-status status-live" style="padding:4px 10px;font-size:10px;">TimeOnPage 30s/60s/120s/300s</span>
+      <span class="item-status status-live" style="padding:4px 10px;font-size:10px;">CTAClick</span>
+      <span class="item-status status-live" style="padding:4px 10px;font-size:10px;">OutboundClick</span>
+      <span class="item-status status-live" style="padding:4px 10px;font-size:10px;">FormSubmit</span>
+      <span class="item-status status-live" style="padding:4px 10px;font-size:10px;">PhoneClick</span>
+      <span class="item-status status-live" style="padding:4px 10px;font-size:10px;">VideoPlay</span>
+      <span class="item-status status-live" style="padding:4px 10px;font-size:10px;">VideoComplete</span>
+      <span class="item-status status-new" style="padding:4px 10px;font-size:10px;">+ manual goatPixel.fire()</span>
+    </div>
+  </div>
+
+  <!-- 24 fields + file list side by side -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
+    <div class="layer-card">
+      <div class="layer-title"><div class="dot" style="background:var(--green)"></div>24 Fields Per Event</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 12px;">
+        <div class="item-row" style="padding:4px 0;border:none;"><div class="item-name" style="font-size:10px;">timestamp_utc</div></div>
+        <div class="item-row" style="padding:4px 0;border:none;"><div class="item-name" style="font-size:10px;">event_name</div></div>
+        <div class="item-row" style="padding:4px 0;border:none;"><div class="item-name" style="font-size:10px;">page_url</div></div>
+        <div class="item-row" style="padding:4px 0;border:none;"><div class="item-name" style="font-size:10px;">referrer_url</div></div>
+        <div class="item-row" style="padding:4px 0;border:none;"><div class="item-name" style="font-size:10px;">session_id</div></div>
+        <div class="item-row" style="padding:4px 0;border:none;"><div class="item-name" style="font-size:10px;">cookie_id</div></div>
+        <div class="item-row" style="padding:4px 0;border:none;"><div class="item-name" style="font-size:10px;">utm_source</div></div>
+        <div class="item-row" style="padding:4px 0;border:none;"><div class="item-name" style="font-size:10px;">utm_medium</div></div>
+        <div class="item-row" style="padding:4px 0;border:none;"><div class="item-name" style="font-size:10px;">utm_campaign</div></div>
+        <div class="item-row" style="padding:4px 0;border:none;"><div class="item-name" style="font-size:10px;">scroll_depth_pct</div></div>
+        <div class="item-row" style="padding:4px 0;border:none;"><div class="item-name" style="font-size:10px;">time_on_page_sec</div></div>
+        <div class="item-row" style="padding:4px 0;border:none;"><div class="item-name" style="font-size:10px;">cta_label</div></div>
+        <div class="item-row" style="padding:4px 0;border:none;"><div class="item-name" style="font-size:10px;">form_field_names</div></div>
+        <div class="item-row" style="padding:4px 0;border:none;"><div class="item-name" style="font-size:10px;">element_id</div></div>
+        <div class="item-row" style="padding:4px 0;border:none;"><div class="item-name" style="font-size:10px;">device_type</div></div>
+        <div class="item-row" style="padding:4px 0;border:none;"><div class="item-name" style="font-size:10px;">browser</div></div>
+        <div class="item-row" style="padding:4px 0;border:none;"><div class="item-name" style="font-size:10px;">os</div></div>
+        <div class="item-row" style="padding:4px 0;border:none;"><div class="item-name" style="font-size:10px;">screen_resolution</div></div>
+        <div class="item-row" style="padding:4px 0;border:none;"><div class="item-name" style="font-size:10px;">ip_region</div></div>
+        <div class="item-row" style="padding:4px 0;border:none;"><div class="item-name" style="font-size:10px;">country_code</div></div>
+        <div class="item-row" style="padding:4px 0;border:none;"><div class="item-name" style="font-size:10px;">user_agent</div></div>
+        <div class="item-row" style="padding:4px 0;border:none;"><div class="item-name" style="font-size:10px;">event_value</div></div>
+        <div class="item-row" style="padding:4px 0;border:none;"><div class="item-name" style="font-size:10px;">utm_content</div></div>
+        <div class="item-row" style="padding:4px 0;border:none;"><div class="item-name" style="font-size:10px;">utm_term</div></div>
+      </div>
+    </div>
+    <div class="layer-card">
+      <div class="layer-title"><div class="dot" style="background:var(--orange)"></div>System Files</div>
+      <div class="item-row"><div class="item-icon">📡</div><div class="item-name">pixel-tracker.js</div><div class="item-status status-new">NEW</div></div>
+      <div style="font-size:10px;color:var(--muted);padding:2px 0 8px 30px;">Embeddable snippet. Auto-fires 9 event types. Fires to Apps Script + FB Pixel + GA4.</div>
+      <div class="item-row"><div class="item-icon">📊</div><div class="item-name">apps-script-receiver.js</div><div class="item-status status-new">NEW</div></div>
+      <div style="font-size:10px;color:var(--muted);padding:2px 0 8px 30px;">Google Apps Script Web App. 24-col sheet, Meta summary tab, CSV export endpoint.</div>
+      <div class="item-row"><div class="item-icon">⬇️</div><div class="item-name">download-and-sync.sh</div><div class="item-status status-new">NEW</div></div>
+      <div style="font-size:10px;color:var(--muted);padding:2px 0 8px 30px;">Fetches CSV → archives timestamped copy → uploads to gdrive:AI-OS/pixel-tracker/.</div>
+      <div class="item-row"><div class="item-icon">📋</div><div class="item-name">embed-snippet.html</div><div class="item-status status-new">NEW</div></div>
+      <div style="font-size:10px;color:var(--muted);padding:2px 0 8px 30px;">Copy-paste block with GOAT_PIXEL_CONFIG. Drop before &lt;/body&gt; on any page.</div>
+    </div>
+  </div>
+
+  <!-- setup flow -->
+  <div class="flow-wrap" style="margin-bottom:0;">
+    <div class="flow">
+      <div class="flow-row" style="opacity:1;">
+        <div class="flow-node" style="border-color:rgba(0,230,118,.3);background:rgba(0,230,118,.05);">
+          <div class="fn-title" style="color:var(--green)">1. Deploy Apps Script</div>
+          <div class="fn-sub">Paste apps-script-receiver.js → Web App → Access: Anyone → copy URL</div>
+        </div>
+        <div class="flow-connector">→</div>
+        <div class="flow-node" style="border-color:rgba(0,229,255,.3);background:rgba(0,229,255,.05);">
+          <div class="fn-title" style="color:var(--primary)">2. Add to Page</div>
+          <div class="fn-sub">Set GOAT_PIXEL_CONFIG.endpoint = URL, drop embed-snippet.html before &lt;/body&gt;</div>
+        </div>
+        <div class="flow-connector">→</div>
+        <div class="flow-node" style="border-color:rgba(255,214,0,.3);background:rgba(255,214,0,.05);">
+          <div class="fn-title" style="color:var(--gold)">3. Events Flow In</div>
+          <div class="fn-sub">Every click, scroll, form submit → POST → Google Sheet row auto-appended</div>
+        </div>
+        <div class="flow-connector">→</div>
+        <div class="flow-node" style="border-color:rgba(224,64,251,.3);background:rgba(224,64,251,.05);">
+          <div class="fn-title" style="color:var(--magenta)">4. Download CSV</div>
+          <div class="fn-sub">bash download-and-sync.sh → events-latest.csv saved + uploaded to Google Drive</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /slide pixel -->
+
 </div><!-- /page -->
 
 <script>
@@ -475,12 +590,12 @@ var skillCounts={live:5,new:4};
 
 // ── Customer → slide map ─────────────────────────────────────────────
 var CUSTOMER_ROUTES = {
-  'all':        ['concept','pipeline','layers','flow','install','impact'],
+  'all':        ['concept','pipeline','layers','flow','install','pixel','impact'],
   'umas':       ['concept','layers','install','impact'],
   'santoshland':['concept','pipeline','install','impact'],
-  'agency':     ['concept','pipeline','layers','flow','install','impact'],
-  'ecomm':      ['concept','flow','impact'],
-  'saas':       ['concept','pipeline','layers','impact']
+  'agency':     ['concept','pipeline','layers','flow','install','pixel','impact'],
+  'ecomm':      ['concept','flow','pixel','impact'],
+  'saas':       ['concept','pipeline','layers','pixel','impact']
 };
 
 // ── Customer context per slide — structured (no HTML strings) ────────
@@ -503,17 +618,20 @@ var CUSTOMER_CONTEXT = {
     'layers':   {bg:'rgba(224,64,251,.08)',border:'rgba(224,64,251,.2)',labelColor:'#e040fb',label:'Agency Skills: ',text:'662 skills pre-loaded. Key: ai-seo, copywriting, page-cro, email-sequence, schema-markup. Each client inherits the full library. No ramp-up time per account.'},
     'flow':     {bg:'rgba(224,64,251,.08)',border:'rgba(224,64,251,.2)',labelColor:'#e040fb',label:'Agency Logging: ',text:'Every file change auto-logged to Google Sheet. Client-facing reports generated from the ledger — no manual time-tracking or stand-up notes. Proof-of-work built into the infrastructure.'},
     'install':  {bg:'rgba(224,64,251,.08)',border:'rgba(224,64,251,.2)',labelColor:'#e040fb',label:'Agency Deployment: ',text:'One install per account. client-CLAUDE.md + PostToolUse.sh + Google Sheet per client. Hooks are universal — same infra handles 10 clients simultaneously.'},
+    'pixel':    {bg:'rgba(224,64,251,.08)',border:'rgba(224,64,251,.2)',labelColor:'#e040fb',label:'Agency Pixel Strategy: ',text:'Deploy one pixel per client site. Each client gets a separate Google Sheet with 24-column event rows. CSV auto-syncs to Drive on schedule. Monthly reports pull straight from the sheet — no extra analytics tooling needed.'},
     'impact':   {bg:'rgba(224,64,251,.08)',border:'rgba(224,64,251,.2)',labelColor:'#e040fb',label:'Agency ROI: ',text:'Phase A = no off-brand output ever reaches a client. Phase B = automated delivery reports. Phase C = 5-hour retainer delivers what used to take a 40-hour sprint.'}
   },
   'ecomm': {
     'concept':  {bg:'rgba(0,230,118,.12)',border:'rgba(0,230,118,.3)',labelColor:'#00e676',label:'E-Commerce Use Case: ',text:'Product page copy, email sequences, ad creative, and CRO — all on autopilot. Claude maintains brand voice, tracks pixel events, and ships to Shopify/GHL in one command.'},
     'flow':     {bg:'rgba(0,230,118,.08)',border:'rgba(0,230,118,.2)',labelColor:'#00e676',label:'Pixel Tracking: ',text:'The hook data flow is the backbone of the pixel tracker system — PostToolUse fires for every CTA click, form submit, and purchase event. All 24 data fields (UTM, device, scroll depth, session ID) land in Google Sheet automatically.'},
+    'pixel':    {bg:'rgba(0,230,118,.12)',border:'rgba(0,230,118,.35)',labelColor:'#00e676',label:'E-Commerce Pixel Setup: ',text:'Tracks AddToCart, InitiateCheckout, Purchase, FormSubmit, PhoneClick — all auto-wired. Fire custom events with goatPixel.fire("Purchase", {event_value: 297}). Every UTM source is captured so you know which ad drove each conversion. CSV downloads on demand or auto-syncs to Drive on schedule.'},
     'impact':   {bg:'rgba(0,230,118,.08)',border:'rgba(0,230,118,.2)',labelColor:'#00e676',label:'E-Commerce Impact: ',text:'Phase A = brand-consistent product copy across all SKUs. Phase B = real-time event ledger replacing expensive analytics tools. Phase C = automated A/B test generation, winner detection, and variant shipping.'}
   },
   'saas': {
     'concept':  {bg:'rgba(255,109,0,.12)',border:'rgba(255,109,0,.3)',labelColor:'#ff6d00',label:'SaaS Use Case: ',text:'Feature development, QA automation, documentation, and changelog generation. Claude acts as a 24/7 senior engineer — every PR runs through /analyze → /build → /test → /review before any human sees it.'},
     'pipeline': {bg:'rgba(255,109,0,.08)',border:'rgba(255,109,0,.2)',labelColor:'#ff6d00',label:'SaaS Pipeline: ',text:'/analyze maps risk (HIGH/MED/LOW) before a single line is written. /build implements one file at a time. /test blocks merge on failure. /ship generates the conventional commit and PR summary automatically.'},
     'layers':   {bg:'rgba(255,109,0,.08)',border:'rgba(255,109,0,.2)',labelColor:'#ff6d00',label:'SaaS Skills Layer: ',text:'Key skills active: systematic-debugging, code-reviewer, security-reviewer, test-engineer. All fire automatically based on task type. Zero manual configuration per sprint.'},
+    'pixel':    {bg:'rgba(255,109,0,.08)',border:'rgba(255,109,0,.2)',labelColor:'#ff6d00',label:'SaaS Behavioral Tracking: ',text:'Track TrialStart, FeatureUsed, UpgradeClick, ChurnSignal, OnboardingComplete with goatPixel.fire(). Session ID + cookie ID give you full user journey stitching. Export CSV weekly to feed into your churn model or product analytics workflow.'},
     'impact':   {bg:'rgba(255,109,0,.08)',border:'rgba(255,109,0,.2)',labelColor:'#ff6d00',label:'SaaS Impact: ',text:'Phase A = architecture constraints enforced on every AI output. Phase B = automated PR summaries and changelog entries. Phase C = feature cycle time: 2 weeks to 2 hours. QA coverage: 0% to 85% automated.'}
   }
 };
